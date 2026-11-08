@@ -13,6 +13,9 @@
 //   await art.downloadPNG('fox-32x.png', 16);               // crisp export at 16×
 //   art.fill(0, 0, 2) → flood fill;  art.clear(); art.clone()
 
+/** Transparent: index 0, 'transparent', or an 8-digit hex colour with alpha 00 (e.g. '#00000000'). */
+export function isTransparent(c) { return !c || c === 'transparent' || (c.length === 9 && c.toLowerCase().endsWith('00')) || (c.length === 5 && c.endsWith('0')); }
+
 export function createPixelArt(w, h, palette = ['#00000000', '#000000', '#ffffff']) {
   const data = new Uint8Array(w * h);
   const inb = (x, y) => x >= 0 && y >= 0 && x < w && y < h;
@@ -35,12 +38,12 @@ export function createPixelArt(w, h, palette = ['#00000000', '#000000', '#ffffff
     flipY() { for (let y = 0; y < h / 2; y++) for (let x = 0; x < w; x++) { const a = y * w + x, b = (h - 1 - y) * w + x; [data[a], data[b]] = [data[b], data[a]]; } return art; },
     clone() { const c = createPixelArt(w, h, palette.slice()); c.data.set(data); return c; },
     draw(ctx, scale = 1, ox = 0, oy = 0) {
-      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const i = data[y * w + x]; if (!i || !palette[i] || palette[i].endsWith('00')) continue; ctx.fillStyle = palette[i]; ctx.fillRect(ox + x * scale, oy + y * scale, scale, scale); }
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const i = data[y * w + x]; if (!i || isTransparent(palette[i])) continue; ctx.fillStyle = palette[i]; ctx.fillRect(ox + x * scale, oy + y * scale, scale, scale); }
     },
     toCanvas(scale = 8) { const c = document.createElement('canvas'); c.width = w * scale; c.height = h * scale; c.style.imageRendering = 'pixelated'; c.style.width = c.width + 'px'; const ctx = c.getContext('2d'); ctx.imageSmoothingEnabled = false; art.draw(ctx, scale); return c; },
     toSVGString(scale = 8) {
       let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${w * scale}" height="${h * scale}" viewBox="0 0 ${w} ${h}" shape-rendering="crispEdges">`;
-      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const i = data[y * w + x]; if (i && palette[i] && !palette[i].endsWith('00')) s += `<rect x="${x}" y="${y}" width="1" height="1" fill="${palette[i]}"/>`; }
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const i = data[y * w + x]; if (i && !isTransparent(palette[i])) s += `<rect x="${x}" y="${y}" width="1" height="1" fill="${palette[i]}"/>`; }
       return s + '</svg>';
     },
     async downloadPNG(filename = 'pixel.png', scale = 8) {

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TODO: Short title</title>
+<!-- Advent Agent template: animated short. Scenes → canvas → WebM via MediaRecorder (kit/art/recorder.js inlined). Live playback is the primary experience; the file is a bonus. Inline. No network. MIT. -->
+<script type="application/advent-gift+json">
+{
+  "schema": "advent-agent/gift@1",
+  "day": 0,
+  "title": "TODO: Short title",
+  "category": "Animated short",
+  "note": "TODO: what the short shows, how long it is, that Play starts it and Save keeps a WebM copy (where supported).",
+  "incomplete": []
+}
+</script>
+<style>
+:root{--cream:#F7F2E9;--milk:#FFFAF0;--ink:#243A32;--green:#14503A;--gold:#BD955A;--gold-light:#E7C890;--line:#DFD7C9;--muted:#766F62}
+html,body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.5 system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 16px;text-align:center}
+h1{font:400 30px/1.1 Georgia,serif;margin:0 0 12px}
+canvas{display:block;width:100%;max-width:800px;aspect-ratio:16/9;margin:0 auto 12px;background:#0F1B2D;border:1px solid var(--line)}
+.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+button{font:600 15px/1 system-ui;padding:10px 16px;border-radius:6px;border:1px solid var(--gold);background:var(--green);color:var(--milk);cursor:pointer;min-height:44px}
+button:disabled{opacity:.5}button:focus-visible{outline:3px solid var(--gold-light);outline-offset:2px}
+#status{color:var(--muted);min-height:1.5em}progress{width:200px;vertical-align:middle}
+</style>
+</head>
+<body>
+<main>
+  <h1>TODO: Short title</h1>
+  <canvas id="stage" width="1280" height="720" role="img" aria-label="TODO: describe the animation"></canvas>
+  <div class="row">
+    <button type="button" id="play">Play</button>
+    <button type="button" id="save">Save as WebM</button>
+    <progress id="prog" max="1" value="0" hidden></progress>
+  </div>
+  <p id="status" aria-live="polite"></p>
+</main>
+<script>
+// ---- Scenes: each has a duration (s) and draw(ctx, t, w, h) with t in [0, duration). TODO: replace with your scenes. ----
+var SCENES=[
+  {duration:3,draw:function(ctx,t,w,h){ctx.fillStyle='#0F1B2D';ctx.fillRect(0,0,w,h);ctx.fillStyle='#E7C890';ctx.font='400 '+Math.round(h*0.12)+'px Georgia,serif';ctx.textAlign='center';ctx.globalAlpha=Math.min(1,t);ctx.fillText('TODO: Title card',w/2,h/2);ctx.globalAlpha=1;}},
+  {duration:4,draw:function(ctx,t,w,h){ctx.fillStyle='#14503A';ctx.fillRect(0,0,w,h);for(var i=0;i<60;i++){var x=(i*97+t*40)%w,y=(i*53+t*80*(1+i%3))%h;ctx.fillStyle='#F7F2E9';ctx.beginPath();ctx.arc(x,y,2+i%3,0,6.28);ctx.fill();}ctx.fillStyle='#FFFAF0';ctx.font='400 '+Math.round(h*0.08)+'px Georgia,serif';ctx.textAlign='center';ctx.fillText('TODO: Scene two',w/2,h*0.85);}},
+  {duration:2,draw:function(ctx,t,w,h){ctx.fillStyle='#0F1B2D';ctx.fillRect(0,0,w,h);ctx.fillStyle='#E7C890';ctx.font='400 '+Math.round(h*0.07)+'px Georgia,serif';ctx.textAlign='center';ctx.globalAlpha=Math.max(0,1-t/2);ctx.fillText('TODO: closing line',w/2,h/2);ctx.globalAlpha=1;}}
+];
+var canvas=document.getElementById('stage'),ctx=canvas.getContext('2d'),status=document.getElementById('status'),prog=document.getElementById('prog');
+var TOTAL=SCENES.reduce(function(s,x){return s+x.duration},0),reduced=false;try{reduced=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
+function drawAt(t){var acc=0;for(var i=0;i<SCENES.length;i++){var s=SCENES[i];if(t<acc+s.duration||i===SCENES.length-1){s.draw(ctx,Math.min(t-acc,s.duration),canvas.width,canvas.height);return;}acc+=s.duration;}}
+var raf=0,start=0;
+function play(){cancelAnimationFrame(raf);if(reduced){drawAt(TOTAL*0.5);status.textContent='Reduced motion is on: showing a still frame.';return;}start=performance.now();(function frame(){var t=(performance.now()-start)/1000;drawAt(Math.min(t,TOTAL));if(t<TOTAL)raf=requestAnimationFrame(frame);else status.textContent='Done.';})();}
+// ---- Inlined from kit/art/recorder.js ----
+function recordingSupported(){try{return typeof MediaRecorder!=='undefined'&&typeof HTMLCanvasElement.prototype.captureStream==='function'}catch(e){return false}}
+function pickMime(){var c=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];for(var i=0;i<c.length;i++)if(MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(c[i]))return c[i];return ''}
+function recordCanvas(cv,seconds,fps,onProgress){return new Promise(function(resolve,reject){var type=pickMime(),chunks=[],rec;try{rec=new MediaRecorder(cv.captureStream(fps),type?{mimeType:type,videoBitsPerSecond:4000000}:{videoBitsPerSecond:4000000})}catch(e){return reject(e)}
+  rec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data)};rec.onerror=function(e){reject(e.error||new Error('Recording failed'))};rec.onstop=function(){clearInterval(timer);resolve(new Blob(chunks,{type:rec.mimeType||'video/webm'}))};
+  var t0=Date.now(),timer=setInterval(function(){var p=Math.min(1,(Date.now()-t0)/(seconds*1000));onProgress(p);if(p>=1&&rec.state!=='inactive')rec.stop()},100);rec.start(200);});}
+document.getElementById('play').onclick=play;
+var save=document.getElementById('save');
+if(!recordingSupported()){save.disabled=true;status.textContent='Your browser cannot record video; the short still plays here.';}
+save.onclick=function(){if(reduced){status.textContent='Turn off reduced motion to record the animated version.';return;}save.disabled=true;prog.hidden=false;status.textContent='Recording…';play();
+  recordCanvas(canvas,TOTAL+0.2,30,function(p){prog.value=p}).then(function(blob){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='short.webm';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1000);status.textContent='Saved short.webm';}).catch(function(e){status.textContent='Recording failed: '+e.message;}).then(function(){save.disabled=false;prog.hidden=true;});};
+drawAt(0);
+</script>
+</body>
+</html>

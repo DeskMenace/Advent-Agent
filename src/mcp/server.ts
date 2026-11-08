@@ -98,6 +98,23 @@ export function buildMcpServer(client: CompanionClient): McpServer {
     } catch (e) { return error(e); }
   });
 
+  server.registerTool('generate_image', {
+    title: 'Generate an image with the recipient\'s own provider',
+    description: 'Only works when the recipient configured an image provider in Advanced settings and enabled paid use with a cap. The key never leaves the calendar. Returns absolute file paths written into the door\'s workspace. Refusals are explicit (disabled, paid use off, cap reached).',
+    inputSchema: { day: z.number().int().min(1).max(24), provider: z.string().optional(), prompt: z.string().min(1).max(4000), size: z.enum(['1024x1024', '1024x1536', '1536x1024', '512x512']).optional(), n: z.number().int().min(1).max(4).optional() },
+  }, async ({ day, provider, prompt, size, n }) => {
+    try {
+      await client.ensureRunning();
+      let id = provider;
+      if (!id) {
+        const { providers } = await client.json<{ providers: Array<{ id: string; kind: string }> }>('GET', '/api/agent/providers');
+        id = providers.find((p) => p.kind === 'image')?.id;
+        if (!id) return error(new Error('The recipient has not configured an image provider. Make the image yourself (SVG, canvas) instead.'));
+      }
+      return text(await client.json('POST', '/api/agent/generate', { provider: id, op: 'generateImage', params: { prompt, size, n }, day }));
+    } catch (e) { return error(e); }
+  });
+
   // Resources: the same guides for hosts that prefer resources.
   server.registerResource('agent-guide', 'advent-agent://guide', { title: 'Advent Agent guide', description: 'Compact guide for agents', mimeType: 'text/markdown' }, async (uri) => {
     await client.ensureRunning();

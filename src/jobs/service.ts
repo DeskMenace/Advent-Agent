@@ -20,6 +20,8 @@ import type { Config, Profile, Season } from '../shared/config.js';
 import type { ConnectionMode, DoorState } from '../shared/door.js';
 import type { ProgressPhase } from '../shared/gift.js';
 import { AgentRun, DEFAULT_PROMPT } from './runner.js';
+import { runProvider, ProviderRefused, type GenerateImageParams } from '../providers/index.js';
+import { allProviderKeyValues } from '../providers/keychain.js';
 
 export class ApiError extends Error {
   constructor(public readonly status: number, public readonly code: string, message: string) {
@@ -347,10 +349,15 @@ export class CalendarService {
     return this.save(season, setPhase(current, phase));
   }
 
+  /** Values that must never appear inside a gift: the API token and every provider key. */
+  private async secretValues(): Promise<string[]> {
+    return allProviderKeyValues(this.config().providers.map((p) => p.id));
+  }
+
   /** Gate without sealing (CLI `check`, MCP check_gift). */
   async check(input: GateInput, day?: number): Promise<GateReport> {
     const cfg = this.config();
-    const result = await runGate(input, { day, limits: { maxFiles: cfg.intakeLimits.maxFiles, maxTotalBytes: cfg.intakeLimits.maxTotalMB * 1024 * 1024 }, apiToken: this.store.apiToken(), keepQuarantine: false, allowedNetwork: cfg.permissions.giftNetwork ? undefined : [] });
+    const result = await runGate(input, { day, limits: { maxFiles: cfg.intakeLimits.maxFiles, maxTotalBytes: cfg.intakeLimits.maxTotalMB * 1024 * 1024 }, apiToken: this.store.apiToken(), keychainValues: await this.secretValues(), keepQuarantine: false, allowedNetwork: cfg.permissions.giftNetwork ? undefined : [] });
     if (result.root) rmSync(result.root, { recursive: true, force: true });
     return reportForAgent(result);
   }
@@ -381,6 +388,7 @@ export class CalendarService {
       day,
       limits: { maxFiles: cfg.intakeLimits.maxFiles, maxTotalBytes: cfg.intakeLimits.maxTotalMB * 1024 * 1024 },
       apiToken: this.store.apiToken(),
+      keychainValues: await this.secretValues(),
       allowedNetwork: cfg.permissions.giftNetwork ? undefined : [],
       quarantineRoot: join(this.store.home.doorDir(season.year, day), 'quarantine'),
     });
@@ -569,6 +577,42 @@ export class CalendarService {
     if (state.jobState === 'queued' || state.jobState === 'waiting_for_agent' || state.jobState === 'waiting_for_drop') state = transition(state, 'preparing');
     this.save(season, { ...state, phase: state.phase ?? 'thinking' });
     return prepared;
+  }
+
+  // ---- optional providers (D9) ---------------------------------------------------------------------
+  /**
+   * Narrow paid operation for agents (MCP generate_image / CLI generate). Enforces enabled + paid use + caps,
+   * writes the files into the door's workspace and records the spend in the ledger. Keys never leave this process.
+   */
+  async generate(providerId: string, op: 'generateImage' | 'generateAudio' | 'synthesizeSpeech' | 'generateVideo', params: GenerateImageParams | Record<string, unknown>, day: number): Promise<{ files: string[]; estimatedUsd: number }> {
+    const season = this.requireSeason();
+    if (season.kind === 'demo') throw new ApiError(403, 'demo', 'Demo calendars never call paid services.');
+    const cfg = this.config();
+    const provider = cfg.providers.find((p) => p.id === providerId);
+    const ledger = this.store.ledger(season.year).filter((l) => l.type === 'provider' && l.provider === providerId);
+    const spentSeason = ledger.reduce((s, l) => s + (l.usd ?? 0), 0);
+    const spentGift = ledger.filter((l) => l.day === day).reduce((s, l) => s + (l.usd ?? 0), 0);
+    const estimate = op === 'generateImage' ? 0.04 * Math.max(1, Number((params as GenerateImageParams).n ?? 1)) : 0.1;
+    let files;
+    try {
+      files = await runProvider(provider, op, params, { spentSeason, spentGift }, estimate);
+    } catch (e) {
+      if (e instanceof ProviderRefused) throw new ApiError(403, e.code, e.message);
+      throw new ApiError(502, 'provider_error', (e as Error).message);
+    }
+    const dir = join(this.store.home.workspaceDir(season.year, day), 'generated');
+    mkdirSync(dir, { recursive: true });
+    const out: string[] = [];
+    let usd = 0;
+    files.forEach((f, i) => {
+      const ext = f.mime.includes('png') ? 'png' : f.mime.includes('jpeg') ? 'jpg' : f.mime.includes('webp') ? 'webp' : f.mime.includes('wav') ? 'wav' : f.mime.includes('mpeg') ? 'mp3' : f.mime.includes('mp4') ? 'mp4' : 'bin';
+      const file = join(dir, `${op}-${Date.now()}-${i + 1}.${ext}`);
+      writeFileSync(file, Buffer.from(f.base64, 'base64'));
+      out.push(file);
+      usd += f.estimatedUsd ?? 0;
+    });
+    this.store.appendLedger(season.year, { at: new Date().toISOString(), day, type: 'provider', provider: providerId, usd, note: op });
+    return { files: out, estimatedUsd: usd };
   }
 
   // ---- demo -----------------------------------------------------------------------------------------

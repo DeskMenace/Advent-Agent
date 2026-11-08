@@ -133,23 +133,31 @@ export function createApp({ service, auth, onShutdown }: AppDeps): Hono {
   // --- settings & profile ------------------------------------------------------------------------------
   api.get('/settings', (c) => c.json(settingsView(service.config())));
   api.put('/settings', async (c) => {
-    const patch = ConfigSchema.partial().parse(await c.req.json());
-    if (patch.timeZone && !isValidTimeZone(patch.timeZone)) throw new ApiError(400, 'bad_timezone', `${patch.timeZone} is not a known timezone.`);
-    const cfg = service.store.saveConfig((cur) => ConfigSchema.parse({ ...cur, ...patch, providers: patch.providers ? patch.providers.map((p) => ({ ...p, hasKey: cur.providers.find((q) => q.id === p.id)?.hasKey ?? false })) : cur.providers }));
+    // Merge the raw patch onto the current config, then validate the whole thing: `.partial()` would re-apply
+    // defaults for every missing key and silently reset settings.
+    const raw = z.record(z.string(), z.unknown()).parse(await c.req.json());
+    if (typeof raw.timeZone === 'string' && !isValidTimeZone(raw.timeZone)) throw new ApiError(400, 'bad_timezone', `${raw.timeZone} is not a known timezone.`);
+    const cfg = service.store.saveConfig((cur) => {
+      const merged = ConfigSchema.parse({ ...cur, ...raw });
+      return { ...merged, providers: Array.isArray(raw.providers) ? merged.providers.map((p) => ({ ...p, hasKey: cur.providers.find((q) => q.id === p.id)?.hasKey ?? false })) : cur.providers };
+    });
     service.updateSeasonFromConfig();
     service.events.emitSse({ type: 'calendar' });
     return c.json(settingsView(cfg));
   });
   api.post('/setup/complete', async (c) => {
-    const patch = ConfigSchema.partial().parse(await c.req.json().catch(() => ({})));
-    const cfg = service.store.saveConfig((cur) => ConfigSchema.parse({ ...cur, ...patch, setupComplete: true }));
+    const raw = z.record(z.string(), z.unknown()).parse(await c.req.json().catch(() => ({})));
+    const cfg = service.store.saveConfig((cur) => ConfigSchema.parse({ ...cur, ...raw, providers: cur.providers, setupComplete: true }));
     service.ensureSeason('live');
     service.updateSeasonFromConfig();
     service.events.emitSse({ type: 'calendar' });
     return c.json(settingsView(cfg));
   });
   api.get('/profile', (c) => c.json(service.profile()));
-  api.put('/profile', async (c) => c.json(service.store.saveProfile(ProfileSchema.partial().parse(await c.req.json()))));
+  api.put('/profile', async (c) => {
+    const raw = z.record(z.string(), z.unknown()).parse(await c.req.json());
+    return c.json(service.store.saveProfile(ProfileSchema.parse({ ...service.profile(), ...raw })));
+  });
 
   // --- setup helpers ---------------------------------------------------------------------------------------
   api.get('/setup/detect', async (c) => c.json({ adapters: await detectAll(), deviceTimeZone: deviceTimeZone(), platform: process.platform }));
@@ -282,6 +290,12 @@ export function createApp({ service, auth, onShutdown }: AppDeps): Hono {
     const mode = (c.req.query('mode') as 'launched' | 'connected' | 'portable' | 'submit' | undefined) ?? 'submit';
     return c.json(await service.submit(day, input, mode, c.req.query('adapter') ?? undefined));
   });
+
+  api.post('/agent/generate', async (c) => {
+    const body = z.object({ provider: z.string(), op: z.enum(['generateImage', 'generateAudio', 'synthesizeSpeech', 'generateVideo']), params: z.record(z.string(), z.unknown()).default({}), day: DaySchema }).parse(await c.req.json());
+    return c.json(await service.generate(body.provider, body.op, body.params, body.day));
+  });
+  api.get('/agent/providers', (c) => c.json({ providers: service.config().providers.filter((p) => p.enabled).map((p) => ({ id: p.id, kind: p.kind, label: p.label, paidUse: p.paidUse, capPerGift: p.capPerGift })) }));
 
   app.route('/api', api);
 

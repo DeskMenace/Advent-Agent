@@ -1,0 +1,30 @@
+/* kit/tokens.css — visual tokens shared with the calendar's renderers (DESIGN_SPEC §6). MIT.
+   Gifts that use these feel at home in the calendar. Agents may use ANY style: these are a default, not a rule.
+   Usage: paste this block into your gift's <style>, then use var(--ink) etc. */
+:root {
+  --cream: #F7F2E9;      /* page background */
+  --milk: #FFFAF0;       /* cards and light paper */
+  --ink: #243A32;        /* main text */
+  --green: #14503A;      /* primary actions, headings */
+  --green-dark: #0D3829; /* deep heading text */
+  --red: #A82438;        /* ribbon family, accents, eyebrow text */
+  --red-dark: #7E1D2C;   /* deep red accent */
+  --gold: #BD955A;       /* festive details, borders */
+  --gold-light: #E7C890; /* numbers, glows */
+  --frame: #26302A;      /* calendar frame */
+  --line: #DFD7C9;       /* soft separators */
+  --muted: #766F62;      /* secondary text */
+
+  --font-display: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-hand: 'Caveat', 'Bradley Hand', 'Segoe Print', 'Noteworthy', cursive; /* system stacks only; no font files */
+  --radius: 6px;         /* envelope/gift frame corners are 2–8 px */
+  --shadow: 0 6px 24px rgba(36, 58, 50, .12);
+}
+.paper { background: var(--milk); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.eyebrow { font: 600 12px/1 var(--font-body); letter-spacing: .18em; text-transform: uppercase; color: var(--red); }
+.display { font-family: var(--font-display); font-weight: 400; color: var(--green-dark); }
+.kit-btn { font: 600 15px/1 var(--font-body); padding: 10px 16px; border-radius: var(--radius); border: 1px solid var(--gold); background: var(--green); color: var(--milk); cursor: pointer; min-height: 44px; min-width: 44px; }
+.kit-btn:hover { background: var(--green-dark); }
+.kit-btn:focus-visible { outline: 3px solid var(--gold-light); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }

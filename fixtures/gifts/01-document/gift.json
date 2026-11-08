@@ -1,0 +1,26 @@
+{
+  "schema": "advent-agent/gift@1",
+  "day": 1,
+  "title": "A letter from a quieter tomorrow",
+  "category": "A little letter",
+  "subtitle": "Sealed, and meant to be read slowly.",
+  "note": "The first door should be gentle. I wrote you a letter from the version of December that has already happened, the one where everything turned out fine. Read it with tea.",
+  "primary": "letter.md",
+  "artifacts": [
+    {
+      "path": "letter.md",
+      "kind": "document",
+      "role": "primary"
+    }
+  ],
+  "continuity": {
+    "thread": "quiet-tomorrow",
+    "motifs": [
+      "tea",
+      "light"
+    ]
+  },
+  "agent": {
+    "name": "demo fixture"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "advent-agent/gift@1",
+  "day": 2,
+  "title": "A little light for someone",
+  "category": "Printable greeting card",
+  "subtitle": "Keep it, send it, or leave it somewhere unexpected.",
+  "note": "I made this one to travel. Print it on thick paper, fold once. Maybe you already know who needs to receive it.",
+  "primary": "card.svg",
+  "artifacts": [
+    {
+      "path": "card.svg",
+      "kind": "card",
+      "role": "primary",
+      "title": "card (SVG)"
+    },
+    {
+      "path": "card-print.pdf",
+      "kind": "download",
+      "role": "print",
+      "title": "print-ready PDF"
+    }
+  ],
+  "agent": {
+    "name": "demo fixture"
+  }
+}

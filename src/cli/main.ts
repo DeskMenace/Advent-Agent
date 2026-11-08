@@ -38,6 +38,7 @@ Usage:
   advent-agent progress <phase>        thinking | making | testing | wrapping (launched agents)
   advent-agent mcp                     MCP server over stdio
   advent-agent service install|uninstall|status
+  advent-agent generate image --prompt "…" [--day N]   use the recipient's own image provider (if enabled)
   advent-agent demo                    demo calendar with sample gifts (isolated, never runs an agent)
   advent-agent lab --idea <id> | --ideas <a,b> | --free | open | review   gift lab (isolated, real agents)
   advent-agent export <file.zip> | import <file.zip> | backup
@@ -154,6 +155,29 @@ async function cmdProgress(p: Parsed): Promise<number> {
   const client = new CompanionClient();
   try {
     await client.json('POST', '/api/agent/progress', { day, phase });
+    return 0;
+  } catch (e) {
+    console.error((e as Error).message);
+    return 1;
+  }
+}
+
+/** `advent-agent generate image --prompt "..." [--provider id] [--size 1024x1024] [--n 1] [--day N]` (D9 narrow adapter). */
+async function cmdGenerate(p: Parsed): Promise<number> {
+  const kind = p.positionals[0];
+  const day = jobDay(p);
+  if (kind !== 'image' || !p.flags.prompt || !day) { console.error('Usage: advent-agent generate image --prompt "<text>" [--provider <id>] [--size 1024x1024] [--n 1] [--day N]'); return 2; }
+  const client = new CompanionClient();
+  await client.ensureRunning();
+  try {
+    let provider = p.flags.provider ? String(p.flags.provider) : undefined;
+    if (!provider) {
+      const { providers } = await client.json<{ providers: Array<{ id: string; kind: string }> }>('GET', '/api/agent/providers');
+      provider = providers.find((x) => x.kind === 'image')?.id;
+      if (!provider) { console.error('No image provider is configured. Make the image yourself instead.'); return 1; }
+    }
+    const r = await client.json<{ files: string[]; estimatedUsd: number }>('POST', '/api/agent/generate', { provider, op: 'generateImage', params: { prompt: String(p.flags.prompt), size: p.flags.size, n: p.flags.n ? Number(p.flags.n) : undefined }, day });
+    console.log(JSON.stringify(r, null, 2));
     return 0;
   } catch (e) {
     console.error((e as Error).message);
@@ -294,6 +318,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
       case 'progress': return await cmdProgress(p);
       case 'mcp': { const { runMcpServer } = await import('../mcp/server.js'); await runMcpServer(); return 0; }
       case 'service': return await cmdService(p);
+      case 'generate': return await cmdGenerate(p);
       case 'demo': await cmdDemo(p); return 0;
       case 'lab': return await cmdLab(p);
       case 'export': return await cmdExport(p);

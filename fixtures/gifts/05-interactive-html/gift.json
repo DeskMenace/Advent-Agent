@@ -1,0 +1,19 @@
+{
+  "schema": "advent-agent/gift@1",
+  "day": 5,
+  "title": "Your personal snow globe",
+  "category": "Interactive little world",
+  "subtitle": "Shake it. An absurdly small winter, entirely yours.",
+  "note": "Sometimes the most unnecessary gifts are the most delightful. Click or tap the globe, or press space, to make it snow harder. Reset puts the snow back where it was.",
+  "primary": "index.html",
+  "artifacts": [
+    {
+      "path": "index.html",
+      "kind": "interactive-html",
+      "role": "primary"
+    }
+  ],
+  "agent": {
+    "name": "demo fixture"
+  }
+}

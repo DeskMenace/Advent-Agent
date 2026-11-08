@@ -120,7 +120,12 @@ export async function renderCheck(root: string, opts: RenderOptions): Promise<Re
     const page = await context.newPage();
     const errors: string[] = [];
     page.on('pageerror', (e) => errors.push(`Page error: ${e.message}`));
-    page.on('console', (m) => { if (m.type() === 'error') errors.push(`Console error: ${m.text()}`); });
+    page.on('console', (m) => {
+      if (m.type() !== 'error') return;
+      // The sandbox blocking a remote request is the sandbox working, not the gift failing.
+      if (/Content Security Policy|Refused to connect|Refused to load|violates the following/i.test(m.text())) notes.push(`Blocked by the sandbox: ${m.text().slice(0, 160)}`);
+      else errors.push(`Console error: ${m.text()}`);
+    });
     page.on('requestfailed', (r) => { if (r.url().startsWith(served.baseUrl)) errors.push(`Failed request: ${r.url().slice(served.baseUrl.length)}`); });
     const url = `${served.baseUrl}/${opts.primaryPath.split('/').map(encodeURIComponent).join('/')}`;
     const timeout = opts.timeoutMs ?? 20_000;

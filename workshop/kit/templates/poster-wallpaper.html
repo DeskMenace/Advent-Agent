@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TODO: Wallpaper title</title>
+<!-- Advent Agent template: one renderer, exported at real phone/desktop sizes. Everything inline. No network. MIT. -->
+<script type="application/advent-gift+json">
+{
+  "schema": "advent-agent/gift@1",
+  "day": 0,
+  "title": "TODO: Wallpaper title",
+  "category": "Wallpaper",
+  "note": "TODO: what it shows, which size to pick for their phone, how to set it.",
+  "incomplete": []
+}
+</script>
+<style>
+:root{--cream:#F7F2E9;--milk:#FFFAF0;--ink:#243A32;--green:#14503A;--gold:#BD955A;--gold-light:#E7C890;--line:#DFD7C9;--muted:#766F62}
+html,body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.5 system-ui,sans-serif}
+main{max-width:900px;margin:0 auto;padding:24px 16px}
+h1{font:400 32px/1.1 Georgia,serif;margin:0 0 4px}.sub{color:var(--muted);margin:0 0 16px}
+#preview{display:block;max-width:100%;max-height:70vh;margin:0 auto 16px;border:1px solid var(--line);background:#000}
+.row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+button{font:600 15px/1 system-ui,sans-serif;padding:10px 14px;border-radius:6px;border:1px solid var(--gold);background:var(--green);color:var(--milk);cursor:pointer;min-height:44px}
+button:focus-visible{outline:3px solid var(--gold-light);outline-offset:2px}
+label{display:inline-flex;gap:8px;align-items:center;margin:8px}
+#status{text-align:center;color:var(--muted);min-height:1.5em}
+</style>
+</head>
+<body>
+<main>
+  <h1>TODO: Wallpaper title</h1>
+  <p class="sub">Pick a size and download. The image is drawn on this device; nothing is uploaded.</p>
+  <canvas id="preview" width="1170" height="2532" role="img" aria-label="TODO: alt text describing the image"></canvas>
+  <div class="row">
+    <label>Seed <input id="seed" type="number" value="7" min="0" step="1"></label>
+    <button type="button" id="regen">Redraw</button>
+  </div>
+  <div class="row" id="sizes" aria-label="Download sizes"></div>
+  <p id="status" aria-live="polite"></p>
+</main>
+<script>
+// Inlined subset of kit/art/prng.js + kit/art/wallpaper.js
+function mulberry32(seed){var a=seed>>>0||2463534242;return function(){a=(a+0x6D2B79F5)>>>0;var t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
+var SIZES=[{w:1170,h:2532,label:'Phone 1170×2532'},{w:1284,h:2778,label:'Phone 1284×2778'},{w:1080,h:2400,label:'Phone 1080×2400'},{w:1920,h:1080,label:'Desktop 1920×1080'},{w:2560,h:1440,label:'Desktop 2560×1440'},{w:3840,h:2160,label:'Desktop 3840×2160'},{w:2880,h:1800,label:'Laptop 2880×1800'}];
+function safeArea(w,h){var phone=h>w;return{top:Math.round(h*(phone?0.12:0.04)),bottom:Math.round(h*(phone?0.15:0.06))}}
+// TODO: replace draw() with your renderer. Use w/h proportionally, never fixed pixels. Keep safe areas quiet on phones.
+function draw(ctx,w,h,seed){var rng=mulberry32(seed),safe=safeArea(w,h);
+  var g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#0F1B2D');g.addColorStop(1,'#14503A');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  for(var i=0;i<Math.round(w*h/9000);i++){var x=rng()*w,y=safe.top+rng()*(h-safe.top-safe.bottom),r=rng()*Math.max(1,w/600)+0.5;ctx.globalAlpha=0.4+rng()*0.6;ctx.fillStyle=rng()<0.15?'#E7C890':'#F7F2E9';ctx.beginPath();ctx.arc(x,y,r,0,6.283);ctx.fill();}
+  ctx.globalAlpha=1;}
+var canvas=document.getElementById('preview'),status=document.getElementById('status'),seedEl=document.getElementById('seed');
+function render(c,size){c.width=size.w;c.height=size.h;draw(c.getContext('2d'),size.w,size.h,Number(seedEl.value)||0);}
+function download(size){var c=document.createElement('canvas');render(c,size);status.textContent='Preparing '+size.label+'…';c.toBlob(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='wallpaper-'+size.w+'x'+size.h+'.png';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1000);status.textContent='Saved '+size.label;},'image/png');}
+SIZES.forEach(function(s){var b=document.createElement('button');b.type='button';b.textContent=s.label;b.onclick=function(){download(s)};document.getElementById('sizes').appendChild(b);});
+document.getElementById('regen').onclick=function(){render(canvas,SIZES[0])};seedEl.addEventListener('change',function(){render(canvas,SIZES[0])});
+render(canvas,SIZES[0]);
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "schema": "advent-agent/gift@1",
+  "day": 9,
+  "title": "Three windows onto winter",
+  "category": "Places to go on the web",
+  "subtitle": "No download, no install. Just doors.",
+  "note": "Three places I think you will like, each for a different mood: one to watch, one to listen to, one to wander. Open them in any order.",
+  "links": [
+    {
+      "label": "Watch the Earth turn, live",
+      "url": "https://www.nasa.gov/live/"
+    },
+    {
+      "label": "Listen to radio from a random corner of the world",
+      "url": "https://radio.garden/"
+    },
+    {
+      "label": "Wander a museum in your slippers",
+      "url": "https://artsandculture.google.com/"
+    }
+  ],
+  "artifacts": [],
+  "agent": {
+    "name": "demo fixture"
+  }
+}

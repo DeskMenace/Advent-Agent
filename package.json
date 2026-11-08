@@ -4,20 +4,42 @@
   "description": "A local-first advent calendar where your own AI agent makes the gift behind each of the 24 doors. Your AI agent is your Secret Santa.",
   "license": "MIT",
   "type": "module",
-  "bin": { "advent-agent": "./bin/advent-agent.js" },
+  "bin": {
+    "advent-agent": "./bin/advent-agent.js"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "engines": { "node": ">=20" },
-  "repository": { "type": "git", "url": "git+https://github.com/suchipizza/Advent-Agent.git" },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/suchipizza/Advent-Agent.git"
+  },
   "homepage": "https://github.com/suchipizza/Advent-Agent#readme",
-  "bugs": { "url": "https://github.com/suchipizza/Advent-Agent/issues" },
-  "keywords": ["advent", "calendar", "ai", "agent", "mcp", "claude", "codex", "gemini", "gift", "christmas", "local-first"],
+  "bugs": {
+    "url": "https://github.com/suchipizza/Advent-Agent/issues"
+  },
+  "keywords": [
+    "advent",
+    "calendar",
+    "ai",
+    "agent",
+    "mcp",
+    "claude",
+    "codex",
+    "gemini",
+    "gift",
+    "christmas",
+    "local-first"
+  ],
   "files": [
     "bin/",
     "dist/",
     "schema/",
     "workshop/",
     "gift-library/",
+    "fixtures/",
     "AGENT_GUIDE.md",
     "README.md",
     "THIRD_PARTY.md",

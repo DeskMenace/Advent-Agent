@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TODO: Coupon title</title>
+<!-- Advent Agent template: IOU coupon for something the Secret Santa (or the recipient's own future self) will do. Printable. Inline. MIT. -->
+<script type="application/advent-gift+json">
+{
+  "schema": "advent-agent/gift@1",
+  "day": 0,
+  "title": "TODO: Coupon title",
+  "category": "Coupon",
+  "note": "TODO: what the coupon is for, how to redeem it (e.g. open this page and tap Redeem, or print and hand it to yourself). It promises time or an act, never a purchase.",
+  "incomplete": []
+}
+</script>
+<style>
+:root{--cream:#F7F2E9;--milk:#FFFAF0;--ink:#243A32;--green:#14503A;--green-dark:#0D3829;--red:#A82438;--gold:#BD955A;--gold-light:#E7C890;--line:#DFD7C9;--muted:#766F62}
+html,body{margin:0;min-height:100%;background:var(--cream);display:grid;place-items:center;color:var(--ink);font:16px/1.5 system-ui,sans-serif}
+.coupon{position:relative;width:min(560px,92vw);background:var(--milk);border:3px dashed var(--gold);border-radius:10px;padding:28px 32px;box-shadow:0 10px 30px rgba(36,58,50,.12);margin:24px}
+.coupon::before,.coupon::after{content:'';position:absolute;top:50%;width:28px;height:28px;background:var(--cream);border-radius:50%;transform:translateY(-50%)}.coupon::before{left:-17px}.coupon::after{right:-17px}
+.eyebrow{font:600 12px/1 system-ui;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin:0 0 8px}
+h1{font:400 34px/1.1 Georgia,serif;margin:0 0 10px;color:var(--green-dark)}
+.terms{color:var(--muted);font-size:14px;margin:14px 0 0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:20px;flex-wrap:wrap}
+.serial{font:12px/1 'SF Mono',Menlo,monospace;color:var(--muted)}
+button{font:600 15px/1 system-ui;padding:12px 18px;border-radius:6px;border:1px solid var(--gold);background:var(--green);color:var(--milk);cursor:pointer;min-height:44px}
+button:focus-visible{outline:3px solid var(--gold-light);outline-offset:2px}
+.stamp{display:none;position:absolute;right:24px;top:24px;transform:rotate(-14deg);border:4px solid var(--red);color:var(--red);font:700 22px/1 system-ui;letter-spacing:.1em;padding:6px 10px;border-radius:6px;text-transform:uppercase}
+.redeemed .stamp{display:block}.redeemed h1{opacity:.6}
+@page{size:A5 landscape;margin:10mm}
+@media print{html,body{background:#fff}.coupon{box-shadow:none;margin:0}button{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<article class="coupon" id="coupon" aria-label="Coupon">
+  <div class="stamp" aria-hidden="true">Redeemed</div>
+  <p class="eyebrow">This coupon is good for</p>
+  <h1>TODO: One evening of … / One hour of … / A …</h1>
+  <p>TODO: One sentence that makes it specific and kind.</p>
+  <p class="terms">TODO: Valid until 31 January. Redeem once. No cash value. Transferable to a friend if you insist.</p>
+  <div class="row">
+    <span class="serial">No. TODO-0007</span>
+    <span><button type="button" id="print">Print</button> <button type="button" id="redeem" aria-pressed="false">Redeem</button></span>
+  </div>
+</article>
+<script>
+(function(){
+  var c=document.getElementById('coupon'),r=document.getElementById('redeem');
+  document.getElementById('print').onclick=function(){window.print()};
+  r.onclick=function(){var on=!c.classList.contains('redeemed');c.classList.toggle('redeemed',on);r.setAttribute('aria-pressed',String(on));r.textContent=on?'Un-redeem':'Redeem';};
+})();
+</script>
+</body>
+</html>

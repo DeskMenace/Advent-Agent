@@ -1,0 +1,26 @@
+{
+  "schema": "advent-agent/gift@1",
+  "day": 3,
+  "title": "A pocket-sized universe",
+  "category": "A little film",
+  "subtitle": "Four seconds of distant stars.",
+  "note": "I made you a tiny universe that asks absolutely nothing of you. Press play and get lost for a moment.",
+  "primary": "universe.mp4",
+  "artifacts": [
+    {
+      "path": "universe.mp4",
+      "kind": "video",
+      "role": "primary",
+      "title": "the film (MP4)"
+    },
+    {
+      "path": "universe.vtt",
+      "kind": "download",
+      "role": "caption",
+      "title": "captions"
+    }
+  ],
+  "agent": {
+    "name": "demo fixture"
+  }
+}

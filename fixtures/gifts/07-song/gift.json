@@ -1,0 +1,35 @@
+{
+  "schema": "advent-agent/gift@1",
+  "day": 7,
+  "title": "Music box for a snowy street",
+  "category": "An original song",
+  "subtitle": "Twenty-two bars, one music box, one bass line, four lines of lyrics.",
+  "note": "I wrote you a song. The calendar plays it as a music box; if you want it sung by a real voice, the render-it-yourself sheet has the lyrics and a prompt for any music tool you like.",
+  "song": {
+    "score": "score.json",
+    "renderSheet": "render-it-yourself.md",
+    "wav": "song.wav"
+  },
+  "artifacts": [
+    {
+      "path": "score.json",
+      "kind": "download",
+      "role": "asset",
+      "title": "score (JSON)"
+    },
+    {
+      "path": "render-it-yourself.md",
+      "kind": "document",
+      "role": "asset"
+    },
+    {
+      "path": "song.wav",
+      "kind": "audio",
+      "role": "download",
+      "title": "music-box rendition (WAV)"
+    }
+  ],
+  "agent": {
+    "name": "demo fixture"
+  }
+}

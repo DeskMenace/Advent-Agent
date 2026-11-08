@@ -1,0 +1,12 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>The locked room</title><style>body{font-family:Georgia,serif;background:#fffaf1;color:#243a32;padding:24px}li{margin:6px 0}button{font:inherit;padding:10px 16px;min-height:44px}</style></head><body><h1>The locked room</h1><p>Each line below is a door this page tried. Locked means the calendar kept you safe.</p><button id="run">Try the doors</button><ul id="out" aria-live="polite"></ul><script>
+const out=document.getElementById('out');const add=(k,v)=>{const li=document.createElement('li');li.dataset.probe=k;li.dataset.result=v;li.textContent=k+': '+v;out.appendChild(li)};
+async function run(){out.textContent='';
+try{const d=window.parent.document;add('parent-document',d?'OPEN':'locked')}catch(e){add('parent-document','locked')}
+try{localStorage.setItem('x','1');add('local-storage','OPEN')}catch(e){add('local-storage','locked')}
+try{const r=await fetch(location.origin.replace(/:\d+$/, ':4224')+'/api/calendar',{credentials:'include'});add('calendar-api',r.ok?'OPEN':'locked')}catch(e){add('calendar-api','locked')}
+try{const r=await fetch('http://127.0.0.1:'+ (new URLSearchParams(location.search).get('app')||'4224') +'/api/calendar');add('app-origin-fetch',r.ok?'OPEN':'locked')}catch(e){add('app-origin-fetch','locked')}
+await new Promise(res=>{const img=new Image();img.onload=()=>{add('remote-image','OPEN');res()};img.onerror=()=>{add('remote-image','locked');res()};img.src='https://example.com/pixel.png?'+Date.now();setTimeout(()=>{if(!img.complete){add('remote-image','locked');res()}},3000)});
+try{window.top.location.href='https://example.com/';setTimeout(()=>add('top-navigation', location.href.includes('example.com')?'OPEN':'locked'),100)}catch(e){add('top-navigation','locked')}
+add('done','done')}
+document.getElementById('run').onclick=run;
+</script></body></html>

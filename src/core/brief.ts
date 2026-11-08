@@ -172,7 +172,7 @@ export function renderBriefMarkdown(ctx: AgentContext): string {
   lines.push('## Calendar facts');
   lines.push(`- Season ${ctx.season}, timezone ${ctx.timeZone}, language ${ctx.language}, locale ${ctx.locale}.`);
   lines.push(`- The calendar can render: ${ctx.capabilities.renderers.join(', ')}. Unknown kinds become a download.`);
-  if (ctx.capabilities.providers.length) lines.push(`- Optional providers the recipient configured: ${ctx.capabilities.providers.map((p) => `${p.id} (${p.kind}${p.paidUse ? ', paid use enabled' : ', paid use off'})`).join('; ')}. Use them only through the calendar's narrow commands.`);
+  if (ctx.capabilities.providers.length) lines.push(`- Optional providers the recipient configured: ${ctx.capabilities.providers.map((p) => `${p.id} (${p.kind}${p.paidUse ? ', paid use enabled' : ', paid use off'})`).join('; ')}. Use them only through \`advent-agent generate image --prompt "..."\` (or the generate_image MCP tool); never ask for keys. Refusals (paid use off, cap reached) are final: make the asset yourself instead.`);
   lines.push(`- Attempt ${ctx.attempt}.`);
   if (ctx.previousProblems?.length) {
     lines.push('');

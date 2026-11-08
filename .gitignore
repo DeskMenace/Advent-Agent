@@ -7,3 +7,4 @@ playwright-report/
 .advent-agent-test/
 test/e2e/__snapshots__/**/*-actual.png
 coverage/
+.scratch/

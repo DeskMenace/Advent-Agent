@@ -1,0 +1,20 @@
+{
+  "schema": "advent-agent/gift@1",
+  "day": 6,
+  "title": "Chimes from a winter window",
+  "category": "Original audio postcard",
+  "subtitle": "A short, gentle melody that sounds like light falling on a quiet room.",
+  "note": "A tiny soundtrack for a tiny pause. Made for listening, not multitasking. Headphones optional; a window with weather in it recommended.",
+  "primary": "chimes.wav",
+  "artifacts": [
+    {
+      "path": "chimes.wav",
+      "kind": "audio",
+      "role": "primary",
+      "title": "chimes (WAV)"
+    }
+  ],
+  "agent": {
+    "name": "demo fixture"
+  }
+}

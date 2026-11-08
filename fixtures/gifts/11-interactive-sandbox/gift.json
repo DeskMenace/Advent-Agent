@@ -1,0 +1,19 @@
+{
+  "schema": "advent-agent/gift@1",
+  "day": 11,
+  "title": "The locked room",
+  "category": "Interactive toy",
+  "subtitle": "A tiny room that tries every door and finds them locked.",
+  "note": "A toy about boundaries. This page politely tries to peek outside its own frame: at the calendar, at your storage, at the network. Every attempt is blocked, and it tells you so. Press the button to run the checks.",
+  "primary": "index.html",
+  "artifacts": [
+    {
+      "path": "index.html",
+      "kind": "interactive-html",
+      "role": "primary"
+    }
+  ],
+  "agent": {
+    "name": "demo fixture"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "advent-agent/gift@1",
+  "day": 8,
+  "title": "The book you didn’t know you needed",
+  "category": "A real thing, prepared for you",
+  "subtitle": "Found, checked, linked. The buying is yours.",
+  "note": "You once mentioned you like books that make a quiet evening feel important. This is one of those. I found a copy and checked the price today. Nothing has been ordered; the choice stays with you.",
+  "realWorld": {
+    "items": [
+      {
+        "name": "A Field Guide to Getting Lost (paperback)",
+        "vendor": "Your local bookshop (via the publisher’s store finder)",
+        "url": "https://www.penguin.co.uk/books/56436/a-field-guide-to-getting-lost-by-solnit-rebecca/9781841957456",
+        "price": 12.99,
+        "currency": "GBP",
+        "checkedAt": "2026-11-08",
+        "notes": "Also available at most libraries; ask for the 2006 Canongate edition."
+      }
+    ],
+    "whatsLeft": "Open the link, pick a shop near you or order online, pay. Or borrow it from your library. Nothing has been ordered or booked."
+  },
+  "artifacts": [],
+  "agent": {
+    "name": "demo fixture"
+  }
+}

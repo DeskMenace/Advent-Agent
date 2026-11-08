@@ -1,0 +1,26 @@
+{
+  "schema": "advent-agent/gift@1",
+  "day": 10,
+  "title": "A tiny star to print",
+  "category": "A printable object",
+  "subtitle": "For a 3D printer, or for a friend who has one.",
+  "note": "A little five-pointed star to hang on something. The calendar cannot show this kind of file, so it hands it to you to save. Print at 100% scale; it is about 4 cm wide.",
+  "primary": "star.stl",
+  "artifacts": [
+    {
+      "path": "star.stl",
+      "kind": "model-3d",
+      "role": "primary",
+      "title": "star (STL)"
+    },
+    {
+      "path": "README.txt",
+      "kind": "document",
+      "role": "download",
+      "title": "printing notes"
+    }
+  ],
+  "agent": {
+    "name": "demo fixture"
+  }
+}

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TODO: Proposal title</title>
+<!-- Advent Agent template: real-world proposal (product, book, experience, hut). The agent never purchases or books; this page says so. Inline. MIT. -->
+<script type="application/advent-gift+json">
+{
+  "schema": "advent-agent/gift@1",
+  "day": 0,
+  "title": "TODO: Proposal title",
+  "category": "Real-world find",
+  "note": "TODO: why this, in two or three sentences tied to shared facts. End with: Nothing has been ordered or booked.",
+  "realWorld": {
+    "items": [
+      { "name": "TODO: exact item or experience", "vendor": "TODO: vendor", "url": "https://TODO.example", "price": 0, "currency": "CHF", "checkedAt": "2026-12-00", "notes": "TODO: shipping / dates / sizes / cancellation" }
+    ],
+    "whatsLeft": "TODO: the exact steps. Nothing has been ordered or booked."
+  },
+  "links": [ { "label": "TODO: Open the page", "url": "https://TODO.example" } ],
+  "incomplete": []
+}
+</script>
+<style>
+:root{--cream:#F7F2E9;--milk:#FFFAF0;--ink:#243A32;--green:#14503A;--green-dark:#0D3829;--red:#A82438;--gold:#BD955A;--line:#DFD7C9;--muted:#766F62}
+html,body{margin:0;background:var(--cream);color:var(--ink);font:17px/1.55 system-ui,sans-serif}
+main{max-width:640px;margin:24px auto;padding:0 16px}
+.paper{background:var(--milk);border:1px solid var(--line);border-radius:6px;padding:32px;box-shadow:0 6px 24px rgba(36,58,50,.1)}
+.eyebrow{font:600 12px/1 system-ui;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin:0 0 10px}
+h1{font:400 32px/1.1 Georgia,serif;margin:0 0 16px;color:var(--green-dark)}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:16px 0}dt{color:var(--muted)}dd{margin:0}
+.price{font:400 26px/1 Georgia,serif}
+.box{border:1px solid var(--gold);border-radius:6px;padding:14px 16px;margin:16px 0;background:#fff}
+.box h2{font:600 13px/1 system-ui;letter-spacing:.14em;text-transform:uppercase;margin:0 0 8px;color:var(--green)}
+.box ol{margin:0;padding-left:20px}
+.notice{font-weight:600;color:var(--red)}
+a.cta{display:inline-block;margin-top:8px;padding:12px 18px;border-radius:6px;background:var(--green);color:var(--milk);text-decoration:none;font-weight:600}
+a.cta:focus-visible{outline:3px solid #E7C890;outline-offset:2px}
+@media print{html,body{background:#fff}.paper{box-shadow:none;border:none}}
+</style>
+</head>
+<body>
+<main>
+<article class="paper" aria-label="Proposal">
+  <p class="eyebrow">A find, prepared for you</p>
+  <h1>TODO: Exact item or experience name</h1>
+  <p>TODO: Why this. Two or three sentences grounded in what you shared. No invented facts.</p>
+  <dl>
+    <dt>Vendor</dt><dd>TODO: Vendor name</dd>
+    <dt>Price</dt><dd><span class="price">TODO 0.00 CHF</span></dd>
+    <dt>Checked on</dt><dd>TODO: YYYY-MM-DD</dd>
+    <dt>Constraints</dt><dd>TODO: shipping time, order-by date, sizes, opening hours, cancellation terms</dd>
+    <dt>Alternative</dt><dd>TODO: a fallback if it is sold out</dd>
+  </dl>
+  <div class="box">
+    <h2>What's left for you</h2>
+    <ol>
+      <li>TODO: Open the link below.</li>
+      <li>TODO: Choose the variant (size/date).</li>
+      <li>TODO: Pay. Delivery or confirmation details.</li>
+    </ol>
+    <p class="notice">Nothing has been ordered or booked. Your Secret Santa only found and checked this.</p>
+  </div>
+  <a class="cta" href="https://TODO.example" rel="noopener noreferrer" target="_blank">TODO: Open the page</a>
+</article>
+</main>
+</body>
+</html>

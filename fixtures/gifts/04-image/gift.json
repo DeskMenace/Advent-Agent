@@ -1,0 +1,21 @@
+{
+  "schema": "advent-agent/gift@1",
+  "day": 4,
+  "title": "A constellation for you",
+  "category": "Custom artwork",
+  "subtitle": "An imaginary star map with a shape hidden between its lights.",
+  "note": "No telescope required. This constellation exists here, just because you opened this door. Zoom in; the lines make a shape if you squint the right way.",
+  "primary": "constellation.svg",
+  "artifacts": [
+    {
+      "path": "constellation.svg",
+      "kind": "image",
+      "role": "primary",
+      "alt": "An imaginary constellation on a dark blue sky",
+      "title": "star map (SVG)"
+    }
+  ],
+  "agent": {
+    "name": "demo fixture"
+  }
+}
