@@ -33,3 +33,27 @@ test.describe('gift sandbox (E3)', () => {
     expect(app.headers.get('x-frame-options')).toBe('DENY');
   });
 });
+
+test.describe('agent text sanitisation (U4.7)', () => {
+  test('HTML in a title, subtitle or note is shown as text, never executed or injected', async ({ page }) => {
+    await setDemoDay(24);
+    const { writeFileSync } = await import('node:fs');
+    const { join } = await import('node:path');
+    const dir = join(state().demoHome, 'seasons', '2026', 'doors', '17');
+    writeFileSync(join(dir, 'state.json'), JSON.stringify({ schemaVersion: 1, day: 17, jobState: 'not_requested', attempt: 0, attempts: [], revealed: false, updatedAt: new Date().toISOString() }));
+    const hostile = '<img src=x onerror="window.__pwned=1"><script>window.__pwned=2</script>';
+    const manifest = { schema: 'advent-agent/gift@1', day: 17, title: `Title ${hostile}`, subtitle: `Sub <b onclick="window.__pwned=3">bold</b>`, note: `Hello **friend** ${hostile} [link](javascript:alert(1)) [ok](https://example.com)`, primary: 'letter.md', artifacts: [{ path: 'letter.md', kind: 'document' }] };
+    const r = await api<{ ok: boolean; problems: unknown[] }>('POST', '/api/agent/submit?day=17', { files: [{ name: 'gift.json', text: JSON.stringify(manifest) }, { name: 'letter.md', text: `# Letter\n\n${hostile}\n\nplain` }] });
+    expect(r.ok, JSON.stringify(r.problems)).toBe(true);
+    await api('POST', '/api/doors/17/reveal');
+    await login(page, '/gift/2026/17');
+    await expect(page.locator('h1.gift-title')).toContainText('<img src=x onerror=');
+    await expect(page.locator('.note strong')).toHaveText('friend');
+    await expect(page.locator('.note')).toContainText('<script>');
+    expect(await page.locator('.note a').evaluateAll((as) => as.map((a) => a.getAttribute('href')))).toEqual(['https://example.com']);
+    expect(await page.locator('main img[src="x"], main script, main b[onclick]').count()).toBe(0);
+    await page.waitForTimeout(300);
+    expect(await page.evaluate(() => (window as unknown as { __pwned?: number }).__pwned)).toBeUndefined();
+    await setDemoDay(8);
+  });
+});

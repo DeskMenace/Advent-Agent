@@ -321,8 +321,10 @@ export class CalendarService {
       if (outcome.timedOut) { this.save(season, failDoor(state, 'timeout', `Your Secret Santa ran out of time (${cfg.timeoutMinutes} min). You can try again.`)); return; }
       if (outcome.error && outcome.error !== 'cancelled') { this.save(season, failDoor(state, 'launch_failed', outcome.error)); return; }
       if (!outcome.giftFolder || !existsSync(join(outcome.giftFolder, 'gift.json')) && !hasAnyFile(outcome.giftFolder)) {
-        if (outcome.exitCode !== 0) { this.save(season, failDoor(state, 'agent_exit', `${adapter.label} stopped without finishing (exit code ${outcome.exitCode ?? 'unknown'}).`)); return; }
-        this.save(season, failDoor(state, 'no_gift', `${adapter.label} finished but left nothing in ./gift.`)); return;
+        const logHint = ` The private log has details: ${this.store.home.logFile(season.year, day)}`;
+        if (outcome.diagnosis) { this.save(season, failDoor(state, outcome.diagnosis.code, `${adapter.label} ${outcome.diagnosis.message}`)); return; }
+        if (outcome.exitCode !== 0) { this.save(season, failDoor(state, 'agent_exit', `${adapter.label} stopped without finishing (exit code ${outcome.exitCode ?? 'unknown'}).${logHint}`)); return; }
+        this.save(season, failDoor(state, 'no_gift', `${adapter.label} finished but left nothing in ./gift.${logHint}`)); return;
       }
       // Auto-submit whatever the agent left in ./gift.
       const result = await this.gateAndSeal(season, day, { type: 'folder', path: outcome.giftFolder }, 'launched', adapter.id);

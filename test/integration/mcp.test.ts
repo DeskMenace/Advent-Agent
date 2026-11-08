@@ -29,7 +29,7 @@ describe('MCP server', () => {
     t = await testCompanion({ config: { connection: { mode: 'connected', permissive: false } } });
     const client = await mcpClient(t);
     const tools = (await client.listTools()).tools.map((x) => x.name).sort();
-    expect(tools).toEqual(['check_gift', 'get_calendar_context', 'list_ideas', 'list_workshop', 'read_idea', 'read_workshop_guide', 'report_progress', 'start_gift', 'submit_gift']);
+    expect(tools).toEqual(['check_gift', 'generate_image', 'get_calendar_context', 'list_ideas', 'list_workshop', 'read_idea', 'read_workshop_guide', 'report_progress', 'start_gift', 'submit_gift']);
     expect(tools.join(' ')).not.toMatch(/purchase|buy|book|pay/);
     const ws = await client.callTool({ name: 'list_workshop', arguments: {} });
     expect(JSON.parse(textOf(ws))).toHaveProperty('skills');

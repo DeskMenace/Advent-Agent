@@ -88,8 +88,7 @@ test.describe('renderers (E2)', () => {
     const play = page.getByRole('button', { name: '▶ Play' });
     await play.click();
     await expect(page.getByRole('button', { name: '■ Stop' })).toBeVisible();
-    await page.waitForTimeout(600);
-    expect(Number(await page.locator('progress').getAttribute('value'))).toBeGreaterThan(0);
+    await expect.poll(async () => Number(await page.locator('progress').evaluate((p: HTMLProgressElement) => p.value)), { timeout: 8000 }).toBeGreaterThan(0);
     await page.getByRole('button', { name: '■ Stop' }).click();
     await expect(page.locator('.sheet')).toContainText('Ready-to-paste prompt');
     await expect(page.getByRole('button', { name: 'Copy prompt 1' })).toBeVisible();

@@ -1,10 +1,11 @@
-node_modules/
-dist/
 *.tgz
 .DS_Store
-test-results/
-playwright-report/
+.advent-agent-dev/
 .advent-agent-test/
-test/e2e/__snapshots__/**/*-actual.png
-coverage/
 .scratch/
+coverage/
+dist/
+node_modules/
+playwright-report/
+test-results/
+test/e2e/__snapshots__/**/*-actual.png

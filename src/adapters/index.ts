@@ -48,7 +48,9 @@ export const gemini: Adapter = {
   detect: async () => detectCli('gemini'),
   capabilities: () => base({ verified: true, canRunCommands: false, notes: ['approval-mode auto_edit: file edits run, shell commands are denied, so progress and submission are handled by the calendar when it exits.', 'No token-limit flag: the budget is advisory.', 'Loads ~/.gemini/GEMINI.md.'] }),
   launch(ctx) {
-    const args = ['-p', ctx.prompt, '--output-format', 'json', '--include-directories', ctx.workshop, ...ctx.inspirationFolders.flatMap((f) => ['--include-directories', f])];
+    // --skip-trust: without it Gemini CLI silently downgrades --approval-mode to "default" in an untrusted folder
+    // (observed with 0.49.0), and every edit would wait for an approval nobody can give.
+    const args = ['-p', ctx.prompt, '--output-format', 'json', '--skip-trust', '--include-directories', ctx.workshop, ...ctx.inspirationFolders.flatMap((f) => ['--include-directories', f])];
     args.push('--approval-mode', ctx.permissive ? 'yolo' : 'auto_edit');
     return { command: 'gemini', args };
   },

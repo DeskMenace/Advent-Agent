@@ -28,6 +28,19 @@ export interface RunInput {
   onPhase: (phase: ProgressPhase) => void;
 }
 
+/**
+ * Recognise account and setup problems in a CLI's output, so the user gets an actionable, spoiler-free message
+ * instead of "exit code 1". Only fixed phrases are returned; the agent's raw output never reaches the UI.
+ */
+export function diagnoseAgentOutput(output: string): { code: string; message: string } | undefined {
+  const o = output.toLowerCase();
+  if (/rate_limit|rate limit|usage limit|requires_usage_credits|overage|quota|429/.test(o)) return { code: 'agent_rate_limited', message: 'has reached a usage or rate limit on its account. Try again later, or check its plan.' };
+  if (/not logged in|please log ?in|login required|unauthori[sz]ed|invalid api key|authentication|set an auth method|401/.test(o)) return { code: 'agent_not_authenticated', message: 'is not signed in on this computer. Run it once in a terminal and log in, then try again.' };
+  if (/model[^\n]{0,80}not (supported|found|available)|model_not_found|unknown model|invalid model/.test(o)) return { code: 'agent_model_unavailable', message: 'is configured with a model your account cannot use. Change the model in its own settings, then try again.' };
+  if (/not trusted|trust this folder|workspace trust/.test(o)) return { code: 'agent_untrusted_folder', message: 'refused to work in the gift folder because it is not trusted.' };
+  return undefined;
+}
+
 export interface RunOutcome {
   exitCode: number | null;
   timedOut: boolean;
@@ -35,6 +48,8 @@ export interface RunOutcome {
   durationMs: number;
   /** The gift folder the agent wrote, if present. */
   giftFolder?: string;
+  /** Recognised account/setup problem, if any. */
+  diagnosis?: { code: string; message: string };
   error?: string;
 }
 
@@ -155,7 +170,7 @@ export class AgentRun {
       child.on('close', (code) => {
         const usage = input.adapter.parseUsage(output);
         const giftFolder = join(input.workspace, 'gift');
-        finish({ exitCode: code, timedOut, usage, giftFolder: existsSync(giftFolder) ? giftFolder : undefined, error: this.killed ? 'cancelled' : undefined });
+        finish({ exitCode: code, timedOut, usage, giftFolder: existsSync(giftFolder) ? giftFolder : undefined, error: this.killed ? 'cancelled' : undefined, diagnosis: code !== 0 ? diagnoseAgentOutput(output.slice(-200_000)) : undefined });
       });
       // Tool-agnostic progress channel: the agent may write a phase name into ./.progress.
       this.phaseTimer = setInterval(() => this.pollPhaseFile(), 2000);

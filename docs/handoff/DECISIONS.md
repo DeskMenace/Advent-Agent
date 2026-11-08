@@ -58,3 +58,14 @@ Node.js local app run with `npx advent-agent` (plus optional global install), br
 
 ## D12. Name
 **Advent Agent.** Tagline: *Your AI agent is your Secret Santa.* "24 Little Wonders" (the mockup's working title) may be reused as an in-app phrase but is not the product name.
+
+## D13. Implementation decisions recorded during the build (8 November 2026)
+- **Gary on narrow screens.** Below 780 px the board fills the width and Gary would inevitably cover envelopes, so he is not shown there. On wider screens he lives in the left page margin (x ≤ 8 %) at floor level, may stand on the board's credit line, and never reaches the envelopes or the status panel on his own. (§3 "must not cover envelopes for long".)
+- **Launched-mode progress has two channels.** `advent-agent progress <phase>` (through a PATH shim the runner adds, so no global install is needed) and a plain `./.progress` file in the workspace, polled every 2 s, for agents whose permission mode blocks shell commands (Gemini CLI with `auto_edit`). The runner also submits `./gift` when the agent exits without submitting, as `AGENT_CONNECTIONS.md` §2 allows.
+- **Gate feedback loop.** When a launched agent's gift fails the gate, the agent is started once more in the same attempt with the structured problems appended to `BRIEF.md`; a second failure marks the door failed (retry creates a new attempt).
+- **Budget enforcement.** Claude Code gets `--max-budget-usd` when a USD cap is set (there is no token-limit flag); Codex and Gemini expose no limit flag, so the token target is advisory and labelled so in the brief and the UI.
+- **Gift origin URLs** use a per-process random path segment per gift (`/g/<token>/…`), so a page on the gift origin cannot guess another gift's files; the UI gets the base URL from the API after reveal.
+- **Test clock.** `ADVENT_AGENT_FAKE_NOW` pins "now" only for a non-default `ADVENT_AGENT_HOME`; the default install always uses the real clock. Demo and lab homes simulate the day through `demo.json`.
+- **Demo and lab ports.** Demo runs on 4324/4325, lab on 4424/4425, so they never collide with a live calendar on 4224/4225.
+- **Snapshots.** Playwright screenshot comparisons run locally (macOS baselines committed); CI saves screenshots as artifacts instead of comparing, because font rendering differs per OS.
+- **Settings updates** merge a raw patch onto the current config and validate the whole object (zod 4's `.partial()` re-applies defaults and would reset untouched settings).
