@@ -164,7 +164,7 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 - [x] D6 On-demand is the default; scheduled mode offered only with the companion service (setup e2e)
 - [x] D7 No API key required to finish setup; keys optional, add/remove locally (settings e2e)
 - [x] D8 Purchase: the agent never purchases; "I bought it" marks are user-only; price ceiling respected in briefs (`test/unit/package-parse.test.ts` D1 checks, brief rule in `src/core/brief.ts`)
-- [x] D9 Demo state can't charge, order or touch live season data (`test/integration/demo.test.ts`)
+- [x] D9 ~~Demo state can't charge, order or touch live season data~~ — no demo mode (D24); the internal fixture calendar uses an isolated home and never runs an agent
 - [x] D10 Data persists locally, archives by season, export without secrets (U5.3, E4.2)
 - [x] D11 Browser errors for unavailable formats handled with fallback actions (E2.10)
 
@@ -174,9 +174,9 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 - [ ] R3 Manual: portable mode with a chat LLM via `AGENT_GUIDE.md` — Noémie
 
 ## 5. Packaging — TEST_PLAN §5 — `test/packaging/pack.test.ts`
-- [x] P1 `npm pack` → install in a clean temp dir → `npx advent-agent doctor` and `demo` work (macOS here; Ubuntu/Windows via CI)
+- [x] P1 `npm pack` → install in a clean temp dir → `npx advent-agent doctor` and `start` work; `demo` is gone (D24) (macOS here; Ubuntu/Windows via CI)
 - [x] P2 Package size ≤ 15 MB; no Chromium or ffmpeg bundled
-- [x] P3 First run with no agent installed offers demo, connected and portable modes
+- [x] P3 First run with no agent installed goes to setup, which offers connected and portable modes (no demo, D24)
 
 ## 6. Gift lab — TEST_PLAN §6
 - [x] L1 `advent-agent lab --idea`, `--ideas`, `--free`, `open`, `review` work in an isolated home

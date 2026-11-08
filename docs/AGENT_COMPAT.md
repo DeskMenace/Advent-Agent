@@ -37,3 +37,4 @@ ADVENT_REAL_AGENTS=1 ADVENT_REAL_AGENTS_ONLY=claude-code npm run test:agents
 | Agent | Version | Date | Result | Phases | Kind | Duration | Usage | Command |
 |---|---|---|---|---|---|---|---|---|
 | Claude Code | 2.1.319 | 2026-11-08 | ready | making, testing, wrapping | interactive-html | 55s | ? tokens | `/Users/alex/.local/bin/claude -p "Read BRIEF.md in the current folder and follow the gift-director skill." --output-format stream-json --verbose --no-session-` |
+| Claude Code | 2.1.319 | 2026-11-08 | ready | wrapping | interactive-html | 110s | 369474 tokens, $0.505 | `/Users/alex/.local/bin/claude -p "Read BRIEF.md in the current folder and follow the gift-director skill." --output-format stream-json --verbose --no-session-` |

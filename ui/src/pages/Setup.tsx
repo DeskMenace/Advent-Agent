@@ -84,7 +84,7 @@ export function SetupPage() {
               <p class="page-sub">Twenty-four doors, December 1 to 24. Behind each one, a gift your own agent makes: a game, a song, a card, a plan, a real thing it found for you. The calendar keeps the surprise; your agent does the rest.</p>
               <p class="page-sub">Everything stays on this computer. No account, no API keys, no tracking. Your agent works the way it normally does, with its own memory and its own provider.</p>
               <p class="page-sub"><strong>Your agent never buys or books anything.</strong> When a gift is a real object or experience, it prepares a proposal and you decide.</p>
-              {installed.length === 0 && <div class="notice">No terminal agent was found on this computer. That is fine: you can connect a desktop app through MCP, or paste a request into any chat assistant and drop the result in. Or try the demo first: <code class="inline">npx advent-agent demo</code>.</div>}
+              {installed.length === 0 && <div class="notice">No terminal agent was found on this computer. That is fine: you can connect a desktop app through MCP, or paste a request into any chat assistant and drop the result in.</div>}
             </>
           )}
           {step === 1 && <ConnectionSection cfg={cfg} onChange={patch} detect={detect} />}

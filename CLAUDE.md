@@ -17,7 +17,7 @@ Open-source, local-first advent calendar. The user's own AI agent makes the gift
 - Verify third-party CLI flags against `--help` and record them in `docs/AGENT_COMPAT.md`.
 
 ## Commands
-- `npm run dev`: companion + Vite UI with a demo home
+- `npm run dev`: companion + Vite UI on a dev home with fixture gifts (developers only; there is no user-facing demo, D24)
 - `npm test`: unit + integration · `npm run e2e`: Playwright · `npm run test:agents`: real agents (opt-in, costs tokens)
 - `npm run library:index`: regenerate the idea index
 - `npm run build && npm pack`: release check

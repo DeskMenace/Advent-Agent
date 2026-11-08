@@ -8,7 +8,7 @@ import { join } from 'node:path';
 const root = process.cwd();
 
 describe('packaging', () => {
-  it('P1 + P2 + P3: pack, install clean, doctor and demo start; ≤ 15 MB; no Chromium/ffmpeg inside', async () => {
+  it('P1 + P2 + P3: pack, install clean, doctor and start work; first run asks for setup; ≤ 15 MB; no Chromium/ffmpeg inside', async () => {
     if (!existsSync(join(root, 'dist', 'ui', 'index.html'))) execFileSync('npm', ['run', 'build'], { cwd: root, stdio: 'inherit' });
     const packDir = mkdtempSync(join(tmpdir(), 'aa-pack-'));
     const out = execFileSync('npm', ['pack', '--pack-destination', packDir, '--json'], { cwd: root, encoding: 'utf8' });
@@ -17,7 +17,9 @@ describe('packaging', () => {
     expect(statSync(tgz).size).toBeLessThanOrEqual(15 * 1024 * 1024);
     const paths = info.files.map((f) => f.path);
     expect(paths.some((p) => /chrom|ffmpeg|ffprobe|\.app\//i.test(p))).toBe(false);
-    expect(paths).toEqual(expect.arrayContaining(['bin/advent-agent.js', 'dist/cli/main.js', 'dist/ui/index.html', 'AGENT_GUIDE.md', 'schema/gift.schema.json', 'gift-library/INDEX.json', 'workshop/skills/gift-director/SKILL.md', 'fixtures/gifts/05-interactive-html/index.html']));
+    expect(paths).toEqual(expect.arrayContaining(['bin/advent-agent.js', 'dist/cli/main.js', 'dist/ui/index.html', 'AGENT_GUIDE.md', 'schema/gift.schema.json', 'gift-library/INDEX.json', 'workshop/skills/gift-director/SKILL.md']));
+    // D24: no user-facing demo, so the fixture gifts are not shipped.
+    expect(paths.some((p) => p.startsWith('fixtures/'))).toBe(false);
     expect(paths.some((p) => p.startsWith('docs/') || p.startsWith('test/') || p.startsWith('src/') || p.startsWith('ui/'))).toBe(false);
 
     const installDir = mkdtempSync(join(tmpdir(), 'aa-install-'));
@@ -35,9 +37,9 @@ describe('packaging', () => {
     const version = spawnSync(bin, ['version'], { cwd: installDir, encoding: 'utf8', shell: process.platform === 'win32' });
     expect(version.stdout.trim()).toMatch(/^\d+\.\d+\.\d+/);
 
-    // demo starts and serves the calendar
+    // start serves the calendar; a fresh home has no season and asks for setup (P3)
     const port = 4824;
-    const child = spawn(bin, ['demo', '--no-open', '--allow-shutdown', '--port', String(port), '--gift-port', String(port + 1)], { cwd: installDir, env: { ...process.env, ADVENT_AGENT_HOME: home }, shell: process.platform === 'win32', stdio: ['ignore', 'pipe', 'pipe'] });
+    const child = spawn(bin, ['start', '--no-open', '--port', String(port), '--gift-port', String(port + 1)], { cwd: installDir, env: { ...process.env, ADVENT_AGENT_HOME: home }, shell: process.platform === 'win32', stdio: ['ignore', 'pipe', 'pipe'] });
     let log = '';
     child.stdout.on('data', (d) => (log += d));
     child.stderr.on('data', (d) => (log += d));
@@ -51,13 +53,14 @@ describe('packaging', () => {
       expect(ok, log).toBe(true);
       const unauthorized = await fetch(`http://127.0.0.1:${port}/api/calendar`);
       expect(unauthorized.status).toBe(401);
-      const demoToken = (await import('node:fs')).readFileSync(join(home, 'demo', 'api.token'), 'utf8').trim();
-      const cal = await fetch(`http://127.0.0.1:${port}/api/calendar`, { headers: { authorization: `Bearer ${demoToken}` } });
-      const json = (await cal.json()) as { doors: Array<{ jobState: string }>; season: { kind: string } };
-      expect(json.season.kind).toBe('demo');
-      expect(json.doors.filter((d) => d.jobState === 'ready').length).toBeGreaterThanOrEqual(8);
-      // P3: a fresh live home without agents still offers a path (doctor already showed modes; the API says setup is pending)
-      await fetch(`http://127.0.0.1:${port}/api/shutdown`, { headers: { authorization: `Bearer ${demoToken}` } });
+      const token = (await import('node:fs')).readFileSync(join(home, 'api.token'), 'utf8').trim();
+      const cal = await fetch(`http://127.0.0.1:${port}/api/calendar`, { headers: { authorization: `Bearer ${token}` } });
+      const json = (await cal.json()) as { setupComplete: boolean; doors: Array<{ envelope: string }> };
+      expect(json.setupComplete).toBe(false);
+      expect(json.doors.every((d) => d.envelope === 'locked')).toBe(true);
+      const demo = spawnSync(bin, ['demo'], { cwd: installDir, encoding: 'utf8', env: { ...process.env, ADVENT_AGENT_HOME: home }, shell: process.platform === 'win32' });
+      expect(demo.status).not.toBe(0);
+      expect(demo.stderr + demo.stdout).toMatch(/Unknown command: demo/);
     } finally {
       try { child.kill('SIGTERM'); } catch { /* gone */ }
       rmSync(packDir, { recursive: true, force: true });
@@ -68,7 +71,8 @@ describe('packaging', () => {
 
   it('the package manifest lists exactly the runtime folders', () => {
     const pkg = JSON.parse((require('node:fs') as typeof import('node:fs')).readFileSync(join(root, 'package.json'), 'utf8')) as { files: string[]; dependencies: Record<string, string> };
-    expect(pkg.files).toEqual(expect.arrayContaining(['bin/', 'dist/', 'schema/', 'workshop/', 'gift-library/', 'fixtures/', 'AGENT_GUIDE.md', 'README.md', 'THIRD_PARTY.md', 'LICENSE']));
+    expect(pkg.files).toEqual(expect.arrayContaining(['bin/', 'dist/', 'schema/', 'workshop/', 'gift-library/', 'AGENT_GUIDE.md', 'README.md', 'THIRD_PARTY.md', 'LICENSE']));
+    expect(pkg.files).not.toContain('fixtures/');
     expect(Object.keys(pkg.dependencies)).toContain('gary.js');
     expect(readdirSync(join(root, 'fixtures', 'gifts')).length).toBeGreaterThanOrEqual(10);
   });

@@ -118,3 +118,9 @@ Agents use everything they legitimately know (memory, profile, history, granted 
   - The share mark's GitHub link points to `https://github.com/suchipizza/Advent-Agent`. The deskmenace.com link keeps `ref=aa-share`.
   - The early start for Day 1 and the finale also applies in connected and portable modes: door 1 accepts a gift before December 1, the finale from December 20. Neither can be revealed before its day.
 
+## D24. No demo mode (8 November 2026, Noémie)
+- There is no user-facing demo. Every gift a person sees is a surprise made by their own agent; the product never shows sample gifts. This overrides DESIGN_SPEC §3 ("Demo/developer preview") and §9.3, and TEST_PLAN §5's "first run → demo mode" path.
+- `advent-agent demo` is removed. A first run goes straight to setup, which offers launched, connected and portable modes.
+- The fixture gifts stay in the repository as test data only (`fixtures/gifts/`, `scripts/fixture-calendar.ts`, used by the e2e suite and `npm run dev`). They are not in the npm package.
+- The gift lab (`advent-agent lab`) stays: it runs the user's own agent and is meant for reviewing ideas, not for showing samples.
+

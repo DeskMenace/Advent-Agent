@@ -11,7 +11,7 @@ import { PROGRESS_PHASES } from '../shared/gift.js';
 import { startCompanion } from '../server/companion.js';
 import { installService, serviceStatus, uninstallService } from '../jobs/service-install.js';
 import { Store } from '../core/store.js';
-import { CompanionClient, DEMO_PORTS, LAB_PORTS } from './client.js';
+import { CompanionClient, LAB_PORTS } from './client.js';
 import { parseArgs, type Parsed } from './args.js';
 import { doctor as doctorReport } from '../server/app.js';
 import { CalendarService } from '../jobs/service.js';
@@ -39,7 +39,6 @@ Usage:
   advent-agent mcp                     MCP server over stdio
   advent-agent service install|uninstall|status
   advent-agent generate image --prompt "…" [--day N]   use the recipient's own image provider (if enabled)
-  advent-agent demo                    demo calendar with sample gifts (isolated, never runs an agent)
   advent-agent lab --idea <id> | --ideas <a,b> | --free | open | review   gift lab (isolated, real agents)
   advent-agent export <file.zip> | import <file.zip> | backup
   advent-agent doctor                  detect agents, ports, browser, ffprobe
@@ -195,19 +194,6 @@ async function cmdService(p: Parsed): Promise<number> {
   return 0;
 }
 
-async function cmdDemo(p: Parsed): Promise<void> {
-  const homeRoot = process.env.ADVENT_AGENT_HOME ? join(resolveHomeRoot(), 'demo') : join(homedir(), '.advent-agent', 'demo');
-  const appPort = Number(p.flags.port ?? DEMO_PORTS.app);
-  const giftPort = Number(p.flags['gift-port'] ?? DEMO_PORTS.gift);
-  const client = new CompanionClient({ homeRoot, appPort });
-  if (await client.isRunning()) { await openBrowser(await client.loginUrl('/')); return; }
-  const companion = await startCompanion({ homeRoot, appPort, giftPort, allowRealAgents: false, allowShutdown: Boolean(p.flags['allow-shutdown']) });
-  await installDemoFixtures(companion.service, { simulatedDay: Number(p.flags.day ?? 8) });
-  console.log(`Demo calendar on http://127.0.0.1:${appPort} — simulated December ${p.flags.day ?? 8}. Nothing here is generated or purchased.`);
-  if (!p.flags['no-open']) await openBrowser(companion.loginUrl('/'));
-  await new Promise(() => undefined);
-}
-
 async function cmdLab(p: Parsed): Promise<number> {
   const homeRoot = join(resolveHomeRoot(), 'lab');
   const appPort = LAB_PORTS.app;
@@ -319,7 +305,6 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
       case 'mcp': { const { runMcpServer } = await import('../mcp/server.js'); await runMcpServer(); return 0; }
       case 'service': return await cmdService(p);
       case 'generate': return await cmdGenerate(p);
-      case 'demo': await cmdDemo(p); return 0;
       case 'lab': return await cmdLab(p);
       case 'export': return await cmdExport(p);
       case 'import': return await cmdImport(p);

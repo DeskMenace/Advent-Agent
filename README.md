@@ -47,7 +47,6 @@ Useful commands:
 
 ```
 advent-agent                  start + open the calendar
-advent-agent demo             a demo calendar with sample gifts (isolated, never runs an agent)
 advent-agent doctor           detect agents, ports, browser, ffprobe
 advent-agent status           door states, no spoilers
 advent-agent mcp              MCP server for Claude Desktop & friends
@@ -89,10 +88,10 @@ advent-agent lab …            gift lab for trying ideas with real agents
 npm install
 npm run build          # server + UI + schema
 npm test               # unit + integration (fake agent, MCP, auth, scheduler)
-npm run e2e            # Playwright against a demo calendar
-npm run test:packaging # npm pack → clean install → doctor + demo
+npm run e2e            # Playwright against the internal fixture calendar (scripts/fixture-calendar.ts)
+npm run test:packaging # npm pack → clean install → doctor + start
 ADVENT_REAL_AGENTS=1 npm run test:agents   # real agents, costs tokens
-npm run dev            # companion on a dev demo home (rebuild the UI with `npx vite build ui --watch`)
+npm run dev            # companion on a dev home with fixture gifts (rebuild the UI with `npx vite build ui --watch`)
 ```
 
 Progress against the acceptance plan is tracked in [docs/PROGRESS.md](docs/PROGRESS.md); known gaps in [docs/KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md).
