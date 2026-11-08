@@ -7,7 +7,7 @@
  * typing. No nesting beyond one level of list. No yaml dependency.
  */
 
-export type FrontmatterValue = string | string[];
+export type FrontmatterValue = string | string[] | boolean | null;
 export interface ParsedDocument {
   data: Record<string, FrontmatterValue>;
   body: string;
@@ -126,7 +126,9 @@ export function parseFrontmatterBlock(yaml: string): Record<string, FrontmatterV
     if (value.startsWith('[')) {
       if (!value.endsWith(']')) throw new FrontmatterError('unterminated inline array', lineNo);
       data[key] = parseInlineArray(value, lineNo);
-    } else data[key] = unquote(value, lineNo);
+    } else if (/^(true|false)$/i.test(value)) data[key] = value.toLowerCase() === 'true';
+    else if (/^(null|~)$/i.test(value)) data[key] = null;
+    else data[key] = unquote(value, lineNo);
   }
   return data;
 }
@@ -173,7 +175,8 @@ export function stringifyFrontmatter(data: Record<string, FrontmatterValue>, bod
         out.push(`${key}:${comment}`);
         for (const item of value) out.push(`  - ${formatScalar(item)}`);
       } else out.push(`${key}: [${value.map(formatArrayItem).join(', ')}]${comment}`);
-    } else out.push(`${key}: ${formatScalar(value)}${comment}`);
+    } else if (typeof value === 'boolean' || value === null) out.push(`${key}: ${String(value)}${comment}`);
+    else out.push(`${key}: ${formatScalar(value)}${comment}`);
   }
   out.push('---');
   const trimmedBody = body.replace(/\s+$/, '');

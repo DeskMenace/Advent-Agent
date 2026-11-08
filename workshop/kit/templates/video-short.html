@@ -7,11 +7,19 @@
 <!-- Advent Agent template: animated short. Scenes → canvas → WebM via MediaRecorder (kit/art/recorder.js inlined). Live playback is the primary experience; the file is a bonus. Inline. No network. MIT. -->
 <script type="application/advent-gift+json">
 {
-  "schema": "advent-agent/gift@1",
+  "schema": "advent-agent/gift@2",
   "day": 0,
   "title": "TODO: Short title",
-  "category": "Animated short",
-  "note": "TODO: what the short shows, how long it is, that Play starts it and Save keeps a WebM copy (where supported).",
+  "ideaId": null,
+  "family": "deadpan-documents",
+  "emotion": "TODO: one of funny | ridiculous | absurd | cute | touching",
+  "interaction": ["play"],
+  "form": "interactive-html",
+  "tierUsed": "S",
+  "note": "TODO: why you made this for them. The page says how long it is and that Save keeps a WebM copy (where supported).",
+  "share": {"still": {"capture": "still"}, "loop": {"capture": "loop", "durationMs": 6000}, "caption": "TODO: one line they might post with it", "privateText": []},
+  "downloads": [],
+  "credits": [],
   "incomplete": []
 }
 </script>
@@ -25,6 +33,8 @@ canvas{display:block;width:100%;max-width:800px;aspect-ratio:16/9;margin:0 auto 
 button{font:600 15px/1 system-ui;padding:10px 16px;border-radius:6px;border:1px solid var(--gold);background:var(--green);color:var(--milk);cursor:pointer;min-height:44px}
 button:disabled{opacity:.5}button:focus-visible{outline:3px solid var(--gold-light);outline-offset:2px}
 #status{color:var(--muted);min-height:1.5em}progress{width:200px;vertical-align:middle}
+/* Capture: the calendar calls window.adventCapture.prepare(kind) at 1080×1350 (still) or 1080×1920 (loop). Keep the bottom-right 160×48 px clear for the share mark. */
+.is-capturing .row,.is-capturing #status{display:none}
 </style>
 </head>
 <body>
@@ -62,6 +72,13 @@ if(!recordingSupported()){save.disabled=true;status.textContent='Your browser ca
 save.onclick=function(){if(reduced){status.textContent='Turn off reduced motion to record the animated version.';return;}save.disabled=true;prog.hidden=false;status.textContent='Recording…';play();
   recordCanvas(canvas,TOTAL+0.2,30,function(p){prog.value=p}).then(function(blob){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='short.webm';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1000);status.textContent='Saved short.webm';}).catch(function(e){status.textContent='Recording failed: '+e.message;}).then(function(){save.disabled=false;prog.hidden=true;});};
 drawAt(0);
+// Share frame: the middle of the short (loop: play it from the start).
+window.adventCapture={async prepare(kind){
+  document.documentElement.classList.add('is-capturing');
+  cancelAnimationFrame(raf);
+  if(kind==='loop'&&!reduced){play();}else{drawAt(TOTAL*0.5);}
+  await new Promise(function(r){setTimeout(r,100)});
+}};
 </script>
 </body>
 </html>

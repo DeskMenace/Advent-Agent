@@ -7,11 +7,19 @@
 <!-- Advent Agent template: one renderer, exported at real phone/desktop sizes. Everything inline. No network. MIT. -->
 <script type="application/advent-gift+json">
 {
-  "schema": "advent-agent/gift@1",
+  "schema": "advent-agent/gift@2",
   "day": 0,
   "title": "TODO: Wallpaper title",
-  "category": "Wallpaper",
-  "note": "TODO: what it shows, which size to pick for their phone, how to set it.",
+  "ideaId": null,
+  "family": "printables",
+  "emotion": "TODO: one of funny | ridiculous | absurd | cute | touching",
+  "interaction": ["regenerate"],
+  "form": "interactive-html",
+  "tierUsed": "S",
+  "note": "TODO: why this image is theirs, which size to pick for their phone, how to set it.",
+  "share": {"still": {"capture": "still"}, "caption": "TODO: one line they might post with it", "privateText": []},
+  "downloads": [],
+  "credits": [],
   "incomplete": []
 }
 </script>
@@ -26,6 +34,8 @@ button{font:600 15px/1 system-ui,sans-serif;padding:10px 14px;border-radius:6px;
 button:focus-visible{outline:3px solid var(--gold-light);outline-offset:2px}
 label{display:inline-flex;gap:8px;align-items:center;margin:8px}
 #status{text-align:center;color:var(--muted);min-height:1.5em}
+/* Capture: the calendar calls window.adventCapture.prepare(kind) at 1080×1350 (still) or 1080×1920 (loop). Keep the bottom-right 160×48 px clear for the share mark. */
+.is-capturing .row,.is-capturing .sub,.is-capturing #status{display:none}
 </style>
 </head>
 <body>
@@ -56,6 +66,12 @@ function download(size){var c=document.createElement('canvas');render(c,size);st
 SIZES.forEach(function(s){var b=document.createElement('button');b.type='button';b.textContent=s.label;b.onclick=function(){download(s)};document.getElementById('sizes').appendChild(b);});
 document.getElementById('regen').onclick=function(){render(canvas,SIZES[0])};seedEl.addEventListener('change',function(){render(canvas,SIZES[0])});
 render(canvas,SIZES[0]);
+// Share frame: the phone preview, controls hidden.
+window.adventCapture={async prepare(kind){
+  document.documentElement.classList.add('is-capturing');
+  render(canvas,SIZES[0]);
+  await new Promise(function(r){setTimeout(r,100)});
+}};
 </script>
 </body>
 </html>

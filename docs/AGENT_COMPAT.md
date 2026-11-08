@@ -19,7 +19,7 @@ Source of truth for the launched-mode adapter table. Flags marked **verified** w
 
 Run with `ADVENT_REAL_AGENTS=1 npm run test:agents` (rows below are appended by the test; the notes are written by hand).
 
-### 8 November 2026, macOS, Node 24.11.1: blocked by account state, not by the adapters
+### 8 November 2026 (morning run), macOS, Node 24.11.1: blocked by account state, not by the adapters
 
 | Agent | Version | Outcome | What the CLI said | Adapter change |
 |---|---|---|---|---|
@@ -27,7 +27,7 @@ Run with `ADVENT_REAL_AGENTS=1 npm run test:agents` (rows below are appended by 
 | Codex CLI | 0.142.5 | Stopped at the first request | `The 'gpt-5.4' model is not supported when using Codex with a ChatGPT account` (from `model = "gpt-5.4"` in `~/.codex/config.toml`) | none; the calendar does not override the user's model and now says "configured with a model your account cannot use" |
 | Gemini CLI | 0.49.0 | Stopped at start | `Please set an Auth method …` (no login on this machine); also `Approval mode overridden to "default" because the current folder is not trusted` | **added `--skip-trust`** (verified in `--help`), otherwise edits would wait for approvals nobody can give |
 
-Each of the three was launched with the verified flags, received the brief and reached its model provider; none reached the gift-making stage, so the gate and render steps were not exercised with a real agent yet. Re-run once the accounts are usable:
+Later the same day Claude Code's limit reset and it passed (row below). Each of the three was launched with the verified flags, received the brief and reached its model provider; none reached the gift-making stage, so the gate and render steps were not exercised with a real agent yet. Re-run once the accounts are usable:
 
 ```
 ADVENT_REAL_AGENTS=1 npm run test:agents
@@ -36,3 +36,4 @@ ADVENT_REAL_AGENTS=1 ADVENT_REAL_AGENTS_ONLY=claude-code npm run test:agents
 
 | Agent | Version | Date | Result | Phases | Kind | Duration | Usage | Command |
 |---|---|---|---|---|---|---|---|---|
+| Claude Code | 2.1.319 | 2026-11-08 | ready | making, testing, wrapping | interactive-html | 55s | ? tokens | `/Users/alex/.local/bin/claude -p "Read BRIEF.md in the current folder and follow the gift-director skill." --output-format stream-json --verbose --no-session-` |

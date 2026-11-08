@@ -1,0 +1,333 @@
+{
+  "schema": "advent-agent/kit-index@1",
+  "blocks": {
+    "aquarium": {
+      "status": "built",
+      "files": [
+        "toys/aquarium.js"
+      ],
+      "note": "CSS-3D fish tank, inspired by CSS 3D Lab (MIT); drag to rotate, feed, add fish."
+    },
+    "arcade": {
+      "status": "built",
+      "files": [
+        "arcade/loop.js",
+        "arcade/input.js",
+        "arcade/collision.js",
+        "arcade/physics.js",
+        "arcade/particles.js",
+        "arcade/score.js",
+        "arcade/ui.js",
+        "arcade/quiz.js"
+      ],
+      "note": "Game loop, unified input, collision, simple physics, particles, scores, accessible UI, quiz."
+    },
+    "balloon": {
+      "status": "planned",
+      "files": [],
+      "note": "Planned: not in the kit yet; the agent builds it from scratch in the gift (allowed by gift-library/README.md). A hot-air balloon that rises, drifts and is steered; CSS 3D Lab has a hot-air model for reference (MIT, credit)."
+    },
+    "bloom": {
+      "status": "built",
+      "files": [
+        "toys/bloom.js"
+      ],
+      "note": "Seeded procedural flowers with bezier petals that unfold on touch."
+    },
+    "bracket": {
+      "status": "planned",
+      "files": [],
+      "note": "Planned: not in the kit yet; the agent builds it from scratch in the gift (allowed by gift-library/README.md). A tournament bracket with match-ups the user picks through to a winner."
+    },
+    "capture": {
+      "status": "built",
+      "files": [
+        "capture/capture.js"
+      ],
+      "note": "window.adventCapture hook (register), markPrivate, ready(), canvas → PNG/WebM, share-mark corner check."
+    },
+    "cassette": {
+      "status": "built",
+      "files": [
+        "sound/cassette.js"
+      ],
+      "note": "Cassette player: spinning reels, drag to scrub, side A/B tracklist."
+    },
+    "character-rig": {
+      "status": "built",
+      "files": [
+        "characters/character-rig.js"
+      ],
+      "note": "SVG rig: idle, look (eyes follow pointer), react, sleep, blinking; default blob creature."
+    },
+    "charts": {
+      "status": "planned",
+      "files": [],
+      "note": "Planned: not in the kit yet; the agent builds it from scratch in the gift (allowed by gift-library/README.md). Deadpan bar/line/pie charts as inline SVG for the annual report (pairs with document/layouts.js)."
+    },
+    "confetti": {
+      "status": "built",
+      "files": [
+        "toys/confetti.js",
+        "vendor/confetti.browser.js"
+      ],
+      "note": "burst() uses vendored canvas-confetti (ISC) when inlined, else a tiny built-in burst."
+    },
+    "countdown": {
+      "status": "planned",
+      "files": [],
+      "note": "Planned: not in the kit yet; the agent builds it from scratch in the gift (allowed by gift-library/README.md). A countdown to a date with a reveal at zero; use the local clock only."
+    },
+    "crossword": {
+      "status": "built",
+      "files": [
+        "arcade/wordgrid.js"
+      ],
+      "note": "Crossword/word-search engine with seeded placement, numbering and checks."
+    },
+    "crystal": {
+      "status": "built",
+      "files": [
+        "toys/crystal.js"
+      ],
+      "note": "CSS-3D faceted crystal, inspired by CSS 3D Lab (MIT); drag to spin, inclusions."
+    },
+    "css-3d-box": {
+      "status": "planned",
+      "files": [],
+      "note": "Planned: not in the kit yet; the agent builds it from scratch in the gift (allowed by gift-library/README.md). A CSS-3D box/matchbox that slides or lifts open; the paper/ blocks and toys/crystal.js show the preserve-3d patterns."
+    },
+    "document": {
+      "status": "built",
+      "files": [
+        "document/layouts.js",
+        "document/document.css"
+      ],
+      "note": "Deadpan layouts: certificate, newspaper, annual report, patent, award, museum label; print CSS."
+    },
+    "envelope": {
+      "status": "built",
+      "files": [
+        "paper/envelope.js"
+      ],
+      "note": "CSS-3D envelope: flap opens, letter slides out."
+    },
+    "escape-locks": {
+      "status": "built",
+      "files": [
+        "arcade/locks.js"
+      ],
+      "note": "Code, riddle and sequence locks with normalisation and room progress."
+    },
+    "film-scenes": {
+      "status": "built",
+      "files": [
+        "templates/video-short.html",
+        "art/recorder.js"
+      ],
+      "note": "Scenes drawn to a canvas and recorded to WebM; titles, cards and timing live in the template."
+    },
+    "gallery": {
+      "status": "planned",
+      "files": [],
+      "note": "Planned: not in the kit yet; the agent builds it from scratch in the gift (allowed by gift-library/README.md). A museum gallery wall/room with framed exhibits and labels (pairs with document/layouts.js museum label)."
+    },
+    "generative": {
+      "status": "built",
+      "files": [
+        "art/prng.js",
+        "art/palette.js",
+        "art/svg.js"
+      ],
+      "note": "Seeded randomness and noise, palettes, SVG helpers."
+    },
+    "glass": {
+      "status": "planned",
+      "files": [],
+      "note": "Planned: not in the kit yet; the agent builds it from scratch in the gift (allowed by gift-library/README.md). Glass/ornament rendering: refraction-like gradients, rim highlight and reflection (snow-globe.js has a glass highlight to copy)."
+    },
+    "holo-card": {
+      "status": "built",
+      "files": [
+        "toys/holo-card.js"
+      ],
+      "note": "Tilt card with holographic sheen (pointer or gyro after permission) and flip to back. Own implementation."
+    },
+    "jelly": {
+      "status": "built",
+      "files": [
+        "toys/jelly.js"
+      ],
+      "note": "Volume-preserving mass-spring soft body with translucent rendering; pure stepJelly() for tests."
+    },
+    "karaoke": {
+      "status": "built",
+      "files": [
+        "sound/karaoke.js"
+      ],
+      "note": "Lyrics highlighted in time with a score.json, inline synth, mute, no autoplay."
+    },
+    "maker": {
+      "status": "built",
+      "files": [
+        "maker/shell.js",
+        "maker/storage.js",
+        "maker/clipboard.js",
+        "maker/cheatsheet.js"
+      ],
+      "note": "Mini-app shell, local storage fallback, clipboard/downloads, cheat sheets."
+    },
+    "map": {
+      "status": "planned",
+      "files": [],
+      "note": "Planned: not in the kit yet; the agent builds it from scratch in the gift (allowed by gift-library/README.md). An illustrated SVG map with pins and a path drawn between places (no map tiles or network)."
+    },
+    "music-box": {
+      "status": "built",
+      "files": [
+        "sound/synth.js",
+        "sound/score.js",
+        "sound/player.js"
+      ],
+      "note": "The musicbox voice plus score scheduling and a no-autoplay player."
+    },
+    "physics-2d": {
+      "status": "built",
+      "files": [
+        "vendor/matter.min.js"
+      ],
+      "note": "Vendored matter-js 0.20.0 (MIT) for rigid-body piles, ropes and stacks."
+    },
+    "pop": {
+      "status": "planned",
+      "files": [],
+      "note": "Planned: not in the kit yet; the agent builds it from scratch in the gift (allowed by gift-library/README.md). Poppable bubbles (bubble wrap): hit-testing, pop animation and a short synthesized pop sound after a gesture."
+    },
+    "pop-up-card": {
+      "status": "built",
+      "files": [
+        "paper/pop-up-card.js"
+      ],
+      "note": "CSS-3D card that opens on click/drag with layered pop-up elements and paper texture."
+    },
+    "recorder": {
+      "status": "built",
+      "files": [
+        "art/recorder.js",
+        "capture/capture.js"
+      ],
+      "note": "Canvas → WebM via MediaRecorder; capture.js has a self-contained copy clamped to 3–10 s loops."
+    },
+    "scratch": {
+      "status": "built",
+      "files": [
+        "toys/scratch.js"
+      ],
+      "note": "Scratch-off canvas layer reporting % revealed, with a Reveal button."
+    },
+    "scroll-scenes": {
+      "status": "planned",
+      "files": [],
+      "note": "Planned: not in the kit yet; the agent builds it from scratch in the gift (allowed by gift-library/README.md). Scroll-driven scenes (IntersectionObserver or scroll progress) with reduced-motion fallbacks."
+    },
+    "shake": {
+      "status": "planned",
+      "files": [],
+      "note": "Planned: not in the kit yet; the agent builds it from scratch in the gift (allowed by gift-library/README.md). A standalone shake detector (pointer velocity + devicemotion after permission + keyboard); toys/snow-globe.js contains one to copy."
+    },
+    "snow-globe": {
+      "status": "built",
+      "files": [
+        "toys/snow-globe.js"
+      ],
+      "note": "Canvas 2D globe: glass highlight, snow with inertia, shake by drag/motion/Space, object slots."
+    },
+    "sound": {
+      "status": "built",
+      "files": [
+        "sound/synth.js",
+        "sound/score.js",
+        "sound/player.js",
+        "sound/wav.js",
+        "sound/sing.js",
+        "sound/ambient.js"
+      ],
+      "note": "Web Audio synth, score.json format, accessible player, WAV export, robot singing, ambience."
+    },
+    "soundscape": {
+      "status": "built",
+      "files": [
+        "sound/ambient.js"
+      ],
+      "note": "Procedural rain, fire, wind and snow with a slider mixer."
+    },
+    "stage": {
+      "status": "planned",
+      "files": [],
+      "note": "Planned: not in the kit yet; the agent builds it from scratch in the gift (allowed by gift-library/README.md). A stage with curtains, spotlight and an award moment (pairs with document/layouts.js award and toys/confetti.js)."
+    },
+    "stars": {
+      "status": "planned",
+      "files": [],
+      "note": "Planned: not in the kit yet; the agent builds it from scratch in the gift (allowed by gift-library/README.md). A starfield with connectable constellations drawn by tapping stars."
+    },
+    "sticker-peel": {
+      "status": "built",
+      "files": [
+        "toys/sticker-peel.js"
+      ],
+      "note": "Peel a sticker corner by drag; release sticks back or peels off. Own implementation."
+    },
+    "story": {
+      "status": "built",
+      "files": [
+        "story/card.js",
+        "story/letter.js",
+        "story/booklet.js",
+        "story/comic.js",
+        "story/fiction.js",
+        "story/type.js"
+      ],
+      "note": "Cards, letters, booklets, comics, interactive fiction, type stacks."
+    },
+    "three-scene": {
+      "status": "built",
+      "files": [
+        "vendor/three.module.min.js"
+      ],
+      "note": "Vendored three.js r187 (MIT) only; the agent writes the scene, camera and controls."
+    },
+    "ticket": {
+      "status": "planned",
+      "files": [],
+      "note": "Planned: not in the kit yet; the agent builds it from scratch in the gift (allowed by gift-library/README.md). A printable ticket/stub with perforation, tear-off interaction and print CSS (story/card.js and art/print.js help)."
+    },
+    "wallpaper-export": {
+      "status": "built",
+      "files": [
+        "art/wallpaper.js",
+        "art/export.js"
+      ],
+      "note": "Real device sizes with safe areas; canvas/SVG → PNG downloads."
+    },
+    "water": {
+      "status": "planned",
+      "files": [],
+      "note": "Planned: not in the kit yet; the agent builds it from scratch in the gift (allowed by gift-library/README.md). Water surface/liquid: spring-column waves or a sloshing fill line in a bottle."
+    },
+    "wheel": {
+      "status": "planned",
+      "files": [],
+      "note": "Planned: not in the kit yet; the agent builds it from scratch in the gift (allowed by gift-library/README.md). A spinning prize/fortune wheel with eased deceleration and a seeded result."
+    },
+    "zine": {
+      "status": "built",
+      "files": [
+        "story/booklet.js",
+        "templates/zine.html",
+        "art/print.js"
+      ],
+      "note": "Booklet pager, zine template and fold-order print CSS."
+    }
+  }
+}

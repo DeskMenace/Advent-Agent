@@ -8,6 +8,33 @@ A gift must be self-contained: **copy the code you use into the gift file** (pas
 
 All modules can be imported in Node without a DOM (tests do this): browser APIs are touched only inside functions.
 
+Every block is touch + mouse + keyboard where it makes sense, respects `prefers-reduced-motion`, and **sound never autoplays** (audio starts on a user gesture, with a mute control).
+
+`INDEX.json` (`advent-agent/kit-index@1`) maps every kit name used in `gift-library/ideas/*.md` to its files, with `status: built | planned`. A `planned` block does not exist yet: build it from scratch in the gift (the library allows this).
+
+## capture/ (the share contract)
+- `capture.js`: `register({ still, loop })` defines `window.adventCapture = { async prepare(kind) }` (kind `"still"` 1080×1350 or `"loop"` 1080×1920, 3–10 s); a missing kind falls back to the other handler. While preparing, `<html>` has the class `advent-capturing` (hide hints with `.advent-hide-on-capture`). `markPrivate(el | selector | list)` sets `data-advent-private` so the privacy preview can blur it. `ready()` deferred (thenable) plus `ready.dom/fonts/images/all`; `waitFrames`, `withTimeout`. `canvasToPNG`, `fitToShare`, `recordCanvas` (WebM, clamped 3–10 s, null when unsupported), `downloadBlob`. `SHARE_MARK` and `overlapsShareMark(rect)`: keep the bottom-right 160×48 px clear; never add logos, watermarks, links or hashtags (the calendar adds its mark).
+
+## paper/
+- `pop-up-card.js`: CSS-3D card that opens on click/drag (or Enter/Space), layered pop-up elements that stand up as it opens, paper texture without image files.
+- `envelope.js`: CSS-3D envelope: flap opens, the letter slides out; keyboard and reduced-motion states.
+
+## toys/
+- `snow-globe.js`: canvas 2D glass globe with highlight and base, snow with inertia, shake by drag velocity, `enableMotion()` (devicemotion after permission) or Space; object slots take emoji, SVG strings or images. Pure `stepSnow()`.
+- `jelly.js`: volume-preserving mass-spring ring (edge springs + pressure + shape memory), translucent glossy rendering, drag to stretch, release wobble. Pure `createJellyBody`, `stepJelly`, `polygonArea`, `squash`, `impulse` (tested: area stays within ±15 %).
+- `bloom.js`: seeded procedural flowers (bezier petals) that unfold on touch with easing. Pure `flowerGeometry(seed)`.
+- `holo-card.js`: tilt with pointer or gyro (`enableGyro()` after permission), holographic sheen, flip to the back. Our own implementation.
+- `sticker-peel.js`: drag a corner to peel and reveal the back; release sticks back or peels off. Our own implementation.
+- `aquarium.js`, `crystal.js`: CSS-3D tank and faceted crystal, drag to rotate; inspired by CSS 3D Lab (MIT, credited in the file header).
+- `confetti.js`: `burst()` uses the vendored canvas-confetti when it is inlined (`window.confetti`), else a tiny built-in canvas burst; fewer or no particles under reduced motion.
+- `scratch.js`: scratch-off canvas over any content, reports the % revealed, auto-reveals at a threshold, and offers a Reveal button for keyboard users.
+
+## characters/
+- `character-rig.js`: SVG rig with `idle`, `look` (eyes follow the pointer), `react` (click/Enter), `sleep` (after inactivity) and randomised blinking; pass your own SVG parts or use the default blob creature.
+
+## document/
+- `layouts.js` + `document.css`: deadpan layouts played completely straight: certificate, newspaper, annual report, patent, award, museum label. All inputs HTML-escaped; print CSS with `@page`.
+
 ## arcade/
 - `loop.js`: fixed-step game loop with pause/resume/toggle, `tick()` for manual stepping, `reducedMotion()`, pause-when-hidden.
 - `input.js`: keyboard + pointer + touch unified into actions (left/right/up/down/action/pause), swipe, on-screen button binding, gamepad-lite polling.
@@ -37,6 +64,8 @@ All modules can be imported in Node without a DOM (tests do this): browser APIs 
 - `wav.js`: `encodeWav`, `renderScore` (OfflineAudioContext), `synthesizeScoreToWav` (pure JS, works in Node), `isWav`.
 - `sing.js`: "Robot rendition" through `speechSynthesis`, lyrics grouped into phrases and timed to beats; feature-detected and labelled.
 - `ambient.js`: procedural rain, fire, wind, snow with a slider mixer and presets.
+- `karaoke.js`: lyrics highlighted word by word in time with a `score.json` (same format as `score.js`), minimal inline synth, play/pause/restart, mute. No autoplay.
+- `cassette.js`: cassette player: reels spin while playing (and wind from one to the other), drag to scrub/seek, side A/B tracklist; tracks are scores or audio files.
 
 ## story/
 - `card.js`: greeting card (front/inside) with flip and print CSS; `cardHTML` string builder.
@@ -54,7 +83,13 @@ All modules can be imported in Node without a DOM (tests do this): browser APIs 
 
 ## templates/
 Self-contained starting layouts, each with an embedded `<script type="application/advent-gift+json">` manifest and `TODO` markers:
-`greeting-card.html`, `slide-deck.html`, `poster-wallpaper.html`, `zine.html`, `trading-card.html`, `real-world-proposal.html` (states "Nothing has been ordered or booked."), `iou-coupon.html`, `video-short.html` (scenes → canvas → WebM).
+`greeting-card.html`, `slide-deck.html`, `poster-wallpaper.html`, `zine.html`, `trading-card.html`, `real-world-proposal.html` (states "Prepared for you. Buying or booking is yours to decide."), `iou-coupon.html`, `video-short.html` (scenes → canvas → WebM).
+
+## vendor/
+Offline copies of three.js 0.187.0 (`three.module.min.js`, MIT), matter-js 0.20.0 (`matter.min.js`, MIT) and canvas-confetti 1.9.4 (`confetti.browser.js`, ISC), each with its licence file next to it; see `vendor/README.md` for provenance and `gift.json` credits. Never load them from a CDN: inline or copy them with the gift.
+
+## Planned blocks
+Named by library ideas but not built yet (see `INDEX.json` for a one-line brief each): `wheel`, `map`, `countdown`, `scroll-scenes`, `pop`, `ticket`, `bracket`, `balloon`, `glass`, `charts`, `css-3d-box`, `stars`, `shake`, `water`, `stage`, `gallery`. Build them from scratch in the gift; reuse patterns from the blocks above.
 
 ## tokens.css
 The calendar's palette and type stacks as CSS variables, so gifts can match the calendar. Optional: any style is welcome.

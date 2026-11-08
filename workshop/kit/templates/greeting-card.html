@@ -7,12 +7,20 @@
 <!-- Advent Agent template: greeting card (front + inside, print-ready). Everything inline. No network. MIT. -->
 <script type="application/advent-gift+json">
 {
-  "schema": "advent-agent/gift@1",
+  "schema": "advent-agent/gift@2",
   "day": 0,
   "title": "TODO: Card title",
-  "category": "Card",
-  "note": "TODO: two to six warm, specific sentences. No stock phrases. Nothing about purchases.",
-  "continuity": { "motifs": [] },
+  "ideaId": null,
+  "family": "paper-and-pop-ups",
+  "emotion": "TODO: one of funny | ridiculous | absurd | cute | touching",
+  "interaction": ["open"],
+  "form": "interactive-html",
+  "tierUsed": "S",
+  "note": "TODO: two to four warm, specific sentences: why you made this for them. No stock phrases.",
+  "share": {"still": {"capture": "still"}, "caption": "TODO: one line they might post with it, in their language", "privateText": []},
+  "continuity": {"motifs": []},
+  "downloads": [],
+  "credits": [],
   "incomplete": []
 }
 </script>
@@ -31,6 +39,8 @@ button:focus-visible{outline:3px solid var(--gold-light);outline-offset:2px}
 @page{size:A4;margin:12mm}
 @media print{html,body{background:#fff}.face[hidden]{display:flex!important}.face{box-shadow:none;border:none;page-break-after:always}.no-print{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* Capture: the calendar calls window.adventCapture.prepare(kind) at 1080×1350 (still) or 1080×1920 (loop). Keep the bottom-right 160×48 px clear for the share mark. */
+.is-capturing #flip{display:none}
 </style>
 </head>
 <body>
@@ -44,7 +54,8 @@ button:focus-visible{outline:3px solid var(--gold-light);outline-offset:2px}
     <h1>TODO: Front title</h1>
   </section>
   <section class="face inside" hidden>
-    <h2 style="font-weight:400;font-size:26px;margin:0 0 12px">TODO: Dear …,</h2>
+    <!-- Names and places: data-advent-private lets the privacy preview blur them before sharing. -->
+    <h2 style="font-weight:400;font-size:26px;margin:0 0 12px" data-advent-private>TODO: Dear …,</h2>
     <p>TODO: first paragraph: what this is and why.</p>
     <p>TODO: second paragraph: one specific, true detail.</p>
     <p class="sign">TODO: Your Secret Santa</p>
@@ -56,6 +67,12 @@ button:focus-visible{outline:3px solid var(--gold-light);outline-offset:2px}
   var front=document.querySelector('.front'),inside=document.querySelector('.inside'),btn=document.getElementById('flip');
   btn.addEventListener('click',function(){var open=inside.hidden;inside.hidden=!open;front.hidden=open;btn.textContent=open?'Close the card':'Open the card';});
 })();
+// Share frame: the card opened, inside visible, button hidden.
+window.adventCapture={async prepare(kind){
+  document.documentElement.classList.add('is-capturing');
+  document.querySelector('.front').hidden=true;document.querySelector('.inside').hidden=false;
+  await new Promise(function(r){setTimeout(r,300)});
+}};
 </script>
 </body>
 </html>

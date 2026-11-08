@@ -1,4 +1,6 @@
-# Proposal fields
+# Proposal and print fields
+
+## `realWorld.items[]`
 
 | Field | Required | Format | Notes |
 |---|---|---|---|
@@ -9,6 +11,19 @@
 | `currency` | with price | ISO 4217, 3 letters | `CHF`, `EUR`, `USD`… |
 | `checkedAt` | yes | `YYYY-MM-DD` | Today, the day you verified |
 | `notes` | recommended | text ≤ 1000 | Shipping, cutoff, sizes, availability, cancellation |
-| `whatsLeft` | yes | text ≤ 2000 | Steps for the recipient; ends with "Nothing has been ordered or booked." |
 
-Never: "bought", "ordered", "booked", "purchased", "reserved for you", "paid for".
+`realWorld.whatsLeft` (required, ≤ 2000): the steps for the person, ending with who decides, e.g. "The choice is yours: open the link to buy it."
+
+## `print[]`
+
+| Field | Required | Format | Notes |
+|---|---|---|---|
+| `service` | yes | text ≤ 120 | The real print service's name |
+| `url` | yes | https | The product page, not the home page |
+| `product` | recommended | text ≤ 200 | Size, paper, finish |
+| `price`, `currency` | recommended | number + ISO 4217 | For one item, as shown on `checkedAt` |
+| `checkedAt` | recommended | `YYYY-MM-DD` | Today |
+| `shipsTo` | recommended | text ≤ 120 | The person's country, as the service lists it |
+| `file` | recommended | relative path | The print-ready file for this service |
+
+Never write "bought", "ordered", "booked", "purchased", "reserved for you" or "paid for", not even in a negation.

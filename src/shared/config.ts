@@ -62,13 +62,16 @@ export const ConfigSchema = z.object({
   connection: ConnectionSchema.default({ mode: 'launched', permissive: false }),
   budgets: z
     .object({
+      /** "How generous is your Secret Santa?" (D16): light = S, standard = M, generous = L. */
+      generosity: z.enum(['light', 'standard', 'generous']).default('standard'),
+      /** Legacy (pre-D16); the tier decides the token target now. */
       tokenTarget: z.number().int().positive().default(25_000),
       usdCapPerGift: z.number().positive().optional(),
       realWorldSuggestions: z.boolean().default(true),
       priceCeilingPerGift: MoneySchema.optional(),
       priceCeilingSeason: MoneySchema.optional(),
     })
-    .default({ tokenTarget: 25_000, realWorldSuggestions: true }),
+    .default({ generosity: 'standard', tokenTarget: 25_000, realWorldSuggestions: true }),
   permissions: z
     .object({
       webResearch: z.boolean().default(true),
@@ -154,6 +157,11 @@ export const HistoryRecordSchema = z.object({
   title: z.string(),
   kind: z.string(),
   category: z.string().optional(),
+  ideaId: z.string().nullable().optional(),
+  family: z.string().optional(),
+  emotion: z.string().optional(),
+  interaction: z.array(z.string()).optional(),
+  collection: z.object({ set: z.string(), index: z.number().int(), size: z.number().int() }).optional(),
   motifs: z.array(z.string()).default([]),
   thread: z.string().optional(),
   revealedAt: z.string(),

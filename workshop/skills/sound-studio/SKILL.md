@@ -1,19 +1,22 @@
 ---
 name: sound-studio
-description: Songs, music boxes and soundscapes without any paid service. How to write a melody and lyrics, the score JSON format, the Web Audio synth and player in kit/sound, WAV export, the optional robot-voice rendition, ambient mixers, and the render-it-yourself sheet every song gift must include.
+description: Songs, karaoke, mixtapes, music boxes and soundscapes without any paid service. Emotion and interaction first, writing melody and lyrics, the score JSON format, the karaoke player (lyrics highlighted in time with score.json, mute), cassette and music-box objects to touch, the Web Audio synth and player in kit/sound, WAV export, the optional robot rendition, ambient mixers, the share frame, and the render-it-yourself sheet every song gift includes.
 license: MIT
 ---
 
 # Sound Studio
 
-You write the music; the browser plays it. No provider, no key, no upload. A song gift is a score, a WAV rendered from it, and a sheet the recipient can paste into any music generator they like.
+You write the music; the browser plays it. No provider, no key, no upload. A song gift is a score, a **karaoke player** that highlights the lyrics in time with it, a WAV rendered from it, and a sheet the person can paste into any music generator they like.
+
+Read `gift-director` first. A song is not an audio file with a play button: it is an object to touch (a cassette whose tape you scrub, a music box whose crank you turn, a karaoke screen whose words light up), with one clear `emotion` (`funny` and `ridiculous` songs are often the most shared; a lullaby for their cat is `cute`), and a share frame people can see without hearing it.
 
 ## Forms
 
 | Form | Scope | Kit |
 |---|---|---|
 | Music box | 16–32 bars, one melody voice plus a soft bass, loops | `synth.js` (`musicbox`), `score.js`, `player.js`, `wav.js` |
-| Song | Verse/chorus, 2–4 voices (pluck or pad, bass, light drums), lyrics aligned to notes | all of `kit/sound`, `sing.js` optional |
+| Karaoke song | Verse/chorus, 2–4 voices (pluck or pad, bass, light drums), lyrics aligned to notes and highlighted word by word | all of `kit/sound`, `kit/sound/karaoke.js` when present, `sing.js` optional |
+| Mixtape | A cassette with 3–6 short tracks and fake liner notes; scrub the tape, flip to Side B | `kit/sound/cassette.js` when present, `score.js`, `synth.js` |
 | Jingle / theme | 4–8 bars that stick; used in a game or card | `synth.js`, `score.js` |
 | Soundscape | Rain, fire, wind, snow mixed under a short loop or alone, with sliders | `ambient.js`, `player.js` |
 
@@ -51,6 +54,16 @@ You write the music; the browser plays it. No provider, no key, no upload. A son
 - `sing.js`: optional. Speaks the lyrics with `speechSynthesis` at the right moments, pitched roughly along the melody. Feature-detected; labelled in the UI as **"Robot rendition"** so nobody mistakes it for singing. Off by default, a toggle turns it on.
 - `ambient.js`: procedural rain, fire, wind, snow from filtered noise with per-layer sliders; a soundscape gift is a mixer with a preset and a "Play" button.
 
+## The karaoke player (required for songs)
+
+Every song gift shows its lyrics **in time with the music**, driven by the `lyrics[]` beats in `score.json`, not by a separate timing list you could get wrong.
+
+- Use `kit/sound/karaoke.js` when present. Otherwise build it from `score.js`: `schedule()` for the notes, `lyricsAt(score, beat)` each animation frame, the current word highlighted, the current line large, the next line dimmed below.
+- Controls: Play/Pause, restart, **mute** (always visible), and a progress bar. Keyboard: Space plays and pauses, M mutes, Home restarts. Nothing sounds before a click or key.
+- Under reduced motion, highlight by colour change only; no bouncing ball.
+- Lines with names or places get `data-advent-private`.
+- The share frame is the karaoke screen on the chorus line, with the title: expose `window.adventCapture.prepare(kind)` that seeks to the chorus beat, renders the highlighted line and hides the controls, **without playing sound**. For a loop, animate the highlight silently for `durationMs`.
+
 ## WAV export (required for songs)
 
 `wav.js`: `renderScore(score, synthFactory)` renders through `OfflineAudioContext` and `encodeWav(buffer)` returns a 16-bit PCM Blob. In launched mode, if you cannot run a browser, use the kit's Node-friendly path: `kit/sound/wav.js` also exports `synthesizeScoreToWav(score)`, a pure-JS renderer with simple sine/triangle voices, so `song.wav` can be written with Node. The gate decodes it (`wav_invalid`).
@@ -65,21 +78,26 @@ You write the music; the browser plays it. No provider, no key, no upload. A son
 4. **Ready-to-paste prompt** (one paragraph) for any text-to-music tool, and a **short variant** (under 200 characters).
 5. A line: "Paste this into the music generator of your choice to hear a full production. The version in the gift is the music-box original."
 
+List it in `downloads` too (`{ "label": "Render it yourself", "file": "assets/render-it-yourself.md" }`), next to the WAV.
+
 **Name no provider.** Not in the sheet, not in the note, not in the UI. The sheet is `references/render-sheet.md` as a skeleton.
 
 ## Packaging
 
 ```json
+"schema": "advent-agent/gift@2",
+"family": "sound", "emotion": "ridiculous", "interaction": ["play", "sing along"], "form": "interactive-html", "tierUsed": "S",
+"entry": "index.html",
 "song": { "score": "assets/score.json", "renderSheet": "assets/render-it-yourself.md", "wav": "assets/song.wav" },
-"artifacts": [
-  { "path": "index.html", "kind": "interactive-html", "role": "primary" },
-  { "path": "assets/song.wav", "kind": "audio", "role": "download", "title": "Music-box version" },
-  { "path": "assets/render-it-yourself.md", "kind": "document", "role": "print", "title": "Render it yourself" }
+"share": { "still": { "capture": "still" }, "loop": { "capture": "loop", "durationMs": 8000 }, "caption": "My Secret Santa wrote a power ballad about my sourdough starter" },
+"downloads": [
+  { "label": "Music-box version (WAV)", "file": "assets/song.wav" },
+  { "label": "Render it yourself", "file": "assets/render-it-yourself.md" }
 ]
 ```
 
-`primary: index.html` with the player. Without a render sheet the gate flags `render_sheet_missing`. Jingles inside a game need no sheet; only a gift *about* a song does.
+`entry: index.html` with the karaoke player. Without a render sheet the gate flags `render_sheet_missing`. Jingles inside a game need no sheet; only a gift *about* a song does. Audio never plays during capture: the calendar records a silent loop.
 
 ## Self-check
 
-Play it through once in your head bar by bar. Check that the melody ends on the tonic or a satisfying note, lyrics syllables match notes, no note is outside the voice's comfortable range (musicbox 60–96, bass 36–55), WAV decodes, the player works with the keyboard, nothing autoplays, and the sheet names no provider.
+Play it through once in your head bar by bar. Check that the melody ends on the tonic or a satisfying note, lyrics syllables match notes, the karaoke highlight lands on each word as it sounds, mute works, no note is outside the voice's comfortable range (musicbox 60–96, bass 36–55), WAV decodes, the player works with the keyboard, nothing autoplays, and the sheet names no provider.

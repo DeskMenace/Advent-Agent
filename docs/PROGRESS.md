@@ -169,7 +169,7 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 - [x] D11 Browser errors for unavailable formats handled with fallback actions (E2.10)
 
 ## 4. Real-agent smoke tests — TEST_PLAN §4 (opt-in)
-- [!] R1 `ADVENT_REAL_AGENTS=1 npm run test:agents` runs against each installed CLI (Claude Code, Codex, Gemini CLI); results in `docs/AGENT_COMPAT.md` — harness built and run on 8 Nov; all three blocked by account state (rate limit, unsupported model in Codex config, Gemini not logged in). Re-run needed.
+- [~] R1 `ADVENT_REAL_AGENTS=1 npm run test:agents` runs against each installed CLI (Claude Code, Codex, Gemini CLI); results in `docs/AGENT_COMPAT.md` — Claude Code passed on 8 Nov (gift sealed in 55 s); Codex and Gemini still blocked by account setup.
 - [ ] R2 Manual: Claude Desktop MCP connection (connected mode) — Noémie
 - [ ] R3 Manual: portable mode with a chat LLM via `AGENT_GUIDE.md` — Noémie
 
@@ -182,6 +182,23 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 - [x] L1 `advent-agent lab --idea`, `--ideas`, `--free`, `open`, `review` work in an isolated home
 - [x] L2 `lab review` saves `docs/lab-reviews/<date>.md` and can set `status: approved`
 - [ ] L3 Noémie's first batch (after 1–5 are green) — Noémie
+
+## 6b. Gift-quality review (D13–D22, `docs/handoff/SPEC_CHANGES.md`)
+- [x] Q1 49-idea library in the new format, validated and indexed; Day 1 / finale anchors and the 4 collections (`test/unit/library.test.ts`)
+- [x] Q2 gift@2 manifest; gate fails on missing share frame, emotion or interaction, disallowed credit licences, network requests, any of the purchase words (`test/unit/gate-v2.test.ts`)
+- [x] Q3 Brief carries `budget.tier`/`tokens`, `season.anchor`/`isCatchUp`, history with family/emotion/interaction/collection, `collections`, Day 1 anchor list (`test/integration/season-shape.test.ts`)
+- [x] Q4 Generosity setting (Light/Standard/Generous → S/M/L), Day 1 and December 24 at XL (`season-shape.test.ts`, `share-season.spec.ts`)
+- [x] Q5 Day 1 prepared during setup; locked door shows "wrapping" only; opens instantly on Dec 1 (`season-shape.test.ts`, `share-season.spec.ts`)
+- [x] Q6 Finale may start from December 20 in launched mode; still unlocks on the 24th (`season-shape.test.ts`)
+- [x] Q7 Missed doors stack; catch-up flagged in the brief (`season-shape.test.ts`)
+- [x] Q8 `.ics` reminder: 24 events at the unlock hour in the season timezone (`test/unit/reminder.test.ts`)
+- [x] Q9 Share capture via installed Chrome/Edge: 1080×1350 still, 3–10 s loop, standalone file, privacy blur, share mark with GitHub link (`test/integration/share.test.ts`, `share-season.spec.ts`)
+- [x] Q10 Share panel: Web Share with files where supported, downloads, print services, caption, privacy preview (`share-season.spec.ts`)
+- [x] Q11 Collections shelf shows completed sets together (`share-season.spec.ts`)
+- [x] Q12 Kit priority blocks 1–10 and vendored three.js, matter.js, canvas-confetti; kit index covers every block the ideas name (`test/unit/kit-v2.test.ts`)
+- [x] Q13 Skills, templates and `AGENT_GUIDE.md` updated to gift@2 (`test/unit/workshop.test.ts`)
+- [x] Q14 README and FAQ copy on gift size and sharing
+- [ ] Q15 Gift lab: score each `day1` and `finale` idea plus a sample across personas, models and tiers; rework ideas under 3.5 — Noémie (internal test plan)
 
 ## 7. Release checklist — TEST_PLAN §7
 - [ ] REL1 Every item above ticked or in `docs/KNOWN_LIMITATIONS.md`

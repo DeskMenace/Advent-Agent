@@ -1,0 +1,195 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>A jelly persimmon</title>
+<style>html,body{margin:0;height:100%}body{display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,#fff4e6,#f3d9bd);font-family:Georgia,serif;color:#5a3a20}#plate{width:min(92vw,560px);height:min(80vh,560px)}p{margin:0 0 18px;text-align:center;font-style:italic}</style></head>
+<body><main><p id="hint">drag me · poke me</p><div id="plate"></div></main>
+<script>// kit/toys/jelly.js — 2D soft body: volume-preserving mass-spring ring (pressure + shape memory), translucent canvas jelly.
+// MIT License. Copyright (c) Advent Agent contributors. Inline freely into any gift.
+//
+// Usage (10 lines):
+//   import { createJelly } from './jelly.js';
+//   const jelly = createJelly(document.querySelector('#plate'), {   // a container element; a canvas is created inside
+//     color: '#ff8a3d', highlight: 'rgba(255,255,255,.55)', radius: 110, label: 'A jelly persimmon',
+//     shape: (a) => 1 + 0.08 * Math.cos(2 * a),                     // optional radius multiplier per angle (fruit outline)
+//     decorate(g, body) { /* draw a leaf or face on top: body.center, body.points */ },
+//     onSquish: (amount) => {},                                     // 0..1 on every drag/poke, for sound or captions
+//   });
+//   jelly.poke(0.6);  jelly.stretch(-1, 0, 80);  jelly.reset();      // programmatic wobble for the capture hook
+//   // Drag to stretch, release to wobble; arrow keys pull, Space pokes. Reduced motion: stiffer, calmer.
+//   // Pure physics for tests: createJellyBody(), stepJelly(body, dt), polygonArea(points).
+
+// ── pure physics (Node-safe) ────────────────────────────────────────────────
+function polygonArea(points) {
+  let a = 0; for (let i = 0, n = points.length; i < n; i++) { const p = points[i], q = points[(i + 1) % n]; a += p.x * q.y - q.x * p.y; }
+  return a / 2;   // positive for counter-clockwise in a y-down frame we generate (see createJellyBody)
+}
+function centroid(points) { let x = 0, y = 0; for (const p of points) { x += p.x; y += p.y; } return { x: x / points.length, y: y / points.length }; }
+
+/**
+ * A ring of `count` point masses. Options: x, y, radius, count, shape(angle) → radius multiplier,
+ * stiffness (edge springs), pressure (area restoring), memory (shape matching pull), damping (per second), gravity, floor (y) or bounds {x,y,w,h}.
+ */
+function createJellyBody({ x = 0, y = 0, radius = 100, count = 28, shape = null, stiffness = 900, pressure = 2.2, memory = 14, damping = 4, gravity = 0, bounds = null } = {}) {
+  const points = [], rest = [];
+  for (let i = 0; i < count; i++) {
+    const a = (i / count) * Math.PI * 2, r = radius * (shape ? shape(a) : 1);
+    const ox = Math.cos(a) * r, oy = Math.sin(a) * r;
+    rest.push({ x: ox, y: oy }); points.push({ x: x + ox, y: y + oy, vx: 0, vy: 0, fx: 0, fy: 0, pinned: false });
+  }
+  const edges = points.map((_, i) => { const j = (i + 1) % count; return { i, j, len: Math.hypot(rest[j].x - rest[i].x, rest[j].y - rest[i].y) }; });
+  const body = { points, rest, edges, restArea: polygonArea(rest), stiffness, pressure, memory, damping, gravity, bounds, grab: null, center: { x, y }, angle: 0 };
+  return body;
+}
+function area(body) { return polygonArea(body.points); }
+function areaRatio(body) { return area(body) / body.restArea; }
+
+/** Best-fit rotation of the rest shape onto the current points (2D shape matching). */
+function fitAngle(body, c) {
+  let s = 0, k = 0;
+  body.points.forEach((p, i) => { const r = body.rest[i], dx = p.x - c.x, dy = p.y - c.y; s += r.x * dy - r.y * dx; k += r.x * dx + r.y * dy; });
+  return Math.atan2(s, k);
+}
+
+/** Advance the body by dt seconds (sub-stepped internally for stability). Mutates and returns body. */
+function stepJelly(body, dt, { substeps = 0 } = {}) {
+  const n = substeps || Math.max(1, Math.ceil(dt / (1 / 240)));
+  const h = Math.min(dt, 0.1) / n;
+  for (let s = 0; s < n; s++) substep(body, h);
+  return body;
+}
+function substep(body, h) {
+  const P = body.points, N = P.length;
+  for (const p of P) { p.fx = 0; p.fy = body.gravity; }
+  // edge springs
+  for (const e of body.edges) {
+    const a = P[e.i], b = P[e.j]; const dx = b.x - a.x, dy = b.y - a.y; const d = Math.hypot(dx, dy) || 1e-6;
+    const f = body.stiffness * (d - e.len) / e.len, ux = dx / d, uy = dy / d;
+    const rv = (b.vx - a.vx) * ux + (b.vy - a.vy) * uy; const fd = f + 0.02 * body.stiffness * rv / e.len;
+    a.fx += ux * fd; a.fy += uy * fd; b.fx -= ux * fd; b.fy -= uy * fd;
+  }
+  // pressure: push along outward edge normals in proportion to the area deficit (volume preservation)
+  const A = polygonArea(P), deficit = (body.restArea - A) / Math.abs(body.restArea);
+  const kp = body.pressure * body.stiffness * deficit * Math.sign(body.restArea);
+  for (const e of body.edges) {
+    const a = P[e.i], b = P[e.j]; const dx = b.x - a.x, dy = b.y - a.y;
+    // for counter-clockwise (positive area) rings in this frame, (dy, -dx) points outward
+    const d = Math.hypot(dx, dy) || 1e-6, f = kp * 0.5 / d; const nx = dy * f, ny = -dx * f;   // unit outward normal × half the edge's share
+    a.fx += nx; a.fy += ny; b.fx += nx; b.fy += ny;
+  }
+  // shape memory: pull toward the best-fit rotated rest shape (keeps the fruit recognisable)
+  const c = centroid(P); const ang = fitAngle(body, c); const cs = Math.cos(ang), sn = Math.sin(ang);
+  body.center = c; body.angle = ang;
+  P.forEach((p, i) => { const r = body.rest[i]; const tx = c.x + r.x * cs - r.y * sn, ty = c.y + r.x * sn + r.y * cs; p.fx += (tx - p.x) * body.memory * body.memory * 0.5; p.fy += (ty - p.y) * body.memory * body.memory * 0.5; });
+  // grab: a stiff spring from one point (and gently its neighbours) to the pointer
+  if (body.grab) {
+    const g = body.grab; const k = 260;
+    for (let o = -2; o <= 2; o++) { const p = P[(g.index + o + N) % N]; const w = o === 0 ? 1 : o * o === 1 ? 0.35 : 0.12; p.fx += (g.x - p.x) * k * w; p.fy += (g.y - p.y) * k * w; }
+  }
+  // integrate (semi-implicit Euler) with exponential damping
+  const damp = Math.exp(-body.damping * h);
+  for (const p of P) {
+    if (p.pinned) { p.vx = p.vy = 0; continue; }
+    p.vx = (p.vx + p.fx * h) * damp; p.vy = (p.vy + p.fy * h) * damp; p.x += p.vx * h; p.y += p.vy * h;
+    const B = body.bounds;
+    if (B) {
+      if (p.x < B.x) { p.x = B.x; p.vx *= -0.3; } else if (p.x > B.x + B.w) { p.x = B.x + B.w; p.vx *= -0.3; }
+      if (p.y < B.y) { p.y = B.y; p.vy *= -0.3; } else if (p.y > B.y + B.h) { p.y = B.y + B.h; p.vy *= -0.3; p.vx *= 0.9; }
+    }
+  }
+}
+/** Push every point radially by `strength` (px/s), e.g. a poke or a squash; negative pulls in. */
+function impulse(body, strength = 200, { x, y } = {}) {
+  const c = centroid(body.points);
+  for (const p of body.points) {
+    const dx = p.x - c.x, dy = p.y - c.y, d = Math.hypot(dx, dy) || 1;
+    const w = x === undefined ? 1 : Math.max(0.2, 1 - Math.hypot(p.x - x, p.y - y) / (2 * d));
+    p.vx += (dx / d) * strength * w * (Math.random() * 0.4 + 0.8); p.vy += (dy / d) * strength * w * (Math.random() * 0.4 + 0.8);
+  }
+  return body;
+}
+/** Squash the body vertically by factor (0..1) around its centre — a perturbation for tests and pokes. */
+function squash(body, factor = 0.6) {
+  const c = centroid(body.points);
+  for (const p of body.points) { p.y = c.y + (p.y - c.y) * factor; p.x = c.x + (p.x - c.x) / Math.sqrt(factor); }
+  return body;
+}
+function nearestPoint(body, x, y) {
+  let best = 0, bd = Infinity; body.points.forEach((p, i) => { const d = (p.x - x) ** 2 + (p.y - y) ** 2; if (d < bd) { bd = d; best = i; } });
+  return { index: best, distance: Math.sqrt(bd) };
+}
+function kineticEnergy(body) { let e = 0; for (const p of body.points) e += 0.5 * (p.vx * p.vx + p.vy * p.vy); return e; }
+
+// ── rendering + interaction (browser) ───────────────────────────────────────
+function createJelly(container, { color = '#ff6f91', highlight = 'rgba(255,255,255,.6)', shadow = 'rgba(0,0,0,.18)', radius = 100, count = 28, shape = null, label = 'A jelly. Drag to stretch it.', decorate = null, onSquish = null, width, height } = {}) {
+  const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas = document.createElement('canvas'); canvas.tabIndex = 0; canvas.setAttribute('role', 'img'); canvas.setAttribute('aria-label', label);
+  canvas.style.cssText = 'display:block;width:100%;height:100%;touch-action:none;outline-offset:4px;cursor:grab';
+  container.appendChild(canvas);
+  const g = canvas.getContext('2d'); let W = 0, H = 0, dpr = 1, body = null, raf = 0, last = 0, running = true;
+  function build() {
+    const r = container.getBoundingClientRect(); dpr = Math.min(2, globalThis.devicePixelRatio || 1);
+    W = width || r.width || 400; H = height || r.height || 400; canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    body = createJellyBody({ x: W / 2, y: H / 2, radius: Math.min(radius, W / 3, H / 3), count, shape, stiffness: reduced ? 1400 : 900, damping: reduced ? 9 : 4, memory: reduced ? 20 : 14 });
+  }
+  build();
+  function draw() {
+    g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+    const P = body.points, c = centroid(P); const R = Math.sqrt(Math.abs(body.restArea) / Math.PI);
+    // plate shadow
+    g.fillStyle = shadow; g.beginPath(); g.ellipse(c.x, Math.max(...P.map((p) => p.y)) + 6, R * 0.95, R * 0.18, 0, 0, Math.PI * 2); g.fill();
+    // smooth closed outline through midpoints
+    const path = () => { g.beginPath(); const n = P.length; const m = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }); let s = m(P[n - 1], P[0]); g.moveTo(s.x, s.y); for (let i = 0; i < n; i++) { const e = m(P[i], P[(i + 1) % n]); g.quadraticCurveTo(P[i].x, P[i].y, e.x, e.y); } g.closePath(); };
+    path(); const grad = g.createRadialGradient(c.x - R * 0.3, c.y - R * 0.4, R * 0.1, c.x, c.y, R * 1.3);
+    grad.addColorStop(0, withAlpha(color, 0.75)); grad.addColorStop(0.7, withAlpha(color, 0.88)); grad.addColorStop(1, withAlpha(color, 0.98));
+    g.fillStyle = grad; g.fill(); g.lineWidth = 2; g.strokeStyle = withAlpha(color, 1); g.stroke();
+    // inner glow and glossy highlight that follow the deformation
+    g.save(); path(); g.clip();
+    g.globalCompositeOperation = 'lighter'; const inner = g.createRadialGradient(c.x, c.y + R * 0.4, 0, c.x, c.y + R * 0.4, R); inner.addColorStop(0, 'rgba(255,255,255,.18)'); inner.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = inner; g.fillRect(0, 0, W, H);
+    g.globalCompositeOperation = 'source-over'; const top = P[Math.round(P.length * 0.68) % P.length];
+    g.fillStyle = highlight; g.beginPath(); g.ellipse((c.x + top.x) / 2 - R * 0.15, (c.y + top.y) / 2, R * 0.28, R * 0.12, body.angle - 0.5, 0, Math.PI * 2); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.8)'; g.beginPath(); g.arc((c.x + top.x) / 2 + R * 0.12, (c.y + top.y) / 2 - R * 0.05, R * 0.04, 0, Math.PI * 2); g.fill();
+    g.restore();
+    if (decorate) decorate(g, body);
+  }
+  function frame(t) {
+    if (!running) return; const dt = last ? Math.min(0.05, (t - last) / 1000) : 1 / 60; last = t;
+    stepJelly(body, dt); draw(); raf = requestAnimationFrame(frame);
+  }
+  const toLocal = (e) => { const r = canvas.getBoundingClientRect(); return { x: (e.clientX - r.left) * (W / r.width), y: (e.clientY - r.top) * (H / r.height) }; };
+  const squishAmount = () => Math.min(1, Math.abs(1 - areaRatio(body)) * 4 + (body.grab ? Math.hypot(body.grab.x - body.points[body.grab.index].x, body.grab.y - body.points[body.grab.index].y) / 200 : 0));
+  function down(e) { const p = toLocal(e); const np = nearestPoint(body, p.x, p.y); const c = centroid(body.points); if (np.distance > radius * 0.6 && Math.hypot(p.x - c.x, p.y - c.y) > radius * 1.2) return; canvas.setPointerCapture(e.pointerId); body.grab = { index: np.index, x: p.x, y: p.y }; canvas.style.cursor = 'grabbing'; }
+  function move(e) { if (!body.grab) return; const p = toLocal(e); body.grab.x = p.x; body.grab.y = p.y; onSquish && onSquish(squishAmount()); }
+  function up() { if (!body.grab) return; body.grab = null; canvas.style.cursor = 'grab'; onSquish && onSquish(0.5); }
+  function key(e) {
+    const dirs = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+    if (dirs[e.key]) { e.preventDefault(); api.stretch(dirs[e.key][0], dirs[e.key][1], 70); }
+    else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); api.poke(0.6); }
+  }
+  const resize = () => build();
+  canvas.addEventListener('pointerdown', down); canvas.addEventListener('pointermove', move); canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up); canvas.addEventListener('keydown', key);
+  globalThis.addEventListener('resize', resize);
+  const vis = () => { if (document.hidden) { cancelAnimationFrame(raf); last = 0; } else if (running) raf = requestAnimationFrame(frame); };
+  document.addEventListener('visibilitychange', vis);
+  raf = requestAnimationFrame(frame);
+  const api = {
+    canvas, get body() { return body; },
+    poke(strength = 0.5, at) { impulse(body, -strength * (reduced ? 300 : 600), at); onSquish && onSquish(strength); },
+    /** Pull the side facing (dx, dy) out by `px`, then let go after `holdMs`. */
+    stretch(dx, dy, px = 80, holdMs = 260) {
+      const c = centroid(body.points); const tx = c.x + dx * 1000, ty = c.y + dy * 1000; const np = nearestPoint(body, tx, ty); const p = body.points[np.index];
+      body.grab = { index: np.index, x: p.x + dx * px, y: p.y + dy * px }; onSquish && onSquish(0.8); setTimeout(() => { body.grab = null; }, holdMs);
+    },
+    reset() { build(); },
+    draw, step: (dt = 1 / 60) => { stepJelly(body, dt); draw(); },
+    pause() { running = false; cancelAnimationFrame(raf); }, resume() { if (!running) { running = true; last = 0; raf = requestAnimationFrame(frame); } },
+    destroy() { running = false; cancelAnimationFrame(raf); globalThis.removeEventListener('resize', resize); document.removeEventListener('visibilitychange', vis); canvas.remove(); },
+  };
+  return api;
+}
+function withAlpha(hex, a) {
+  const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(hex); if (!m) return hex;
+  let h = m[1]; if (h.length === 3) h = h.split('').map((c) => c + c).join('');
+  const n = parseInt(h, 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+}
+
+const jelly=createJelly(document.getElementById('plate'),{color:'#f2873a',highlight:'rgba(255,255,255,.55)',radius:120,label:'A jelly persimmon',shape:(a)=>1+0.06*Math.cos(2*a)-0.04*Math.sin(a)});
+window.adventCapture={async prepare(kind){document.getElementById('hint').style.visibility='hidden';jelly.stretch(1,-0.4,90);if(kind==='loop')setTimeout(()=>jelly.poke(0.8),400);await new Promise(r=>setTimeout(r,500))}};
+</script></body></html>

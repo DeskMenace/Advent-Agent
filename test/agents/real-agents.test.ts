@@ -31,7 +31,7 @@ describe.skipIf(!enabled)('real agents (opt-in)', () => {
     companion.service.store.saveConfig({
       setupComplete: true,
       timeZone: 'Europe/Zurich',
-      budgets: { tokenTarget: 10_000, realWorldSuggestions: true, usdCapPerGift: 0.5 },
+      budgets: { generosity: 'light', tokenTarget: 10_000, realWorldSuggestions: true, usdCapPerGift: 0.5 },
       permissions: { webResearch: false, inspirationFolders: [], giftNetwork: false },
       timeoutMinutes: 12,
       connection: { mode: 'launched', permissive: false },
@@ -58,7 +58,7 @@ describe.skipIf(!enabled)('real agents (opt-in)', () => {
       const day = (['claude-code', 'codex', 'gemini', 'opencode', 'cursor', 'copilot', 'goose', 'amp', 'muse'] as string[]).indexOf(id) + 1;
       companion.service.store.saveConfig((c) => ({ ...c, connection: { ...c.connection, mode: 'launched', adapter: id } }));
       companion.service.updateSeasonFromConfig();
-      writeFileSync(join(companion.service.store.home.doorDir(2026, day), 'lab.json'), JSON.stringify({ idea: 'fortune-cookie', agent: id }));
+      writeFileSync(join(companion.service.store.home.doorDir(2026, day), 'lab.json'), JSON.stringify({ idea: 'jelly-fruit', agent: id }));
       const phases = new Set<string>();
       companion.service.events.onSse((e) => { if (e.type === 'door' && e.door.day === day && e.door.phase) phases.add(e.door.phase); });
       const started = Date.now();

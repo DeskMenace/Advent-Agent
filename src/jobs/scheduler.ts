@@ -58,7 +58,13 @@ export class Scheduler {
     }
     this.lastEligible = elig.eligibleThrough;
 
-    if (season.deliveryMode !== 'scheduled' || season.connection.mode !== 'launched' || season.kind === 'demo') return;
+    if (season.connection.mode !== 'launched' || season.kind === 'demo') return;
+    // D17: the finale may start from December 20 (unlock hour) in launched mode, whatever the delivery mode.
+    const finale = this.service.store.doors(season.year).read(24);
+    if (finale.jobState === 'not_requested' && this.service.canPrepareEarly(season, 24)) {
+      try { this.service.prepareEarly(24); } catch { /* retried next tick */ }
+    }
+    if (season.deliveryMode !== 'scheduled') return;
     const doors = this.service.store.doors(season.year).readAll();
     for (const door of doors) {
       if (door.jobState !== 'not_requested') continue;

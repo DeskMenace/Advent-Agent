@@ -9,7 +9,8 @@ const load = (rel: string) => import(pathToFileURL(join(KIT, rel)).href);
 function jsFiles(dir: string, out: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
-    if (statSync(p).isDirectory()) jsFiles(p, out);
+    // Vendored upstream files (three.js, matter.js, canvas-confetti) are browser bundles; kit-v2.test.ts checks them.
+    if (statSync(p).isDirectory()) { if (name !== 'vendor') jsFiles(p, out); }
     else if (p.endsWith('.js')) out.push(p);
   }
   return out;

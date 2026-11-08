@@ -18,9 +18,11 @@ That is the whole install. The companion starts on your computer, your browser o
 
 - **24 doors, December 1–24.** Door N unlocks on December N (at midnight or the hour you choose) in a timezone frozen for the season. Locked doors shake; they do not spoil.
 - **Your agent makes the gift.** On demand when you open a door, or on a schedule the night before. Progress is shown as spoiler-free phases: thinking, making, testing, wrapping.
+- **A season with a shape.** Day 1 is made while you set up, so door 1 opens instantly; December 24 is the big one; missed doors wait for you.
 - **A quality gate seals every gift.** Manifest, files, media decode, a secret scan, and an optional headless test drive, before anything reaches your eyes.
 - **Gifts render in a sandbox.** Interactive gifts run in an isolated iframe on a separate origin with a strict policy. Ten renderer kinds ship (interactive HTML, image, audio, video, document, card, song, real-world proposal, link, download) and new ones register without touching the calendar.
 - **Your agent never buys or books anything.** Real-world gifts arrive as a purchase-ready proposal: exact item, vendor, price with the date it was checked, link, and what is left for you to do. An optional "I bought it" mark is yours alone and stays on your computer.
+- **Sharing means exporting.** A picture, a short video or the gift itself as a file, with a privacy preview and a small "Made by my Advent Agent" mark. Nothing is uploaded.
 - **Everything stays local.** `~/.advent-agent` holds your seasons and gifts. Exports never contain tokens, keys or agent logs.
 
 ## Which agents work?
@@ -57,8 +59,8 @@ advent-agent lab …            gift lab for trying ideas with real agents
 ## For agents and contributors
 
 - The **Gift Workshop** (`workshop/`) bundles eight skills (gift-director, storyteller, arcade, art-studio, sound-studio, maker, concierge, quality-and-packaging) and vanilla JS building blocks for games, art, sound, stories, mini-tools and templates. Nothing is fetched or installed at gift time.
-- The **idea library** (`gift-library/`, 78 ideas in groups A–H) is inspiration, never a quota. Add an idea with a pull request; see [CONTRIBUTING.md](CONTRIBUTING.md).
-- The **gift package format** is one `gift.json` plus files (or a single HTML file with an embedded manifest, or plain text). Schema: [`schema/gift.schema.json`](schema/gift.schema.json).
+- The **idea library** (`gift-library/`, 49 ideas in 10 families, with Day 1 and finale anchors and small collections) is inspiration, never a quota. Add an idea with a pull request; see [CONTRIBUTING.md](CONTRIBUTING.md).
+- Every gift aims for three things: an emotion, a delightful interaction, and a share frame. The **gift package format** (`gift@2`) is one `gift.json` plus files (or a single HTML file with an embedded manifest, or plain text). Schema: [`schema/gift.schema.json`](schema/gift.schema.json).
 - **Music without paid services**: the agent writes the score, the bundled Sound Studio plays it, and a render-it-yourself sheet lets you use any music generator you like.
 
 ## FAQ
@@ -71,7 +73,13 @@ advent-agent lab …            gift lab for trying ideas with real agents
 
 **Can I peek?** Locks prevent accidental spoilers. They are not a vault: changing your computer's clock unlocks doors.
 
-**What does it cost in tokens?** Each gift aims for your per-gift budget (25,000 tokens by default) and uses your agent's normal plan or billing. Claude Code can enforce a dollar cap; for other agents the budget is advisory and labelled as such.
+**How elaborate are the gifts?** It depends on your agent and how generous you let it be. A Secret Santa on a small budget or a smaller model makes smaller gifts: a lovely card, a jelly fruit, a song. With more room and a strong coding agent it can build games, little worlds and characters that react to you. Change "How generous is your Secret Santa?" in Settings at any time.
+
+**Can I share my gifts?** Yes. Every gift has a Share button that exports an image, a short video or the gift itself as a file you can send. You see a preview first and can blur anything private.
+
+**What does it cost in tokens?** It uses your agent's normal plan or billing. Light, Standard and Generous aim for roughly 30,000, 100,000 and 300,000 tokens a gift; Day 1 and December 24 get three times that. Claude Code can enforce a dollar cap; for other agents the figures are advisory and labelled as such.
+
+**Do I need to come back every day?** No. Missed doors wait for you and pile up, nothing expires. Setup offers an optional calendar file (.ics) with a daily reminder; it stays on your computer.
 
 **Is it free?** Yes, MIT-licensed.
 

@@ -7,11 +7,19 @@
 <!-- Advent Agent template: IOU coupon for something the Secret Santa (or the recipient's own future self) will do. Printable. Inline. MIT. -->
 <script type="application/advent-gift+json">
 {
-  "schema": "advent-agent/gift@1",
+  "schema": "advent-agent/gift@2",
   "day": 0,
   "title": "TODO: Coupon title",
-  "category": "Coupon",
-  "note": "TODO: what the coupon is for, how to redeem it (e.g. open this page and tap Redeem, or print and hand it to yourself). It promises time or an act, never a purchase.",
+  "ideaId": null,
+  "family": "heart",
+  "emotion": "TODO: one of funny | ridiculous | absurd | cute | touching",
+  "interaction": ["tear", "redeem"],
+  "form": "interactive-html",
+  "tierUsed": "S",
+  "note": "TODO: what the coupon is for and how to redeem it (open this page and tap Redeem, or print it). It promises time or an act, never a purchase.",
+  "share": {"still": {"capture": "still"}, "caption": "TODO: one line they might post with it", "privateText": []},
+  "downloads": [],
+  "credits": [],
   "incomplete": []
 }
 </script>
@@ -32,6 +40,8 @@ button:focus-visible{outline:3px solid var(--gold-light);outline-offset:2px}
 @page{size:A5 landscape;margin:10mm}
 @media print{html,body{background:#fff}.coupon{box-shadow:none;margin:0}button{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* Capture: the calendar calls window.adventCapture.prepare(kind) at 1080×1350 (still) or 1080×1920 (loop). Keep the bottom-right 160×48 px clear for the share mark. */
+.is-capturing button{visibility:hidden}
 </style>
 </head>
 <body>
@@ -52,6 +62,13 @@ button:focus-visible{outline:3px solid var(--gold-light);outline-offset:2px}
   document.getElementById('print').onclick=function(){window.print()};
   r.onclick=function(){var on=!c.classList.contains('redeemed');c.classList.toggle('redeemed',on);r.setAttribute('aria-pressed',String(on));r.textContent=on?'Un-redeem':'Redeem';};
 })();
+// Share frame: the fresh coupon (loop: the Redeemed stamp lands).
+window.adventCapture={async prepare(kind){
+  document.documentElement.classList.add('is-capturing');
+  var c=document.getElementById('coupon');c.classList.remove('redeemed');
+  if(kind==='loop')setTimeout(function(){c.classList.add('redeemed')},1500);
+  await new Promise(function(r){setTimeout(r,200)});
+}};
 </script>
 </body>
 </html>

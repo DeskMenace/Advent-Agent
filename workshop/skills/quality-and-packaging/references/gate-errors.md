@@ -2,13 +2,28 @@
 
 `advent-agent check` and `check_gift` return `{ code, severity, path?, message }`. Errors block; warnings do not.
 
+## gift@2 codes
+
 | Code | Meaning | Fix |
 |---|---|---|
-| `manifest_invalid` | `gift.json` or the embedded manifest fails the schema (wrong `schema`, missing `title`/`note`, bad field types, too long) | Compare with `manifest.md`; `schema` must be exactly `advent-agent/gift@1` |
-| `file_missing` | A path in `primary`, `artifacts`, or `song` does not exist in the package | Fix the path (case-sensitive, forward slashes) or add the file |
-| `nothing_to_show` | No primary, no artifacts, no text, no song, no real-world items: nothing the calendar can render | Add `primary` or at least one artifact |
-| `purchase_claim` | A forbidden word appears in `note`, `whatsLeft`, `realWorld.notes` or page text: bought, ordered, booked, purchased, reserved for you, paid for | Rewrite: "I found", "ready for you to order", "Nothing has been ordered or booked." |
-| `remote_code` | An HTML file loads a script, module, iframe or stylesheet from an origin not declared in `network` | Inline it. CDN libraries must be pasted into the file |
+| `share_missing` | No `share.still` in the manifest | Add `"share": { "still": "share.png" }` with a 1080×1350 PNG, or `{ "still": { "capture": "still" } }` plus `window.adventCapture.prepare(kind)` in the page |
+| `share_file_missing` | `share.still` or `share.loop` names a file that is not in the package | Add the file or switch to a capture request |
+| `emotion_missing` | No `emotion` | Pick one on purpose: `funny`, `ridiculous`, `absurd`, `cute`, `touching` |
+| `interaction_missing` | No `interaction` | Name the verb(s): `open`, `shake`, `squeeze`, `peel`… If there is nothing to name, the gift needs something to touch |
+| `credit_license` | A `credits[]` entry has a licence outside the allowed list (MIT, BSD, ISC, Apache-2.0, CC0, Unlicense, CC BY, OFL, public domain) | Remove the copied code or asset and rewrite the technique yourself; GPL, NC, ND and unlicensed work are inspiration only |
+| `network_request` | The HTML calls `fetch`, `XMLHttpRequest`, `WebSocket` or `EventSource`, or loads a remote `src`/`href` (script, stylesheet, font, image, media, frame) | Inline it. Libraries only from `workshop/kit/vendor/`, copied into the gift. Links the person clicks are fine |
+| `purchase_claim` | gift@2: any occurrence of "bought", "ordered", "booked" or "purchased" in text you wrote (title, note, `whatsLeft`, notes, captions, page text), **including negations** such as "nothing has been …" | Say what is left for them to do: "The choice is yours: open the link to buy it." / "Prepared for you. Buying or booking is yours to decide." |
+| `tier_too_small` (warning) | `tierUsed` is below the library idea's minimum `tier` | Shrink the idea honestly (fewer scenes, same polish) or choose an idea that fits your tier |
+
+## All codes
+
+| Code | Meaning | Fix |
+|---|---|---|
+| `manifest_invalid` | `gift.json` or the embedded manifest fails the schema (wrong `schema`, missing `title`/`note`, bad `emotion` value, bad field types, too long) | Compare with `manifest.md`; `schema` must be exactly `advent-agent/gift@2` (or the older `advent-agent/gift@1`) |
+| `file_missing` | A path in `entry`/`primary`, `artifacts`, `downloads`, `song` does not exist in the package | Fix the path (case-sensitive, forward slashes) or add the file |
+| `nothing_to_show` | No entry, no artifacts, no text, no song, no real-world items: nothing the calendar can render | Add `entry` or at least one artifact |
+| `purchase_claim` | See above. In gift@1 manifests only real-world text is strict | Rewrite as what is left for them to do |
+| `remote_code` | An HTML file loads a script, module, iframe or stylesheet from a remote origin | Inline it. Vendored libraries only |
 | `remote_media` (warning) | An HTML file loads an image, font, audio or video from a remote origin | Inline as a data URI or add the file to the package |
 | `ref_missing` | HTML references a local file (`src`, `href`) that is not in the package | Add the file or fix the path |
 | `ref_outside` | A reference points outside the package (`../`, absolute path) | Keep all files inside the package folder |

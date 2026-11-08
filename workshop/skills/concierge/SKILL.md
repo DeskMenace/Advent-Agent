@@ -1,56 +1,79 @@
 ---
 name: concierge
-description: Real-world gifts as purchase-ready proposals: products, books, experiences, hut nights, tickets. How to verify something exists, record the live price and the date checked, give real https links and constraints, write "what's left for you", and never claim or imply a purchase or booking (D1).
+description: Real-world finds as purchase-ready proposals (products, books, experiences, hut nights, tickets) and real print services for printable gifts. How to verify something exists and ships to the person's country, record price, currency and the date checked, give real https links and constraints, write what is left for them to do, and never buy, book or imply it (D1). Still an emotion, an interaction and a share frame.
 license: MIT
 ---
 
 # Concierge
 
-You find; the recipient decides and pays. A concierge proposal is a gift of research and taste: the one right thing, verified, with everything the recipient needs to get it in two minutes.
+You find; the person decides and pays. A concierge proposal is a gift of research and taste: the one right thing, verified, with everything they need to get it in two minutes. Read `gift-director` first: a proposal is still a gift, so it still has one `emotion`, something to touch and a share frame (an experience ticket you tear off, a book wrapped in paper you unwrap, a gift tag that flips over to show the price and the link).
 
 ## When to use
 
-Only when the brief allows it (`budgets.realWorldSuggestions` true and `permissions.webResearch` true) and when a real thing fits better than something you can make. If web research is off, do not guess at products from memory: prices and availability change. Make something digital instead.
+- **Real-world proposal** (`family: "real-world"`): only when the brief allows it (`budgets.realWorldSuggestions` true and `permissions.webResearch` true) and when a real thing fits better than something you can make.
+- **Print services** for a printable gift (stickers, poster, cards, zine, calendar): whenever `permissions.webResearch` is true. Add them to the gift's `print[]`.
+- If web research is off, do not guess at products or prices from memory. Make something digital, and ship print files without services.
 
 ## The rule that never bends (D1)
 
-You never purchase, order, book, reserve, subscribe, pre-authorise or pay for anything, and you never say or imply that you did. You may pre-fill a cart or form only through tools the recipient already gave you, and even then you stop before any confirmation step and say so.
+You never purchase, order, book, reserve, subscribe, pre-authorise or pay for anything. You may pre-fill a cart or form only through tools the person already gave you, and even then you stop before any confirmation step and say so.
 
-Forbidden words in any gift text about real items: **bought, ordered, booked, purchased, reserved for you, paid for**. Use "I found", "I picked out", "I prepared", "ready for you to order". Every proposal states: **"Nothing has been ordered or booked."**
+Never write "bought", "ordered", "booked", "purchased", "reserved for you" or "paid for" anywhere in the gift, **not even in a negation**: the gate (`purchase_claim`) flags the word itself. Say what you did and what is left for them:
+
+- "I found", "I picked out", "I checked", "Prepared for you."
+- "The choice is yours: open the link to buy it."
+- "Buying or booking is yours to decide."
 
 ## The method
 
 1. **Pick one thing** (two at most, as alternatives). A decision is the gift; a list is homework.
-2. **Verify it exists**: open the vendor page. Confirm the exact variant (size, colour, edition, date, hut and room type), that it is in stock or has availability on plausible dates, and that it ships or is reachable where the recipient lives (use `locale` and `timeZone` as hints; never invent an address).
-3. **Record** vendor name, exact product or experience name, https URL to the exact page (no affiliate parameters, no tracking query strings, no credentials in the URL), price as a number with its 3-letter currency, and `checkedAt` as today's date (`YYYY-MM-DD`).
+2. **Verify it exists**: open the vendor page. Confirm the exact variant (size, colour, edition, date, hut and room type), that it is in stock or has availability on plausible dates, and that it ships to or is reachable from the person's country (use `locale` and `timeZone` as hints; never invent an address).
+3. **Record** vendor name, exact product or experience name, https URL to the exact page (no affiliate parameters, no tracking query strings, no credentials), price as a number with its 3-letter currency, and `checkedAt` as today's date (`YYYY-MM-DD`).
 4. **Respect the ceiling**: `budgets.priceCeilingPerGift` and `priceCeilingSeason`. If unset, keep it modest (think "a nice book", not "a weekend"). Say the price plainly.
-5. **Constraints**: delivery time, cutoff dates for December, sizes, opening hours, booking window, cancellation terms, what to bring. One line each.
-6. **What's left for you**: the exact steps the recipient does, e.g. "Open the link, choose 'M', pay by card. Delivery 3–5 days." Include a fallback if it sells out.
-7. **Why this**: two or three sentences linking the pick to shared facts (hobbies, feedback) or, with no profile, to a universal reason. No invented facts.
+5. **Constraints**: delivery time, December cutoff dates, sizes, opening hours, booking window, cancellation terms, what to bring. One line each.
+6. **What's left for you**: the exact steps, e.g. "Open the link, choose 'M', pay by card. Delivery 3–5 days. The choice is yours." Include a fallback if it sells out.
+7. **Why this**: two or three sentences linking the pick to what you know about them. No invented facts.
 
-## Output
+## Print services (`print[]`)
 
-Use the manifest `realWorld` block and a page or text. Kit template: `kit/templates/real-world-proposal.html` (structured, with the required sentence baked in).
+For a printable gift, find **2–3 real print services that ship to the person's country**. For each, open the product page and record:
 
 ```json
-"realWorld": {
-  "items": [{ "name": "…exact name…", "vendor": "…", "url": "https://…", "price": 34.9, "currency": "CHF",
-              "checkedAt": "2026-12-07", "notes": "Ships in 3–5 days; order by 18 Dec for Christmas" }],
-  "whatsLeft": "Open the link, pick size M, pay. Nothing has been ordered or booked."
-},
-"links": [{ "label": "Open the product page", "url": "https://…" }]
+"print": [
+  { "service": "<real print shop>", "url": "https://…/sticker-sheets", "product": "Kiss-cut sticker sheet A5, matte",
+    "price": 9.9, "currency": "CHF", "checkedAt": "2026-12-07", "shipsTo": "CH", "file": "print/stickers-a5-bleed.pdf" }
+]
 ```
 
-Artifact kind `real-world` for the proposal page. In portable mode, write the same fields as plain text (item, vendor, url, price + currency, checkedAt, constraints, what's left) with the sentence "Nothing has been ordered or booked."
+- The `file` exists in the package and matches what the service asks for (size, bleed, format, colour profile). Say in the page which file goes with which service.
+- Prefer services with a clear price for one item, no minimum order, and shipping to the country you see in `locale`. Mention delivery time if the page shows it.
+- Never create an account, upload the file or start a checkout. The page says: "Prepared for you. Printing is yours to decide."
+
+## Output for a proposal
+
+Use the manifest `realWorld` block and a page. Kit template: `kit/templates/real-world-proposal.html` (structured, with the hand-over sentence and a capture hook).
+
+```json
+"family": "real-world", "emotion": "touching", "interaction": ["unwrap"], "form": "interactive-html", "tierUsed": "S",
+"realWorld": {
+  "items": [{ "name": "…exact name…", "vendor": "…", "url": "https://…", "price": 34.9, "currency": "CHF",
+              "checkedAt": "2026-12-07", "notes": "Ships in 3–5 days; place it by 18 Dec for Christmas" }],
+  "whatsLeft": "Open the link, pick size M, pay. The choice is yours."
+},
+"links": [{ "label": "Open the product page", "url": "https://…" }],
+"share": { "still": { "capture": "still" }, "caption": "My Secret Santa found the exact book I didn't know I wanted" }
+```
+
+The share frame shows the thing and why it suits them, never the price or anything sensitive. In portable mode, write the same fields as plain text (item, vendor, url, price + currency, checkedAt, constraints, what's left).
 
 ## Taste rules
 
-- Books: the exact edition and language; mention why this one and not the famous one. Check the recipient's `language`.
+- Books: the exact edition and language; say why this one and not the famous one.
 - Experiences and hut nights: real dates with availability seen on the page, how to get there, what it costs for the number of people the brief supports (never assume a partner unless `people` says so).
 - Products: avoid consumables with allergens unless the profile covers it; avoid sizes unless shared; avoid anything on the `dislikes`/`avoid` list.
-- No marketplaces with unverifiable sellers; no auctions; no pre-orders with unknown dates.
+- No marketplaces with unverifiable sellers; no auctions; no pre-sales with unknown dates.
 - Never contact a vendor, never create an account, never enter payment details.
 
 ## Self-check
 
-Open each URL once more before packaging. Price and currency match the page; `checkedAt` is today; none of the forbidden words appear anywhere (the gate checks `purchase_claim`); the ceiling holds; the "Nothing has been ordered or booked." sentence is present; the note does not say or hint that anything is on its way.
+Open each URL once more before packaging. Price and currency match the page; `checkedAt` is today; every print service ships to their country; none of the forbidden words appear anywhere, including negations; the ceiling holds; the page says what is left for them to do; the note does not say or hint that anything is on its way.

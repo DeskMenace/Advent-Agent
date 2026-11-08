@@ -209,8 +209,22 @@ export function BudgetSection(props: { cfg: Config; onChange: (p: Partial<Config
     <section class="section" style="margin-top:0">
       <div class="eyebrow">Budgets</div>
       <h1 class="page-title">How much effort, how modest?</h1>
-      <p class="page-sub">Your agent uses its normal plan or billing. Token targets are advisory unless your agent’s CLI enforces a cap (Claude Code does, with a dollar cap).</p>
-      <div class="field"><label for="tok">Token target per gift</label><input id="tok" type="number" min={2000} step={1000} value={b.tokenTarget} onChange={(e) => set({ tokenTarget: Number((e.target as HTMLInputElement).value) || 25000 })} /><span class="hint">25,000 by default. One polished modest gift beats an ambitious broken one.</span></div>
+      <p class="page-sub">Your agent uses its normal plan or billing. Gift size depends on this setting and on the agent: a Secret Santa on a small budget or a smaller model makes smaller gifts (a lovely card, a jelly fruit, a song). With more room and a strong coding agent it can build games, little worlds and characters that react to you.</p>
+      <h2 class="minor">How generous is your Secret Santa?</h2>
+      <div class="generosity" role="radiogroup" aria-label="How generous is your Secret Santa?">
+        {([
+          ['light', 'Light', 'Up to about 30,000 tokens a gift. One page, one delightful mechanic.'],
+          ['standard', 'Standard', 'Up to about 100,000 tokens. Two or three interactions, illustration, sound.'],
+          ['generous', 'Generous', 'Up to about 300,000 tokens. Several scenes, custom art, physics.'],
+        ] as const).map(([value, title, text]) => (
+          <button key={value} type="button" role="radio" class="choice-card" aria-checked={b.generosity === value} onClick={() => set({ generosity: value })}>
+            {value === 'standard' && <span class="tag">default</span>}
+            <strong class="choice-title">{title}</strong>
+            <p>{text}</p>
+          </button>
+        ))}
+      </div>
+      <p class="hint" style="font-size:12px;color:var(--muted-strong);margin:10px 0 18px">Day 1 and December 24 get three times the daily budget. Token figures are advisory unless your agent enforces a cap.</p>
       <div class="field"><label for="usd">Spend cap per gift (USD, optional)</label><input id="usd" type="number" min={0} step={0.5} value={b.usdCapPerGift ?? ''} onChange={(e) => set({ usdCapPerGift: (e.target as HTMLInputElement).value ? Number((e.target as HTMLInputElement).value) : undefined })} /><span class="hint">Enforced by agents that support it; otherwise advisory and labelled as such.</span></div>
       <h2 class="minor">Real-world suggestions</h2>
       <label class="check"><input type="checkbox" checked={b.realWorldSuggestions} onChange={(e) => set({ realWorldSuggestions: (e.target as HTMLInputElement).checked })} /><span class="check-text">Allow gifts that are real objects or experiences<small>Your agent researches and prepares a purchase-ready proposal (item, vendor, price with date checked, link, what’s left for you). <strong>It never buys or books.</strong></small></span></label>

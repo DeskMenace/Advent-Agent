@@ -2,7 +2,9 @@
 import { readFileSync, statSync } from 'node:fs';
 import { join, posix } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { FORBIDDEN_PURCHASE_CLAIMS, type GiftManifest } from '../shared/gift.js';
+import { ALLOWED_CREDIT_LICENSES, FORBIDDEN_PURCHASE_CLAIMS, GIFT_SCHEMA_ID, TIERS, type GiftManifest } from '../shared/gift.js';
+import { LIBRARY_DIR } from '../core/package-paths.js';
+import { existsSync } from 'node:fs';
 import type { GateProblem } from '../shared/api.js';
 import { mimeFor, sniffImage, sniffMedia, wavDuration } from './mime.js';
 import { fileExists, kindForFile, manifestPrimaryKind } from './manifest.js';
@@ -58,10 +60,20 @@ export function checkManifest(root: string, files: UnpackedFile[], manifest: Gif
   }
   const kind = manifestPrimaryKind(manifest);
 
+  const v2 = manifest.schema === GIFT_SCHEMA_ID;
+  if (v2) problems.push(...checkV2(root, manifest, byPath));
+  else problems.push(p('schema_v1', 'This gift uses the older gift@1 manifest. Use "schema": "advent-agent/gift@2" with emotion, interaction and a share frame (see the gift-director skill).', undefined, 'warning'));
+
   // D1: never claim a purchase or booking.
-  const claimTexts = [manifest.title, manifest.subtitle ?? '', manifest.note, manifest.realWorld?.whatsLeft ?? '', ...(manifest.realWorld?.items.map((i) => i.notes ?? '') ?? [])];
+  const claimTexts = [manifest.title, manifest.subtitle ?? '', manifest.note, manifest.realWorld?.whatsLeft ?? '', ...(manifest.realWorld?.items.map((i) => i.notes ?? '') ?? []), manifest.share?.caption ?? '', ...manifest.downloads.map((d) => d.label), ...manifest.print.map((x) => x.product ?? '')];
+  if (v2) {
+    // gift@2: the words may not appear at all, not even negated (SPEC_CHANGES "check_gift additionally fails on").
+    const all = claimTexts.join('\n').toLowerCase();
+    const hit = FORBIDDEN_PURCHASE_CLAIMS.find((w) => new RegExp(`\\b${w.replace(/ /g, '\\s+')}\\b`).test(all));
+    if (hit) problems.push(p('purchase_claim', `The text contains "${hit}". The agent never purchases or books, and gift text never uses that word, even negated. Say what is left for them to do instead.`));
+  }
   const strict = Boolean(manifest.realWorld) || kind === 'real-world' || kind === 'link';
-  for (const text of claimTexts) {
+  for (const text of v2 ? [] : claimTexts) {
     const claim = findPurchaseClaim(text, strict);
     if (claim) {
       problems.push(p('purchase_claim', `The text says "${claim}". The agent never purchases or books anything; say what you prepared and what is left for the recipient to do.`, undefined, strict ? 'error' : 'warning'));
@@ -81,7 +93,10 @@ export function checkManifest(root: string, files: UnpackedFile[], manifest: Gif
     if (mime === 'text/html') {
       if (file.bytes > MAX_HTML_BYTES) problems.push(p('html_too_large', `${file.path} is larger than 8 MB. Move media into separate files.`, file.path));
       const html = readFileSync(full, 'utf8');
-      problems.push(...checkHtml(root, file.path, html, opts.allowedNetwork ?? manifest.network));
+      const htmlProblems = checkHtml(root, file.path, html, opts.allowedNetwork ?? manifest.network);
+      // gift@2: remote media is an error too (no network, no CDN), unless the origin was declared and allowed.
+      problems.push(...(v2 ? htmlProblems.map((x) => (x.code === 'remote_media' ? { ...x, severity: 'error' as const } : x)) : htmlProblems));
+      if (v2) problems.push(...checkNetworkCalls(file.path, html));
     } else if (fileKind === 'image') {
       const head = readFileSync(full).subarray(0, 64 * 1024);
       const info = sniffImage(head);
@@ -104,6 +119,8 @@ export function checkManifest(root: string, files: UnpackedFile[], manifest: Gif
           media = 'failed';
         } else if (media !== 'failed') media = 'passed';
       }
+    } else if (v2 && mime === 'text/javascript') {
+      problems.push(...checkNetworkCalls(file.path, readFileSync(full, 'utf8')));
     } else if (mime === 'text/plain' || mime === 'text/markdown') {
       const buf = readFileSync(full);
       if (!isValidUtf8(buf)) problems.push(p('text_encoding', `${file.path} is not valid UTF-8.`, file.path));
@@ -146,6 +163,65 @@ export function checkManifest(root: string, files: UnpackedFile[], manifest: Gif
 }
 
 /** Local references must exist; remote script/style are errors unless the origin is allowed; remote media is a warning. */
+/** Network APIs a gift may not use: the gift origin blocks them anyway (connect-src 'none'), so the gift would break. */
+export function checkNetworkCalls(path: string, code: string): GateProblem[] {
+  const out: GateProblem[] = [];
+  const scripts = path.endsWith('.js') || path.endsWith('.mjs') ? code : [...code.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map((m) => m[1]).join('\n');
+  const checks: Array<[RegExp, string]> = [
+    [/\bfetch\s*\(/, 'fetch()'],
+    [/\bnew\s+XMLHttpRequest\b/, 'XMLHttpRequest'],
+    [/\bnew\s+WebSocket\s*\(/, 'WebSocket'],
+    [/\bnew\s+EventSource\s*\(/, 'EventSource'],
+    [/\bsendBeacon\s*\(/, 'navigator.sendBeacon'],
+    [/\bimport\s*\(\s*['"`]https?:/, 'a remote import()'],
+    [/\bimport\s+[^;]*?from\s+['"]https?:/, 'a remote import'],
+  ];
+  for (const [re, what] of checks) {
+    if (re.test(scripts)) out.push(p('network_request', `${path} uses ${what}. Gifts work offline and the calendar blocks network access: inline the data instead (JSON in a <script type="application/json">, data: URIs for media).`, path));
+  }
+  return out;
+}
+
+function checkV2(root: string, m: GiftManifest, byPath: Map<string, UnpackedFile>): GateProblem[] {
+  const out: GateProblem[] = [];
+  const exists = (rel: string) => byPath.has(rel) || fileExists(root, rel);
+  if (!m.emotion) out.push(p('emotion_missing', 'gift.json needs "emotion": one of funny, ridiculous, absurd, cute, touching.'));
+  if (!m.interaction || (Array.isArray(m.interaction) && m.interaction.length === 0)) out.push(p('interaction_missing', 'gift.json needs "interaction": the verb(s) of the delight, e.g. ["shake"].'));
+  if (!m.share) out.push(p('share_missing', 'gift.json needs a "share" frame: "still": "share.png" (1080×1350) or { "capture": "still" } with window.adventCapture in index.html.'));
+  else {
+    if (typeof m.share.still === 'string' && !exists(m.share.still)) out.push(p('share_file_missing', `The share still ${m.share.still} is not in the package.`, m.share.still));
+    if (typeof m.share.loop === 'string' && !exists(m.share.loop)) out.push(p('share_file_missing', `The share loop ${m.share.loop} is not in the package.`, m.share.loop));
+    const wantsCapture = typeof m.share.still !== 'string' || (m.share.loop !== undefined && typeof m.share.loop !== 'string');
+    const entry = m.primary;
+    if (wantsCapture) {
+      if (!entry || !/\.html?$/i.test(entry)) out.push(p('share_missing', 'A capture share frame needs an HTML entry page with window.adventCapture. Provide share.png instead.'));
+      else if (exists(entry) && !/adventCapture/.test(readFileSync(join(root, ...entry.split('/')), 'utf8'))) {
+        out.push(p('capture_hook_missing', `${entry} does not define window.adventCapture; the calendar will capture the page as it first appears.`, entry, 'warning'));
+      }
+    }
+  }
+  for (const d of m.downloads) if (!exists(d.file)) out.push(p('file_missing', `The download "${d.label}" points to ${d.file}, which is not in the package.`, d.file));
+  const allowed = ALLOWED_CREDIT_LICENSES.map((l) => l.toLowerCase().replace(/[\s_-]+/g, ''));
+  for (const c of m.credits) {
+    const norm = c.license.toLowerCase().replace(/[\s_-]+/g, '');
+    const ok = allowed.some((a) => norm === a || (norm.startsWith(a) && !/nc|nd|sa/.test(norm.slice(a.length))));
+    if (!ok || /nc|nd|gpl|commonsclause/.test(norm)) out.push(p('credit_license', `"${c.what}" from ${c.source} is credited under ${c.license}, which may not be copied into a gift. Rewrite it yourself (see inspiration-sources.md).`));
+  }
+  if (m.ideaId && m.tierUsed) {
+    const ideaTier = ideaMinimumTier(m.ideaId);
+    if (ideaTier && TIERS.indexOf(ideaTier) > TIERS.indexOf(m.tierUsed)) out.push(p('tier_too_small', `${m.ideaId} needs tier ${ideaTier} or more; this gift used ${m.tierUsed}. Make sure scope was cut, not polish.`, undefined, 'warning'));
+  }
+  return out;
+}
+
+function ideaMinimumTier(id: string): (typeof TIERS)[number] | undefined {
+  const file = join(LIBRARY_DIR, 'INDEX.json');
+  if (!existsSync(file)) return undefined;
+  try {
+    return (JSON.parse(readFileSync(file, 'utf8')) as { ideas: Array<{ id: string; tier: (typeof TIERS)[number] }> }).ideas.find((i) => i.id === id)?.tier;
+  } catch { return undefined; }
+}
+
 const NEGATION_RE = /\b(?:nothing|not|no|never|none|without|neither|nor|haven't|hasn't|isn't|wasn't|weren't|aren't|don't|didn't|won't|can't|cannot|unless|until|once you|when you|after you|if you|you'll|you can|you could|you decide|to be|yet to|still to|remains? to|left to|ready to)\b/i;
 
 /**

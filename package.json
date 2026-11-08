@@ -52,7 +52,6 @@
     "build:ui": "vite build ui",
     "schema:gen": "tsx scripts/gen-schema.ts",
     "library:index": "tsx scripts/library-index.ts",
-    "library:convert": "tsx scripts/library-convert.ts",
     "fixtures:build": "tsx scripts/build-fixtures.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
@@ -66,13 +65,14 @@
   "dependencies": {
     "@hono/node-server": "^2.1.6",
     "@modelcontextprotocol/sdk": "^1.32.2",
+    "gary.js": "^0.2.0",
     "hono": "^4.13.17",
     "open": "^11.0.4",
     "playwright-core": "^1.65.0",
+    "puppeteer-core": "^24.43.1",
     "yauzl": "^3.4.0",
     "yazl": "^3.3.1",
-    "zod": "^4.6.7",
-    "gary.js": "^0.2.0"
+    "zod": "^4.6.7"
   },
   "optionalDependencies": {
     "@napi-rs/keyring": "^2.1.2"

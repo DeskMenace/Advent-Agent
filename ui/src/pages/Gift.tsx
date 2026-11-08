@@ -1,7 +1,8 @@
 /** Gift page (DESIGN_SPEC §8): artifact first, companion note second, honest actions. */
 import { useEffect, useState } from 'preact/hooks';
 import type { CalendarResponse, RevealedGift } from '../../../src/shared/api.js';
-import { api, ApiError, saveBlob } from '../api.js';
+import { api, ApiError } from '../api.js';
+import { SharePanel } from '../components/SharePanel.js';
 import { Header } from '../components/Header.js';
 import { Inline, Markdown } from '../lib/markdown.js';
 import { announce, formatDate, toast } from '../lib/ui.js';
@@ -104,7 +105,7 @@ export function GiftPage(props: { season: number; day: number }) {
               )}
               <div class="gift-actions">
                 {actions.map((a) => <button key={a.id} type="button" class={`${a.kind}-button`} onClick={() => void a.onClick()}>{a.label}</button>)}
-                <button type="button" class="ghost-button" onClick={() => setShare(true)}>Share a copy</button>
+                <button type="button" class="secondary-button" onClick={() => setShare(true)}>Share…</button>
               </div>
               {m.realWorld && <BoughtMark day={day} gift={gift} onChange={setGift} disabled={!current} />}
               {gift.promo && <PromoSlip promo={gift.promo} />}
@@ -129,7 +130,7 @@ export function GiftPage(props: { season: number; day: number }) {
           <footer class="gift-footer">Some doors open to things worth keeping. ✳</footer>
         </main>
       </div>
-      {share && <ShareDialog day={day} onClose={() => setShare(false)} />}
+      {share && <SharePanel day={day} onClose={() => setShare(false)} />}
     </div>
   );
 }
@@ -197,48 +198,6 @@ function Feedback(props: { day: number; gift: RevealedGift; onChange: (g: Reveal
       <div class="field" style="margin-top:12px">
         <label for={`note-${props.day}`}>A word for your Secret Santa</label>
         <textarea id={`note-${props.day}`} rows={2} value={note} onInput={(e) => setNote((e.target as HTMLTextAreaElement).value)} onBlur={async () => { if (note !== (props.gift.feedback?.note ?? '')) { await api.feedback(props.day, { reaction, note: note || undefined }); props.onChange({ ...props.gift, feedback: { reaction, note: note || undefined } }); } }} />
-      </div>
-    </div>
-  );
-}
-
-function ShareDialog(props: { day: number; onClose: () => void }) {
-  const [preview, setPreview] = useState<Awaited<ReturnType<typeof api.sharePreview>> | null>(null);
-  const [stripNote, setStripNote] = useState(false);
-  const [busy, setBusy] = useState(false);
-  useEffect(() => { api.sharePreview(props.day).then(setPreview).catch((e) => toast((e as Error).message)); }, [props.day]);
-  useEffect(() => { const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') props.onClose(); }; window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey); }, []);
-  const exportIt = async () => {
-    setBusy(true);
-    try {
-      const r = await fetch(`/api/share/${props.day}${stripNote ? '?note=off' : ''}`, { credentials: 'same-origin' });
-      if (!r.ok) throw new Error((await r.json().catch(() => ({ message: 'Export failed' }))).message);
-      const name = r.headers.get('content-disposition')?.match(/filename="([^"]+)"/)?.[1] ?? `advent-agent-day-${props.day}.html`;
-      saveBlob(await r.blob(), name);
-      toast('Saved. Share the file however you like; nothing was uploaded.');
-      props.onClose();
-    } catch (e) {
-      toast((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  };
-  return (
-    <div class="dialog-backdrop" onClick={(e) => { if (e.target === e.currentTarget) props.onClose(); }}>
-      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="share-title">
-        <h2 id="share-title">Share a copy</h2>
-        <p class="page-sub" style="margin-bottom:14px">This saves a standalone HTML file on your computer. Nothing is uploaded; you decide where it goes. Here is the text it will contain:</p>
-        {preview ? (
-          <>
-            <div class="preview"><strong>{preview.title}</strong>{preview.subtitle ? `\n${preview.subtitle}` : ''}{stripNote ? '\n\n(note removed)' : `\n\n${preview.note}`}</div>
-            <label class="check"><input type="checkbox" checked={stripNote} onChange={(e) => setStripNote((e.target as HTMLInputElement).checked)} /><span class="check-text">Leave the note out<small>Notes can be personal. The gift itself stays in.</small></span></label>
-            <p class="hint" style="font-size:12px;color:var(--muted-strong)">{preview.shareMark ? 'A small “Made by my AI agent · Advent Agent” mark sits in the corner. Turn it off in Settings.' : 'The Advent Agent mark is off in your Settings.'}</p>
-          </>
-        ) : <p class="empty">Preparing the preview…</p>}
-        <div class="button-row" style="justify-content:flex-end;margin-top:14px">
-          <button class="ghost-button" onClick={props.onClose}>Cancel</button>
-          <button class="primary-button" disabled={!preview || busy} onClick={exportIt}>Save the file</button>
-        </div>
       </div>
     </div>
   );

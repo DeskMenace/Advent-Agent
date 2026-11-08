@@ -7,11 +7,19 @@
 <!-- Advent Agent template: 8-page zine. Screen: paged reader. Print: one A4 landscape sheet, fold layout. Everything inline. No network. MIT. -->
 <script type="application/advent-gift+json">
 {
-  "schema": "advent-agent/gift@1",
+  "schema": "advent-agent/gift@2",
   "day": 0,
   "title": "TODO: Zine title",
-  "category": "Zine",
-  "note": "TODO: what it is about; print on one A4 sheet (landscape), cut the middle slit, fold into 8 pages. Arrow keys page on screen.",
+  "ideaId": null,
+  "family": "printables",
+  "emotion": "TODO: one of funny | ridiculous | absurd | cute | touching",
+  "interaction": ["page through", "fold"],
+  "form": "interactive-html",
+  "tierUsed": "S",
+  "note": "TODO: why this topic, for them. The page explains printing: one A4 sheet (landscape), cut the middle slit, fold into 8 pages.",
+  "share": {"still": {"capture": "still"}, "caption": "TODO: one line they might post with it", "privateText": []},
+  "downloads": [],
+  "credits": [],
   "incomplete": []
 }
 </script>
@@ -33,6 +41,8 @@ button:disabled{opacity:.4}button:focus-visible{outline:3px solid var(--gold-lig
   .sheet .zp{display:block!important;min-height:0;border:.2mm dashed #bbb;border-radius:0;box-shadow:none;padding:6mm;overflow:hidden;font-size:9.5pt;margin:0}
   .sheet .zp h1{font-size:18pt}.sheet .zp h2{font-size:13pt}.top{transform:rotate(180deg)}
 }
+/* Capture: the calendar calls window.adventCapture.prepare(kind) at 1080×1350 (still) or 1080×1920 (loop). Keep the bottom-right 160×48 px clear for the share mark. */
+.is-capturing nav,.is-capturing main>p{display:none}
 </style>
 </head>
 <body>
@@ -63,6 +73,12 @@ button:disabled{opacity:.4}button:focus-visible{outline:3px solid var(--gold-lig
   function buildSheet(){sheet.innerHTML='';order.forEach(function(n,k){var src=pages[n-1];if(!src)return;var c=src.cloneNode(true);c.hidden=false;if(k<4)c.classList.add('top');sheet.appendChild(c);});}
   document.getElementById('print').onclick=function(){buildSheet();window.print()};window.addEventListener('beforeprint',buildSheet);
   go(0);
+  // Share frame: the cover (loop: page through).
+  window.adventCapture={async prepare(kind){
+    document.documentElement.classList.add('is-capturing');go(0);
+    if(kind==='loop'){var k=0;var t=setInterval(function(){k++;if(k>=pages.length){clearInterval(t);return;}go(k);},900);}
+    await new Promise(function(r){setTimeout(r,200)});
+  }};
 })();
 </script>
 </body>

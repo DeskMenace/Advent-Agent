@@ -106,9 +106,9 @@ test.describe('renderers (E2)', () => {
     await expect(page.locator('.rw-item h3')).toHaveText(/Field Guide/);
     await expect(page.locator('.rw-price')).toHaveText('12.99 GBP');
     await expect(page.locator('.rw-meta')).toContainText('checked on 2026-11-08');
-    await expect(page.locator('.rw-whatsleft')).toContainText('Nothing has been ordered or booked');
+    await expect(page.locator('.rw-honest')).toHaveText('Your agent prepared this proposal. Buying or booking is yours to decide.');
     const text = ((await page.locator('.gift-artbox').innerText()) + (await page.locator('.note').innerText())).toLowerCase();
-    expect(text).not.toMatch(/\b(i|we) (have )?(bought|ordered|booked)\b/);
+    expect(text).not.toMatch(/\b(bought|ordered|booked)\b/);
     const box = page.getByLabel(/I bought it/);
     await box.check();
     await expect(box).toBeChecked();

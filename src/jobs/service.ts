@@ -5,18 +5,18 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { getAdapter } from '../adapters/index.js';
-import { buildAgentContext, renderBriefMarkdown } from '../core/brief.js';
+import { buildAgentContext, renderBriefMarkdown, type BriefHistory } from '../core/brief.js';
 import { makeClock, readDemoState, type Clock } from '../core/clock.js';
 import { cancelDoor, failDoor, IN_FLIGHT, openDoor, recoverDoor, retryDoor, revealDoor, sealDoor, setPhase, toPublicDoor, transition, type DoorStore } from '../core/doors.js';
 import { CalendarEvents } from '../core/events.js';
 import { writeJsonAtomic } from '../core/fsutil.js';
 import { loadPromo, promoFor } from '../core/promo.js';
 import { Store } from '../core/store.js';
-import { computeEligibility, isDoorEligible, zonedDateString, deviceTimeZone, seasonYearFor } from '../core/time.js';
+import { computeEligibility, isDoorEligible, zonedDateString, deviceTimeZone, seasonYearFor, unlockInstant } from '../core/time.js';
 import { APP_PORT, GIFT_PORT } from '../core/paths.js';
 import { readSealedGift, reportForAgent, runGate, sealGift, type GateInput, type GateResult } from '../intake/gate.js';
 import type { AgentContext, CalendarResponse, GateReport, RevealedGift, ShelfItem } from '../shared/api.js';
-import type { Config, Profile, Season } from '../shared/config.js';
+import type { Config, HistoryRecord, Profile, Season } from '../shared/config.js';
 import type { ConnectionMode, DoorState } from '../shared/door.js';
 import type { ProgressPhase } from '../shared/gift.js';
 import { AgentRun, DEFAULT_PROMPT } from './runner.js';
@@ -170,6 +170,45 @@ export class CalendarService {
     if (!isDoorEligible(this.clock(season).now(), season, day)) throw new ApiError(423, 'locked', `Not yet! Door ${day} opens on December ${day}.`);
   }
 
+  /**
+   * Doors that may be *prepared* (never revealed) before they unlock: Day 1 during setup (D15) and,
+   * from December 20 at the unlock hour, December 24 (D17).
+   */
+  canPrepareEarly(season: Season, day: number): boolean {
+    if (day === 1) return true;
+    if (day === 24) return this.clock(season).now().getTime() >= unlockInstant(season, 20).getTime();
+    return false;
+  }
+
+  private assertPreparable(season: Season, day: number): void {
+    if (!Number.isInteger(day) || day < 1 || day > 24) throw new ApiError(404, 'no_such_door', 'There are 24 doors.');
+    if (isDoorEligible(this.clock(season).now(), season, day) || this.canPrepareEarly(season, day)) return;
+    this.assertEligible(season, day);
+  }
+
+  /**
+   * What the agent knows about earlier doors (D15 rotation): every sealed gift of this season, opened or not,
+   * with its family/emotion/interaction/collection, plus the recipient's reactions. Portable mode only sees opened ones,
+   * because the request text is shown to the user.
+   */
+  briefHistory(season: Season, mode: ConnectionMode): BriefHistory[] {
+    const feedback = new Map(this.store.history(season.year).map((h) => [h.day, h]));
+    const out: BriefHistory[] = [];
+    for (const d of this.doorsOf(season).readAll()) {
+      if (!d.gift) continue;
+      if (mode === 'portable' && !d.revealed) continue;
+      out.push({ ...historyRecordFor(d.day, d.gift, d.revealedAt ?? d.gift.sealedAt), feedback: d.feedback?.reaction ?? feedback.get(d.day)?.feedback, opened: d.revealed });
+    }
+    return out;
+  }
+
+  private catchUp(season: Season, day: number): { isCatchUp: boolean; pile: number } {
+    const elig = computeEligibility(this.clock(season).now(), season);
+    const today = elig.todayDay || elig.eligibleThrough;
+    const inFlight = this.doorsOf(season).readAll().filter((d) => IN_FLIGHT.has(d.jobState)).length;
+    return { isCatchUp: elig.eligibleThrough > 0 && day < today, pile: Math.max(1, inFlight) };
+  }
+
   private publish(season: Season, state: DoorState): void {
     const elig = computeEligibility(this.clock(season).now(), season);
     this.events.emitSse({ type: 'door', door: toPublicDoor(state, state.day <= elig.eligibleThrough, state.day === elig.todayDay) });
@@ -201,6 +240,23 @@ export class CalendarService {
     this.save(season, state);
     this.startJob(season, state);
     return this.publicDoor(day);
+  }
+
+  /**
+   * Start preparing a door before it unlocks (Day 1 at setup, the finale from December 20). Launched mode runs the agent;
+   * connected and portable modes put the door into their waiting state so the agent (or a drop) can fill it. Never reveals.
+   */
+  prepareEarly(day: number) {
+    const season = this.requireSeason();
+    if (!this.canPrepareEarly(season, day) && !isDoorEligible(this.clock(season).now(), season, day)) throw new ApiError(423, 'locked', `Door ${day} cannot be prepared yet.`);
+    const doors = this.doorsOf(season);
+    const mode = season.connection.mode;
+    const { state, created } = openDoor(doors.read(day), { mode, adapter: mode === 'launched' ? season.connection.adapter : undefined });
+    if (created) {
+      this.save(season, state);
+      this.startJob(season, state);
+    }
+    return toPublicDoor(doors.read(day), isDoorEligible(this.clock(season).now(), season, day), false);
   }
 
   /** Scheduled preparation: may run before the door is eligible. The result stays sealed and invisible until the user opens it. */
@@ -259,8 +315,8 @@ export class CalendarService {
     const adapterId = season.connection.adapter;
     const adapter = adapterId ? getAdapter(adapterId) : undefined;
     const context = buildAgentContext({
-      season, day, now: this.clock(season).now(), config: this.config(), profile: this.profile(), history: this.store.history(season.year),
-      mode, adapter: adapterId, workspace, attempt: state.attempt, previousProblems, tokenEnforced: Boolean(adapter?.capabilities().budgetEnforced && this.config().budgets.usdCapPerGift),
+      season, day, now: this.clock(season).now(), config: this.config(), profile: this.profile(), history: this.briefHistory(season, mode),
+      mode, adapter: adapterId, workspace, attempt: state.attempt, previousProblems, ...this.catchUp(season, day), tokenEnforced: Boolean(adapter?.capabilities().budgetEnforced && this.config().budgets.usdCapPerGift),
     });
     let brief = renderBriefMarkdown(context);
     const labFile = join(this.store.home.doorDir(season.year, day), 'lab.json');
@@ -367,7 +423,7 @@ export class CalendarService {
   /** Submit for a door: runs the gate, seals on success, marks ready. Works from any in-flight or fresh state of an eligible door. */
   async submit(day: number, input: GateInput, mode?: ConnectionMode, adapter?: string): Promise<GateReport> {
     const season = this.requireSeason();
-    this.assertEligible(season, day);
+    this.assertPreparable(season, day);
     const doors = this.doorsOf(season);
     let state = doors.read(day);
     if (state.jobState === 'ready') throw new ApiError(409, 'already_ready', `Door ${day} already has a gift.`);
@@ -421,10 +477,7 @@ export class CalendarService {
     if (!state.revealed) {
       const gift = state.gift;
       state = this.save(season, revealDoor(state, this.clock(season).now()));
-      this.store.appendHistory(season.year, {
-        day, title: gift.manifest.title, kind: gift.kind, category: gift.manifest.category,
-        motifs: gift.manifest.continuity?.motifs ?? [], thread: gift.manifest.continuity?.thread, revealedAt: state.revealedAt!,
-      });
+      this.store.appendHistory(season.year, historyRecordFor(day, gift, state.revealedAt!));
     }
     return this.revealedGift(season, state);
   }
@@ -493,7 +546,7 @@ export class CalendarService {
     doors.write(next);
     // Keep history in sync for the brief (last record for this day wins).
     const gift = state.gift;
-    this.store.appendHistory(season.year, { day, title: gift.manifest.title, kind: gift.kind, category: gift.manifest.category, motifs: gift.manifest.continuity?.motifs ?? [], thread: gift.manifest.continuity?.thread, revealedAt: state.revealedAt!, feedback: feedback.reaction });
+    this.store.appendHistory(season.year, { ...historyRecordFor(day, gift, state.revealedAt!), feedback: feedback.reaction });
     return toPublicDoor(next, true, false);
   }
 
@@ -535,6 +588,7 @@ export class CalendarService {
       .map((d) => ({
         day: d.day, season: season.year, title: d.gift!.manifest.title, kind: d.gift!.kind, category: d.gift!.manifest.category, revealedAt: d.revealedAt!,
         thumbnailUrl: d.gift!.thumbnail ? `http://127.0.0.1:${this.giftPort}/g/${this.giftToken(season.year, d.day)}/${d.gift!.thumbnail}` : undefined,
+        collection: d.gift!.manifest.collection ? { set: d.gift!.manifest.collection.set, index: d.gift!.manifest.collection.index, size: d.gift!.manifest.collection.size } : undefined,
       }))
       .sort((a, b) => a.day - b.day);
   }
@@ -553,20 +607,20 @@ export class CalendarService {
     const doors = this.doorsOf(season);
     let target = day;
     if (!target) {
-      const waiting = doors.readAll().find((d) => d.day <= elig.eligibleThrough && (d.jobState === 'waiting_for_agent' || d.jobState === 'waiting_for_drop' || d.jobState === 'preparing' || d.jobState === 'queued'));
+      const waiting = doors.readAll().find((d) => (d.day <= elig.eligibleThrough || this.canPrepareEarly(season, d.day)) && (d.jobState === 'waiting_for_agent' || d.jobState === 'waiting_for_drop' || d.jobState === 'preparing' || d.jobState === 'queued'));
       target = waiting?.day;
       if (!target) throw new ApiError(404, 'no_pending_door', 'No door is waiting for a gift right now. The recipient opens an envelope first.');
     }
-    this.assertEligible(season, target);
+    this.assertPreparable(season, target);
     const state = doors.read(target);
     const m = mode ?? state.attempts.at(-1)?.mode ?? season.connection.mode;
-    return buildAgentContext({ season, day: target, now: this.clock(season).now(), config: this.config(), profile: this.profile(), history: this.store.history(season.year), mode: m, attempt: state.attempt, workspace: existsSync(this.store.home.workspaceDir(season.year, target)) ? this.store.home.workspaceDir(season.year, target) : undefined });
+    return buildAgentContext({ season, day: target, now: this.clock(season).now(), config: this.config(), profile: this.profile(), history: this.briefHistory(season, m), mode: m, attempt: state.attempt, ...this.catchUp(season, target), workspace: existsSync(this.store.home.workspaceDir(season.year, target)) ? this.store.home.workspaceDir(season.year, target) : undefined });
   }
 
   /** MCP start_gift: create a workspace for a door the user opened (or open it now) and mark it preparing. */
   startGift(day: number): { workspace: string; context: AgentContext } {
     const season = this.requireSeason();
-    this.assertEligible(season, day);
+    this.assertPreparable(season, day);
     const doors = this.doorsOf(season);
     let state = doors.read(day);
     if (state.jobState === 'ready') throw new ApiError(409, 'already_ready', `Door ${day} already has a gift.`);
@@ -648,6 +702,16 @@ export class CalendarService {
 
 function hasAnyFile(dir: string): boolean {
   try { return existsSync(dir) && readdirSync(dir).length > 0; } catch { return false; }
+}
+
+export function historyRecordFor(day: number, gift: NonNullable<DoorState['gift']>, revealedAt: string): HistoryRecord {
+  const m = gift.manifest;
+  const interaction = typeof m.interaction === 'string' ? [m.interaction] : m.interaction;
+  return {
+    day, title: m.title, kind: gift.kind, category: m.category, ideaId: m.ideaId ?? undefined, family: m.family, emotion: m.emotion, interaction,
+    collection: m.collection ? { set: m.collection.set, index: m.collection.index, size: m.collection.size } : undefined,
+    motifs: m.continuity?.motifs ?? [], thread: m.continuity?.thread, revealedAt,
+  };
 }
 
 export function summarise(problems: Array<{ severity: string; message: string }>): string {

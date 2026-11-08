@@ -4,21 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TODO: Proposal title</title>
-<!-- Advent Agent template: real-world proposal (product, book, experience, hut). The agent never purchases or books; this page says so. Inline. MIT. -->
+<!-- Advent Agent template: real-world proposal (product, book, experience, hut). The agent never purchases or books anything; this page says what is left for the person to do. Inline. MIT. -->
 <script type="application/advent-gift+json">
 {
-  "schema": "advent-agent/gift@1",
+  "schema": "advent-agent/gift@2",
   "day": 0,
   "title": "TODO: Proposal title",
-  "category": "Real-world find",
-  "note": "TODO: why this, in two or three sentences tied to shared facts. End with: Nothing has been ordered or booked.",
-  "realWorld": {
-    "items": [
-      { "name": "TODO: exact item or experience", "vendor": "TODO: vendor", "url": "https://TODO.example", "price": 0, "currency": "CHF", "checkedAt": "2026-12-00", "notes": "TODO: shipping / dates / sizes / cancellation" }
-    ],
-    "whatsLeft": "TODO: the exact steps. Nothing has been ordered or booked."
-  },
-  "links": [ { "label": "TODO: Open the page", "url": "https://TODO.example" } ],
+  "ideaId": null,
+  "family": "real-world",
+  "emotion": "TODO: one of funny | ridiculous | absurd | cute | touching",
+  "interaction": ["unwrap"],
+  "form": "interactive-html",
+  "tierUsed": "S",
+  "note": "TODO: why this, in two or three sentences tied to what you know about them. End with: The choice is yours.",
+  "share": {"still": {"capture": "still"}, "caption": "TODO: one line they might post with it (no price, nothing sensitive)", "privateText": []},
+  "realWorld": {"items": [{"name": "TODO: exact item or experience", "vendor": "TODO: vendor", "url": "https://TODO.example", "price": 0, "currency": "CHF", "checkedAt": "2026-12-00", "notes": "TODO: shipping / dates / sizes / cancellation"}], "whatsLeft": "TODO: the exact steps. The choice is yours: open the link to buy it."},
+  "links": [{"label": "TODO: Open the page", "url": "https://TODO.example"}],
+  "print": [],
+  "downloads": [],
+  "credits": [],
   "incomplete": []
 }
 </script>
@@ -38,6 +42,8 @@ dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:16px 0
 a.cta{display:inline-block;margin-top:8px;padding:12px 18px;border-radius:6px;background:var(--green);color:var(--milk);text-decoration:none;font-weight:600}
 a.cta:focus-visible{outline:3px solid #E7C890;outline-offset:2px}
 @media print{html,body{background:#fff}.paper{box-shadow:none;border:none}}
+/* Capture: the calendar calls window.adventCapture.prepare(kind) at 1080×1350 (still) or 1080×1920 (loop). Keep the bottom-right 160×48 px clear for the share mark. */
+.is-capturing a.cta,.is-capturing .price{visibility:hidden}
 </style>
 </head>
 <body>
@@ -45,7 +51,7 @@ a.cta:focus-visible{outline:3px solid #E7C890;outline-offset:2px}
 <article class="paper" aria-label="Proposal">
   <p class="eyebrow">A find, prepared for you</p>
   <h1>TODO: Exact item or experience name</h1>
-  <p>TODO: Why this. Two or three sentences grounded in what you shared. No invented facts.</p>
+  <p data-advent-private>TODO: Why this. Two or three sentences grounded in what you know about them. No invented facts.</p>
   <dl>
     <dt>Vendor</dt><dd>TODO: Vendor name</dd>
     <dt>Price</dt><dd><span class="price">TODO 0.00 CHF</span></dd>
@@ -60,10 +66,17 @@ a.cta:focus-visible{outline:3px solid #E7C890;outline-offset:2px}
       <li>TODO: Choose the variant (size/date).</li>
       <li>TODO: Pay. Delivery or confirmation details.</li>
     </ol>
-    <p class="notice">Nothing has been ordered or booked. Your Secret Santa only found and checked this.</p>
+    <p class="notice">Prepared for you. Buying or booking is yours to decide. Your Secret Santa only found and checked this.</p>
   </div>
   <a class="cta" href="https://TODO.example" rel="noopener noreferrer" target="_blank">TODO: Open the page</a>
 </article>
 </main>
+<script>
+// Share frame: the find and why it suits them; the price and the button are hidden.
+window.adventCapture={async prepare(kind){
+  document.documentElement.classList.add('is-capturing');
+  await new Promise(function(r){setTimeout(r,100)});
+}};
+</script>
 </body>
 </html>

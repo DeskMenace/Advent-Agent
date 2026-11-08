@@ -1,0 +1,32 @@
+{
+  "schema": "advent-agent/gift@2",
+  "day": 13,
+  "title": "A forest grew in this card",
+  "category": "A pop-up card",
+  "subtitle": "Open it slowly.",
+  "note": "Paper forests are the only kind that fit in an envelope. Drag the cover, or press Enter, and let it stand up.",
+  "entry": "index.html",
+  "ideaId": "pop-up-hello",
+  "family": "paper-and-pop-ups",
+  "emotion": "touching",
+  "interaction": [
+    "open"
+  ],
+  "tierUsed": "S",
+  "share": {
+    "still": {
+      "capture": "still"
+    },
+    "caption": "My AI Secret Santa sent me a pop-up forest"
+  },
+  "artifacts": [
+    {
+      "path": "index.html",
+      "kind": "interactive-html",
+      "role": "primary"
+    }
+  ],
+  "agent": {
+    "name": "demo fixture"
+  }
+}

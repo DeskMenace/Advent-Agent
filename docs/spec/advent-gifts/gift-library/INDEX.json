@@ -1,0 +1,905 @@
+{
+  "schema": "advent-agent/library@2",
+  "count": 49,
+  "ideas": [
+    {
+      "id": "snow-globe-of-your-year",
+      "title": "Snow Globe of Your Year",
+      "family": "tactile-toys",
+      "anchor": "day1",
+      "collection": null,
+      "emotion": [
+        "cute",
+        "touching"
+      ],
+      "interaction": [
+        "shake",
+        "drag"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "A glass snow globe on a little wooden base. Shake it (drag, swipe or shake the phone) and tiny objects from their year swirl with the snow, then settle into a scene.",
+      "suitable_if": "Always, as long as you know a few real things about them. With almost no context, make the scene their city or a season they love."
+    },
+    {
+      "id": "pop-up-hello",
+      "title": "The Pop-Up Hello",
+      "family": "paper-and-pop-ups",
+      "anchor": "day1",
+      "collection": null,
+      "emotion": [
+        "cute",
+        "touching"
+      ],
+      "interaction": [
+        "open",
+        "tilt"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "A closed card on the table. Open it and a paper diorama of their world unfolds in 3D, layer by layer, with your first letter as their Secret Santa tucked inside.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "holo-card-of-you",
+      "title": "Your Holographic Trading Card",
+      "family": "paper-and-pop-ups",
+      "anchor": "day1",
+      "collection": null,
+      "emotion": [
+        "funny",
+        "cute"
+      ],
+      "interaction": [
+        "tilt",
+        "flip"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "A rare holographic trading card of them. Tilt it and the foil shimmers; flip it for absurdly precise stats, special moves and a rarity rating.",
+      "suitable_if": "You know at least four real traits or habits."
+    },
+    {
+      "id": "tiny-companion",
+      "title": "A Tiny Companion",
+      "family": "living-things",
+      "anchor": "day1",
+      "collection": null,
+      "emotion": [
+        "cute"
+      ],
+      "interaction": [
+        "hover",
+        "click",
+        "wait"
+      ],
+      "tier": "L",
+      "capability": "coding-agent",
+      "summary": "A small animated character of their pet (or a creature inspired by them) lives on the page. It watches the cursor, reacts to clicks, falls asleep if ignored, and has one secret trick.",
+      "suitable_if": "They have a pet, or you know enough about them to design a creature they'd recognise."
+    },
+    {
+      "id": "game-of-your-year",
+      "title": "The Game of Your Year",
+      "family": "finale",
+      "anchor": "finale",
+      "collection": null,
+      "emotion": [
+        "funny",
+        "touching"
+      ],
+      "interaction": [
+        "play"
+      ],
+      "tier": "XL",
+      "capability": "coding-agent",
+      "summary": "A well-designed little game where they (or their pet) travel through their year, level by level. The collectibles are this season's gifts; the final level ends on a real celebration.",
+      "suitable_if": "Always, as the default finale."
+    },
+    {
+      "id": "the-premiere",
+      "title": "The Premiere",
+      "family": "finale",
+      "anchor": "finale",
+      "collection": null,
+      "emotion": [
+        "touching",
+        "funny"
+      ],
+      "interaction": [
+        "watch",
+        "click"
+      ],
+      "tier": "XL",
+      "capability": "coding-agent",
+      "summary": "A cinema. The curtains open on an animated short film about their December and their year, with opening titles, a soundtrack, a blooper reel and end credits listing everyone in their life.",
+      "suitable_if": "You know their people and some moments of their year."
+    },
+    {
+      "id": "tiny-world",
+      "title": "The Tiny World",
+      "family": "finale",
+      "anchor": "finale",
+      "collection": null,
+      "emotion": [
+        "cute",
+        "touching"
+      ],
+      "interaction": [
+        "explore",
+        "click"
+      ],
+      "tier": "XL",
+      "capability": "coding-agent",
+      "summary": "An explorable little island or village. Every gift they opened this season lives somewhere in it — the snow globe on a shelf, the jelly fruits at the market, the fish in the harbour — and clicking each one brings back a memory.",
+      "suitable_if": "They opened at least 10 gifts."
+    },
+    {
+      "id": "escape-the-workshop",
+      "title": "Escape the Workshop",
+      "family": "finale",
+      "anchor": "finale",
+      "collection": null,
+      "emotion": [
+        "funny",
+        "absurd"
+      ],
+      "interaction": [
+        "solve"
+      ],
+      "tier": "XL",
+      "capability": "coding-agent",
+      "summary": "They're locked in their Secret Santa's workshop on Christmas Eve. The puzzles use things only they know and the gifts from this season. The last lock opens to the final present.",
+      "suitable_if": "They enjoy puzzles or games."
+    },
+    {
+      "id": "pop-up-diorama",
+      "title": "The Pop-Up Diorama",
+      "family": "paper-and-pop-ups",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "touching",
+        "cute"
+      ],
+      "interaction": [
+        "open",
+        "pull"
+      ],
+      "tier": "L",
+      "capability": "coding-agent",
+      "summary": "A large illustrated pop-up of one moment from their year — a summit, a launch day, a trip — with pull-tabs, wheels and flaps that move parts of the scene.",
+      "suitable_if": "You know one meaningful moment well."
+    },
+    {
+      "id": "envelope-surprise",
+      "title": "Something in the Envelope",
+      "family": "paper-and-pop-ups",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "cute",
+        "touching"
+      ],
+      "interaction": [
+        "open",
+        "unfold"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "A 3D envelope with a wax seal. Break the seal; what comes out is unexpected — a letter that unfolds into a map, a pressed flower, a ticket to an imaginary place, a tiny origami animal.",
+      "suitable_if": "Always. A strong tier S choice."
+    },
+    {
+      "id": "matchbox-of-tiny-things",
+      "title": "The Matchbox of Tiny Things",
+      "family": "paper-and-pop-ups",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "cute",
+        "absurd"
+      ],
+      "interaction": [
+        "slide",
+        "pick-up"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "A matchbox with a hand-drawn label. Slide the drawer to find five miniature objects, each with a tiny museum label explaining its absurd significance in their life.",
+      "suitable_if": "You know at least five concrete things about them."
+    },
+    {
+      "id": "scratch-card",
+      "title": "Scratch to Win",
+      "family": "paper-and-pop-ups",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "funny",
+        "ridiculous"
+      ],
+      "interaction": [
+        "scratch"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "A lottery scratch card. Scratch the silver to reveal absurdly specific \"prizes\" for their life — \"One (1) meeting cancelled by someone else\", \"Dog walk with no rain\".",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "message-in-a-bottle",
+      "title": "Message in a Bottle",
+      "family": "paper-and-pop-ups",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "touching"
+      ],
+      "interaction": [
+        "drag",
+        "pull"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "A bottle bobbing on a gentle sea. Pull the cork, tip the bottle, and a rolled letter slides out and unrolls.",
+      "suitable_if": "You know enough for the letter to be specific."
+    },
+    {
+      "id": "jelly-fruit",
+      "title": "A Jelly Fruit",
+      "family": "tactile-toys",
+      "anchor": "none",
+      "collection": "jelly-fruits",
+      "emotion": [
+        "cute"
+      ],
+      "interaction": [
+        "squeeze",
+        "stretch",
+        "cut"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "A translucent jelly version of a fruit they love, on a little plate. Pull it and it stretches and springs back; tap it and it wobbles; a secret gesture cuts it.",
+      "suitable_if": "You know a fruit or flavour they love, or a place known for one."
+    },
+    {
+      "id": "fish-tank",
+      "title": "The Fish Tank",
+      "family": "tactile-toys",
+      "anchor": "none",
+      "collection": "tank-fish",
+      "emotion": [
+        "cute",
+        "funny"
+      ],
+      "interaction": [
+        "tap",
+        "feed"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "A glass aquarium. Each fish is named after a person, pet or in-joke in their life and behaves accordingly. Tap the glass, drop food, find the hidden treasure chest.",
+      "suitable_if": "You know some of their people, pets or jokes."
+    },
+    {
+      "id": "crystal-of-good-things",
+      "title": "The Crystal of Good Things",
+      "family": "tactile-toys",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "touching"
+      ],
+      "interaction": [
+        "rotate"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "A slowly turning crystal. Each facet holds one good thing from their year; rotate it to catch the light on each one.",
+      "suitable_if": "You know several good moments."
+    },
+    {
+      "id": "hot-air-balloon",
+      "title": "The Hot-Air Balloon",
+      "family": "tactile-toys",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "cute",
+        "touching"
+      ],
+      "interaction": [
+        "drag",
+        "blow"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "A little balloon drifting over an illustrated map of the places in their year. Steer it; at each place a banner unrolls with a memory. Blow into the microphone (optional) to lift it.",
+      "suitable_if": "You know places from their year."
+    },
+    {
+      "id": "bubble-wrap",
+      "title": "Bubble Wrap of Small Worries",
+      "family": "tactile-toys",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "funny",
+        "cute"
+      ],
+      "interaction": [
+        "pop"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "A sheet of bubble wrap. Every pop releases a tiny absurd worry from their life and resolves it (\"The tests passed. Even the flaky one.\").",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "magic-8-ball",
+      "title": "Their Personal Magic 8-Ball",
+      "family": "tactile-toys",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "funny"
+      ],
+      "interaction": [
+        "shake",
+        "ask"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "A magic 8-ball whose answers come from their world — in the voice of their pet, their favourite show, their mountain guide.",
+      "suitable_if": "You know a voice they'd recognise."
+    },
+    {
+      "id": "bouquet",
+      "title": "A Bouquet That Blooms",
+      "family": "living-things",
+      "anchor": "none",
+      "collection": "bouquets",
+      "emotion": [
+        "touching",
+        "cute"
+      ],
+      "interaction": [
+        "touch",
+        "wait"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "A bouquet of closed buds wrapped in paper. Each flower blooms when touched, and the card explains why each flower was chosen for them.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "tiny-garden",
+      "title": "A Garden That Grows Today",
+      "family": "living-things",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "cute",
+        "touching"
+      ],
+      "interaction": [
+        "water",
+        "wait"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "A small pot with seeds. Water them and they grow over real minutes during the day. Come back tonight and it's in full flower.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "ornament",
+      "title": "A Glass Ornament",
+      "family": "living-things",
+      "anchor": "none",
+      "collection": "ornaments",
+      "emotion": [
+        "cute",
+        "touching"
+      ],
+      "interaction": [
+        "rotate",
+        "tap"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "A hand-blown glass ornament with a tiny scene inside. Turn it to look inside; tap to make it ring. Three ornaments complete a little tree.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "karaoke-song",
+      "title": "Their Song, Karaoke Edition",
+      "family": "sound",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "funny",
+        "touching"
+      ],
+      "interaction": [
+        "play",
+        "sing"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "An original song about them, presented as a karaoke screen with a glowing bouncing-ball lyric line, plus the render-it-yourself sheet so they can turn it into a full track.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "mixtape",
+      "title": "The Mixtape of Your Year",
+      "family": "sound",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "touching",
+        "funny"
+      ],
+      "interaction": [
+        "scrub",
+        "flip"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "A cassette in a hand-labelled case. Put it in the deck, scrub the tape with your finger, flip to Side B. Each track is a short original tune named after a moment of their year, with liner notes.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "music-box",
+      "title": "The Music Box",
+      "family": "sound",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "touching",
+        "cute"
+      ],
+      "interaction": [
+        "crank"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "A wooden music box. Turn the crank and a melody composed for them plays while a tiny figure (their pet, them on skis) turns on top.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "soundscape",
+      "title": "A Place You Can Hear",
+      "family": "sound",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "touching"
+      ],
+      "interaction": [
+        "mix"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "A window onto a place they love — a mountain hut at night, their city in the rain. Sliders mix the sounds (wind, fire, rain, a dog snoring) to make their perfect background.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "arcade-starring-them",
+      "title": "An Arcade Game Starring Them",
+      "family": "games",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "funny"
+      ],
+      "interaction": [
+        "play"
+      ],
+      "tier": "M",
+      "capability": "coding-agent",
+      "summary": "A small arcade game where they (or their pet) are the hero and their real nemeses are the enemies. Ends on a shareable high-score card.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "crossword-of-your-year",
+      "title": "The Crossword of Your Year",
+      "family": "games",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "funny",
+        "touching"
+      ],
+      "interaction": [
+        "solve",
+        "type"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "A proper crossword where every clue is about their life, their people and their in-jokes. Solving it reveals a hidden message in the shaded squares.",
+      "suitable_if": "You know at least 12 things about them."
+    },
+    {
+      "id": "bracket",
+      "title": "The Bracket of Their Favourite Things",
+      "family": "games",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "funny",
+        "ridiculous"
+      ],
+      "interaction": [
+        "choose"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "A sports-style tournament bracket of 16 of their favourite things (foods, places, shows, habits). They pick winners round by round; the champion gets an absurdly grand trophy ceremony.",
+      "suitable_if": "You know 16 favourites (or at least 8 for a smaller bracket)."
+    },
+    {
+      "id": "puzzle-box",
+      "title": "The Puzzle Box",
+      "family": "games",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "funny",
+        "cute"
+      ],
+      "interaction": [
+        "slide",
+        "rotate",
+        "solve"
+      ],
+      "tier": "M",
+      "capability": "coding-agent",
+      "summary": "A Japanese-style wooden puzzle box with hidden panels and a sequence they must find. Inside, something small and lovely.",
+      "suitable_if": "They like puzzles."
+    },
+    {
+      "id": "clicker-of-their-life",
+      "title": "The Idle Clicker of Their Life",
+      "family": "games",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "absurd",
+        "funny"
+      ],
+      "interaction": [
+        "click",
+        "wait"
+      ],
+      "tier": "M",
+      "capability": "coding-agent",
+      "summary": "An absurd idle game where they produce the thing they produce most (commits, summits, cups of tea). Upgrades are real parts of their life, and the numbers get ridiculous.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "award-ceremony",
+      "title": "The Award Ceremony",
+      "family": "deadpan-documents",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "ridiculous",
+        "funny"
+      ],
+      "interaction": [
+        "click",
+        "applaud"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "A stage, a spotlight, an envelope. \"And the award for Most Consistent Use of 'Quick Question' goes to…\" Their name, a trophy, an applause button and an acceptance speech they can read aloud.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "museum-of-one-object",
+      "title": "The Museum of One Object",
+      "family": "deadpan-documents",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "absurd",
+        "funny"
+      ],
+      "interaction": [
+        "explore",
+        "listen"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "A grand museum exhibit dedicated to one mundane object they own (their water bottle, their old hiking boots), with a pedestal, a wall label, an audio guide, a \"conservation history\" and a gift shop.",
+      "suitable_if": "You know an object they use a lot."
+    },
+    {
+      "id": "nature-documentary",
+      "title": "A Nature Documentary About Them",
+      "family": "deadpan-documents",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "funny",
+        "absurd"
+      ],
+      "interaction": [
+        "watch"
+      ],
+      "tier": "L",
+      "capability": "coding-agent",
+      "summary": "A short animated wildlife documentary about their ordinary day, narrated with hushed reverence (\"Here, in the glow of the second monitor, the builder prepares to deploy.\").",
+      "suitable_if": "You know their routines."
+    },
+    {
+      "id": "annual-report",
+      "title": "The Annual Report of You",
+      "family": "deadpan-documents",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "funny",
+        "absurd"
+      ],
+      "interaction": [
+        "scroll",
+        "hover"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "A glossy corporate annual report about their life, with animated charts of absurd KPIs, a letter from the CEO (their pet), and a \"risks and outlook\" section.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "patent",
+      "title": "An Official Patent for Their Habit",
+      "family": "deadpan-documents",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "absurd"
+      ],
+      "interaction": [
+        "inspect"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "A patent document, with technical drawings, for a habit or invention of theirs (\"Method and apparatus for eating chocolate on a summit\").",
+      "suitable_if": "You know a habit."
+    },
+    {
+      "id": "newspaper",
+      "title": "The Daily [Name]",
+      "family": "deadpan-documents",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "funny"
+      ],
+      "interaction": [
+        "read",
+        "click"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "The front page of a newspaper entirely about them. Breaking news about trivial events, a weather report for their mood, classifieds from their pet.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "pet-product-launch",
+      "title": "Introducing Their Pet, The Product",
+      "family": "deadpan-documents",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "ridiculous"
+      ],
+      "interaction": [
+        "scroll"
+      ],
+      "tier": "M",
+      "capability": "coding-agent",
+      "summary": "A slick product-launch page for their pet, with scroll animations, specs (\"Shedding: industrial-grade\"), colours, accessories and a \"pre-order\" button that does something silly.",
+      "suitable_if": "They have a pet."
+    },
+    {
+      "id": "horoscope-by-pet",
+      "title": "Their 2027 Horoscope, Written by Their Pet",
+      "family": "deadpan-documents",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "funny",
+        "cute"
+      ],
+      "interaction": [
+        "spin"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "A zodiac wheel where every sign is replaced by something from their life. Spin it to land on their month-by-month horoscope, written by their pet.",
+      "suitable_if": "They have a pet, or swap the pet for a favourite fictional character's style."
+    },
+    {
+      "id": "movie-trailer",
+      "title": "The Trailer for Their Week",
+      "family": "deadpan-documents",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "funny",
+        "ridiculous"
+      ],
+      "interaction": [
+        "watch"
+      ],
+      "tier": "M",
+      "capability": "coding-agent",
+      "summary": "An epic movie trailer for an ordinary week of theirs — title cards, a booming \"In a world…\" and a release date.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "sticker-sheet",
+      "title": "A Sticker Sheet Made for Them",
+      "family": "printables",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "cute",
+        "funny"
+      ],
+      "interaction": [
+        "peel",
+        "place"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "A die-cut sticker sheet in a style they'd love. Peel each sticker off and slap it onto the page (or their \"laptop lid\"). Includes print-ready files and real print services.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "wallpaper-set",
+      "title": "Wallpapers From Their World",
+      "family": "printables",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "cute",
+        "touching"
+      ],
+      "interaction": [
+        "generate"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "A generative art piece built from their themes. Click to regenerate until they find the one they like, then download it at their real phone and desktop sizes.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "zine",
+      "title": "A Zine About Them",
+      "family": "printables",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "funny",
+        "touching"
+      ],
+      "interaction": [
+        "page",
+        "fold"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "An 8-page fold-and-staple zine about them, to read on screen (pages flip) or print on one sheet and fold. Includes a how-to-fold diagram.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "constellation",
+      "title": "The Constellation of Your Year",
+      "family": "heart",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "touching"
+      ],
+      "interaction": [
+        "connect"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "A night sky. Each star is a moment from their year. Connect them in order and the lines draw a constellation in the shape of something they love.",
+      "suitable_if": "You know at least 8 moments."
+    },
+    {
+      "id": "time-capsule",
+      "title": "The Time Capsule",
+      "family": "heart",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "touching"
+      ],
+      "interaction": [
+        "seal"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "A letter from you about who they are this December, sealed in a capsule. It opens fully only on a date they choose next year. Until then, it shows how long is left.",
+      "suitable_if": "You know them well."
+    },
+    {
+      "id": "map-of-your-year",
+      "title": "A Hand-Drawn Map of Your Year",
+      "family": "heart",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "touching",
+        "cute"
+      ],
+      "interaction": [
+        "explore"
+      ],
+      "tier": "M",
+      "capability": "chat-ok",
+      "summary": "An illustrated treasure-style map of the places in their year, with little notes, sea monsters for the bad weeks and an X for the best day.",
+      "suitable_if": "You know places from their year."
+    },
+    {
+      "id": "letters-from-objects",
+      "title": "Thank-You Letters From Their Things",
+      "family": "heart",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "funny",
+        "touching"
+      ],
+      "interaction": [
+        "open"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "A small stack of envelopes from the objects in their life — their laptop, their boots, the coffee machine, the dog's lead — each thanking them in its own voice.",
+      "suitable_if": "Always."
+    },
+    {
+      "id": "experience-ticket",
+      "title": "A Golden Ticket to Something Real",
+      "family": "real-world",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "touching"
+      ],
+      "interaction": [
+        "unfold"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "A golden ticket that unfolds into a purchase-ready proposal for a real experience near them — a hut night, a class, a concert — with price, date checked, booking link and what's left for them to do.",
+      "suitable_if": "Web research allowed and real-world suggestions are on."
+    },
+    {
+      "id": "book-pick",
+      "title": "A Book, Chosen for Them",
+      "family": "real-world",
+      "anchor": "none",
+      "collection": null,
+      "emotion": [
+        "touching"
+      ],
+      "interaction": [
+        "open"
+      ],
+      "tier": "S",
+      "capability": "chat-ok",
+      "summary": "A library card and a bookplate with their name, for one book chosen for them, with a short reason, where to get it, and price checked.",
+      "suitable_if": "Web research allowed and real-world suggestions are on."
+    }
+  ]
+}

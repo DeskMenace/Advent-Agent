@@ -1,0 +1,51 @@
+---
+id: scratch-card
+title: Scratch to Win
+family: paper-and-pop-ups
+anchor: none
+collection: null
+emotion:
+- funny
+- ridiculous
+interaction:
+- scratch
+forms:
+- interactive-html
+tier: S
+capability: chat-ok
+summary: A lottery scratch card. Scratch the silver to reveal absurdly specific "prizes" for their life — "One (1) meeting cancelled by someone else", "Dog walk with no rain".
+suitable_if: Always.
+avoid_if: Never.
+share_frame: The fully scratched card, prizes readable.
+exports:
+- share-still
+- standalone-html
+- print
+print: true
+kit:
+- scratch
+- confetti
+- capture
+references:
+- css-3d-lab-confetti
+skills:
+- arcade
+- storyteller
+minimum_done: Scratching works on mouse and touch; reveal triggers a small celebration.
+status: candidate
+---
+
+# Scratch to Win
+
+A lottery scratch card. Scratch the silver to reveal absurdly specific "prizes" for their life — "One (1) meeting cancelled by someone else", "Dog walk with no rain".
+
+## Make it theirs
+
+- Every prize is tailored to their real annoyances and joys.
+- The jackpot is something real and kind.
+
+## Great vs lazy
+
+**Great:** Satisfying scratch texture and sound, coin cursor, the jackpot reveals last no matter where they scratch.
+
+**Lazy:** Buttons that reveal text.

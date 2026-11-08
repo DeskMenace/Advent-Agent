@@ -164,6 +164,7 @@ export function toPublicDoor(state: DoorState, eligible: boolean, isToday: boole
     permission: eligible ? state.permission : undefined,
     hasFeedback: Boolean(state.feedback),
     bought: Boolean(state.bought),
+    wrapping: !eligible && IN_FLIGHT.has(state.jobState),
   };
 }
 

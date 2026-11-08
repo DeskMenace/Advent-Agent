@@ -53,6 +53,7 @@ export const ShelfItemSchema = z.object({
   category: z.string().optional(),
   revealedAt: z.string(),
   thumbnailUrl: z.string().optional(),
+  collection: z.object({ set: z.string(), index: z.number().int(), size: z.number().int() }).optional(),
 });
 export type ShelfItem = z.infer<typeof ShelfItemSchema>;
 
@@ -85,7 +86,15 @@ export type GateReport = z.infer<typeof GateReportSchema>;
 export const ProgressRequestSchema = z.object({ day: z.number().int().min(1).max(24), phase: ProgressPhaseSchema });
 
 export const AgentContextSchema = z.object({
-  season: z.number().int(),
+  season: z.object({
+    year: z.number().int(),
+    /** D15: "day1" or "finale" restricts the choice to anchor ideas (or something of that size for the finale). */
+    anchor: z.enum(['day1', 'finale']).nullable(),
+    /** D18: this door is being made after its own day (missed or late install). Make it a little lighter. */
+    isCatchUp: z.boolean(),
+    /** Doors made on the same occasion (catch-up pile). */
+    pile: z.number().int().optional(),
+  }),
   day: z.number().int(),
   date: z.string(),
   locale: z.string(),
@@ -99,11 +108,22 @@ export const AgentContextSchema = z.object({
       title: z.string(),
       kind: z.string(),
       category: z.string().optional(),
+      ideaId: z.string().nullable().optional(),
+      family: z.string().optional(),
+      emotion: z.string().optional(),
+      interaction: z.array(z.string()).optional(),
+      collection: z.object({ set: z.string(), index: z.number().int(), size: z.number().int() }).optional(),
       motifs: z.array(z.string()),
       thread: z.string().optional(),
       feedback: z.string().optional(),
+      opened: z.boolean().optional(),
     }),
   ),
+  /** D15: sets started this season and their items. */
+  collections: z.array(z.object({ set: z.string(), size: z.number().int(), days: z.array(z.number().int()), complete: z.boolean() })),
+  /** D15: when the season shape restricts the choice (Day 1, December 24), the allowed library ideas. */
+  anchorIdeas: z.array(z.object({ id: z.string(), title: z.string(), tier: z.string(), capability: z.string() })).optional(),
+  budget: z.object({ tier: z.enum(['S', 'M', 'L', 'XL']), tokens: z.number().int(), note: z.string().optional() }),
   budgets: z.object({
     tokenTarget: z.number().int(),
     tokenEnforced: z.boolean(),

@@ -96,3 +96,16 @@ Tools and resources from AGENT_CONNECTIONS §3 over the local API; starts the co
 
 ## Parallelisation
 Steps 8 and 9 are content-heavy and independent of the server; they run as delegated tasks against the contracts fixed in step 1 while steps 2–7 are built. Step 10 starts once step 4's API is stable.
+
+## Round 2: gift-quality review (8 Nov 2026, D13–D22)
+
+Order of work, as built:
+1. Import the decisions, `SPEC_CHANGES.md`, the 49-idea library and the new gift-director skill; renumber the earlier build notes to D23.
+2. Contracts: gift@2 manifest (zod + JSON schema), library@2 idea format and index.
+3. Quality gate: share frame, emotion, interaction, credits licences, network calls, purchase words.
+4. Brief: tiers (D16), anchors and anchor ideas (D15), catch-up (D18), rotation history and collections.
+5. Season mechanics: Day 1 during setup, finale from December 20 (D17), the "wrapping" envelope, the `.ics` reminder (D19).
+6. Sharing: capture service (puppeteer-core 24, installed Chrome/Edge), loop encoding, standalone export, share mark (D21), share panel with privacy preview (D20).
+7. In parallel, by delegated workers: the kit priority blocks plus the vendored libraries, and the skills, templates and `AGENT_GUIDE.md` moved to gift@2.
+8. UI: generosity setting, Day 1 step and reminder in setup, collections shelf; fixtures moved to gift@2 (plus jelly and pop-up fixtures built from the kit).
+9. Tests at each step; full unit, integration, e2e and packaging runs.

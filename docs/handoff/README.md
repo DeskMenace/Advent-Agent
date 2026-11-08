@@ -15,10 +15,11 @@
 | 4 | `GIFT_WORKSHOP.md` | Bundled skills, building blocks, idea library format, music and templates | High |
 | 5 | `DESK_MENACE_INTEGRATION.md` | Credit, share mark, gary.js on the calendar page, voucher, website FAQ items | High |
 | 6 | `TEST_PLAN.md` | Automated tests, real-agent smoke tests, the gift lab and Noémie's manual review | High |
+| 6b | `SPEC_CHANGES.md` | Gift-quality review (8 Nov 2026): gift@2, brief additions, share capture, kit priority. Decisions D13–D22 | High |
 | 7 | `../Design/advent_calendar_handoff/DESIGN_SPEC.md` | Visual, interaction and accessibility spec | Authoritative for UI unless overridden by 1 |
 | 8 | `../Design/advent_calendar_handoff/advent_calendar_mockup.html` + `previews/` + `reference/` | Look, feel and motion reference | Visual reference only |
 | 9 | `../AI_Advent_Calendar_Product_Description.md` | Full product description | Background; overridden by 1–6 where they differ |
-| 10 | `../AI_Advent_Calendar_Gift_Idea_Bank.md` | **The** idea library source (78 ideas, groups A–H) | Content source |
+| 10 | `../AI_Advent_Calendar_Gift_Idea_Bank.md` | Former idea source, superseded by the 49-idea library (D14) | Background |
 
 The product description's Appendix A (123 ideas) is **not** the library. Use the Gift Idea Bank file.
 

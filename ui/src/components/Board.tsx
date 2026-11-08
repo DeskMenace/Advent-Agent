@@ -29,6 +29,7 @@ export function Bow() {
 }
 
 function label(d: PublicDoor): string {
+  if (d.wrapping) return `December ${d.day}, locked until December ${d.day}. Your Secret Santa is wrapping it`;
   switch (d.envelope) {
     case 'locked': return `December ${d.day}, locked until December ${d.day}`;
     case 'opened': return `December ${d.day}, opened gift, view again`;
@@ -42,6 +43,7 @@ function label(d: PublicDoor): string {
 }
 
 function icon(d: PublicDoor): string {
+  if (d.wrapping) return '✳';
   switch (d.envelope) {
     case 'opened': return '✦';
     case 'locked': return '⌁';
@@ -80,7 +82,7 @@ export function Board(props: BoardProps) {
               <button
                 type="button"
                 ref={(el) => { refs.current[d.day] = el; }}
-                class={`envelope ${envelopePattern(d.day)} ${d.envelope}${props.openingDay === d.day ? ' opening' : ''}${props.bumpDay === d.day ? ' bump' : ''}`}
+                class={`envelope ${envelopePattern(d.day)} ${d.envelope}${d.wrapping ? ' wrapping' : ''}${props.openingDay === d.day ? ' opening' : ''}${props.bumpDay === d.day ? ' bump' : ''}`}
                 data-day={d.day}
                 data-state={d.envelope}
                 aria-label={label(d)}

@@ -309,7 +309,7 @@ function RealWorldView(props: RendererProps) {
         </article>
       ))}
       <div class="rw-whatsleft"><strong>What’s left for you:</strong> {rw.whatsLeft}</div>
-      <p class="rw-honest">Your agent prepared this proposal. Nothing has been ordered or booked.</p>
+      <p class="rw-honest">Your agent prepared this proposal. Buying or booking is yours to decide.</p>
     </div>
   );
 }

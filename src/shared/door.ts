@@ -132,5 +132,7 @@ export const PublicDoorSchema = z.object({
   permission: z.object({ kind: z.string(), origins: z.array(z.string()).optional(), message: z.string() }).optional(),
   hasFeedback: z.boolean(),
   bought: z.boolean(),
+  /** A locked door whose gift is being prepared early (Day 1 at setup, the finale): show wrapping, nothing else. */
+  wrapping: z.boolean().default(false),
 });
 export type PublicDoor = z.infer<typeof PublicDoorSchema>;

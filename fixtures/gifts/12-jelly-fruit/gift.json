@@ -1,0 +1,42 @@
+{
+  "schema": "advent-agent/gift@2",
+  "day": 12,
+  "title": "A jelly persimmon",
+  "category": "A tactile toy",
+  "subtitle": "Pull it. Let go. Watch it think about it.",
+  "note": "You once said persimmons taste like autumn pretending to be summer. This one wobbles like it agrees. Drag it, poke it, press Space.",
+  "entry": "index.html",
+  "ideaId": "jelly-fruit",
+  "family": "tactile-toys",
+  "emotion": "cute",
+  "interaction": [
+    "squeeze",
+    "stretch"
+  ],
+  "tierUsed": "M",
+  "collection": {
+    "set": "jelly-fruits",
+    "index": 1,
+    "size": 3
+  },
+  "share": {
+    "still": {
+      "capture": "still"
+    },
+    "loop": {
+      "capture": "loop",
+      "durationMs": 5000
+    },
+    "caption": "My AI Secret Santa made me a jelly persimmon"
+  },
+  "artifacts": [
+    {
+      "path": "index.html",
+      "kind": "interactive-html",
+      "role": "primary"
+    }
+  ],
+  "agent": {
+    "name": "demo fixture"
+  }
+}

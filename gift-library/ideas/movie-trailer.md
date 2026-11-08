@@ -1,0 +1,52 @@
+---
+id: movie-trailer
+title: The Trailer for Their Week
+family: deadpan-documents
+anchor: none
+collection: null
+emotion:
+- funny
+- ridiculous
+interaction:
+- watch
+forms:
+- interactive-html
+- video
+tier: M
+capability: coding-agent
+summary: An epic movie trailer for an ordinary week of theirs — title cards, a booming "In a world…" and a release date.
+suitable_if: Always.
+avoid_if: Never.
+share_frame: The movie poster.
+exports:
+- share-still
+- share-loop
+- video
+- poster
+print: true
+kit:
+- film-scenes
+- recorder
+- capture
+references:
+- codrops
+skills:
+- storyteller
+- sound-studio
+minimum_done: 30–60 s trailer with title cards and sound; poster.
+status: candidate
+---
+
+# The Trailer for Their Week
+
+An epic movie trailer for an ordinary week of theirs — title cards, a booming "In a world…" and a release date.
+
+## Make it theirs
+
+- Scenes are real moments; review quotes come from their pet and colleagues.
+
+## Great vs lazy
+
+**Great:** Builds to a crescendo over something tiny.
+
+**Lazy:** Text in trailer style.

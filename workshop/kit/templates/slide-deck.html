@@ -7,11 +7,19 @@
 <!-- Advent Agent template: keyboard-paged slide deck with print-to-PDF CSS. Everything inline. No network. MIT. -->
 <script type="application/advent-gift+json">
 {
-  "schema": "advent-agent/gift@1",
+  "schema": "advent-agent/gift@2",
   "day": 0,
   "title": "TODO: Deck title",
-  "category": "Slides",
-  "note": "TODO: warm, specific note. Mention: arrow keys or swipe to move, P to print as PDF.",
+  "ideaId": null,
+  "family": "deadpan-documents",
+  "emotion": "TODO: one of funny | ridiculous | absurd | cute | touching",
+  "interaction": ["click through"],
+  "form": "interactive-html",
+  "tierUsed": "S",
+  "note": "TODO: why you made this for them. The page itself says: arrow keys or swipe to move, P to print as PDF.",
+  "share": {"still": {"capture": "still"}, "caption": "TODO: one line they might post with it", "privateText": []},
+  "downloads": [],
+  "credits": [],
   "incomplete": []
 }
 </script>
@@ -29,6 +37,8 @@ button:disabled{opacity:.4}button:focus-visible{outline:3px solid var(--gold-lig
 @page{size:A4 landscape;margin:10mm}
 @media print{html,body{background:#fff}.slide{display:flex!important;flex-direction:column;justify-content:center;page-break-after:always;min-height:180mm;border:none;margin:0}nav{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* Capture: the calendar calls window.adventCapture.prepare(kind) at 1080×1350 (still) or 1080×1920 (loop). Keep the bottom-right 160×48 px clear for the share mark. */
+.is-capturing nav{display:none}
 </style>
 </head>
 <body>
@@ -52,6 +62,12 @@ button:disabled{opacity:.4}button:focus-visible{outline:3px solid var(--gold-lig
   window.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();go(i+1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(i-1)}else if(e.key==='Home')go(0);else if(e.key==='End')go(slides.length-1);else if(e.key==='p'||e.key==='P')window.print();});
   var sx=null;document.addEventListener('pointerdown',function(e){sx=e.clientX});document.addEventListener('pointerup',function(e){if(sx==null)return;var dx=e.clientX-sx;sx=null;if(Math.abs(dx)>40)go(dx<0?i+1:i-1)});
   go(0);
+  // Share frame: the title slide (loop: step through the slides).
+  window.adventCapture={async prepare(kind){
+    document.documentElement.classList.add('is-capturing');go(0);
+    if(kind==='loop'){var k=0;var t=setInterval(function(){k++;if(k>=slides.length){clearInterval(t);return;}go(k);},1500);}
+    await new Promise(function(r){setTimeout(r,200)});
+  }};
 })();
 </script>
 </body>

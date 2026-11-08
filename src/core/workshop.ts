@@ -49,7 +49,7 @@ export function readIdeaIndex(filter?: string): { count: number; ideas: IdeaInde
   let ideas = index.ideas;
   if (filter) {
     const q = filter.toLowerCase();
-    ideas = ideas.filter((i) => [i.id, i.title, i.summary, i.suitable_if, i.group, ...i.skills].some((v) => String(v).toLowerCase().includes(q)));
+    ideas = ideas.filter((i) => [i.id, i.title, i.summary, i.suitable_if, i.family, i.anchor, i.tier, i.capability, i.collection ?? '', ...i.emotion, ...i.interaction].some((v) => String(v).toLowerCase().includes(q)));
   }
   return { count: ideas.length, ideas };
 }

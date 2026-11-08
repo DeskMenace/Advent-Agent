@@ -6,4 +6,5 @@ function reset(){flakes=[];energy=0;shakes=0;spawn(60);document.getElementById('
 function draw(){ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='#fff';for(const f of flakes){ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,6.28);ctx.fill();if(!reduced){f.y+=f.v*(1+energy);f.x+=Math.sin(f.d+=0.02)*0.6*devicePixelRatio;if(f.y>c.height){f.y=-5;f.x=Math.random()*c.width}}}energy*=0.985;if(!reduced)raf=requestAnimationFrame(draw)}
 function shake(){shakes++;energy=Math.min(6,energy+3);spawn(40);if(flakes.length>400)flakes.splice(0,flakes.length-400);const g=document.getElementById('globe');g.classList.remove('shaking');void g.offsetWidth;g.classList.add('shaking');document.getElementById('count').textContent=shakes+' shake'+(shakes===1?'':'s');if(reduced)draw()}
 document.getElementById('shake').onclick=shake;document.getElementById('reset').onclick=reset;const g=document.getElementById('globe');g.onclick=shake;g.onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();shake()}};reset();
+window.adventCapture={async prepare(kind){shake();if(kind==='still'){await new Promise(r=>setTimeout(r,700))}}};
 </script></body></html>

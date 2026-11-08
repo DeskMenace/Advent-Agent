@@ -7,11 +7,19 @@
 <!-- Advent Agent template: a single trading card with stats and flavour text; tilt effect respects reduced motion. Inline. No network. MIT. -->
 <script type="application/advent-gift+json">
 {
-  "schema": "advent-agent/gift@1",
+  "schema": "advent-agent/gift@2",
   "day": 0,
   "title": "TODO: Card name",
-  "category": "Trading card",
-  "note": "TODO: who or what this card honours (from shared facts only) and why the stats are what they are.",
+  "ideaId": null,
+  "family": "paper-and-pop-ups",
+  "emotion": "TODO: one of funny | ridiculous | absurd | cute | touching",
+  "interaction": ["tilt"],
+  "form": "interactive-html",
+  "tierUsed": "S",
+  "note": "TODO: who or what this card honours (from what you know, never invented) and why the stats are what they are.",
+  "share": {"still": {"capture": "still"}, "caption": "TODO: one line they might post with it", "privateText": []},
+  "downloads": [],
+  "credits": [],
   "incomplete": []
 }
 </script>
@@ -31,6 +39,8 @@ html,body{margin:0;min-height:100%;background:var(--cream);display:grid;place-it
 .wrap{position:relative}
 @media (prefers-reduced-motion:reduce){.tc{transition:none;transform:none!important}.holo{display:none}}
 @media print{html,body{background:#fff}.tc{box-shadow:none}}
+/* Capture: the calendar calls window.adventCapture.prepare(kind) at 1080×1350 (still) or 1080×1920 (loop). Keep the bottom-right 160×48 px clear for the share mark. */
+.is-capturing .tc{transition:none}
 </style>
 </head>
 <body>
@@ -51,6 +61,14 @@ html,body{margin:0;min-height:100%;background:var(--cream);display:grid;place-it
 <script>
 (function(){
   var card=document.getElementById('card'),holo=document.getElementById('holo'),reduced=false;
+  // Share frame: the card tilted so the foil catches the light (loop: a slow tilt sweep).
+  window.adventCapture={async prepare(kind){
+    document.documentElement.classList.add('is-capturing');
+    function tilt(x){card.style.setProperty('--ry',(x*14)+'deg');card.style.setProperty('--rx','-4deg');holo.style.setProperty('--holo',String(0.5+x));}
+    tilt(0.4);
+    if(kind==='loop'){var t0=performance.now();(function f(){var t=(performance.now()-t0)/1000;tilt(0.45*Math.sin(t*1.2));if(t<10)requestAnimationFrame(f);})();}
+    await new Promise(function(r){setTimeout(r,300)});
+  }};
   try{reduced=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
   if(reduced)return;
   card.addEventListener('pointermove',function(e){var r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-0.5,y=(e.clientY-r.top)/r.height-0.5;card.style.setProperty('--ry',(x*14)+'deg');card.style.setProperty('--rx',(-y*14)+'deg');holo.style.setProperty('--holo',String(0.5+x));});

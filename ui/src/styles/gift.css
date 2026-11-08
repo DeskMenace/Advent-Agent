@@ -150,3 +150,15 @@
   .gift-nav a, .gift-nav button { padding: 12px 10px; }
   .real-world, .song-box { padding: 14px; }
 }
+
+.share-dialog { max-width: 620px; }
+.share-preview { background: #efe7d8; border: 1px solid var(--line); border-radius: 4px; min-height: 160px; display: grid; place-items: center; margin: 0 0 12px; overflow: hidden; }
+.share-preview img { display: block; max-width: 100%; max-height: 46vh; height: auto; }
+.envelope.wrapping .date-icon { opacity: 1; animation: twinkle 1.6s ease-in-out infinite; }
+.envelope.wrapping .flap { animation: wrap-wiggle 2.4s ease-in-out infinite; }
+@keyframes wrap-wiggle { 0%, 100% { transform: rotateX(0); } 50% { transform: rotateX(-10deg); } }
+@media (prefers-reduced-motion: reduce) { .envelope.wrapping .flap, .envelope.wrapping .date-icon { animation: none; } }
+.collection-group { grid-column: 1 / -1; border: 1px dashed var(--gold); border-radius: 6px; padding: 14px; background: #fffaf0; }
+.collection-group h2 { font-family: var(--serif); font-weight: 400; font-size: 22px; margin: 0 0 10px; color: var(--green-dark); }
+.collection-group .shelf-grid { margin: 0; }
+.generosity { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }

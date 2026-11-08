@@ -1,5 +1,5 @@
 {
-  "schema": "advent-agent/gift@1",
+  "schema": "advent-agent/gift@2",
   "day": 5,
   "title": "Your personal snow globe",
   "category": "Interactive little world",
@@ -13,6 +13,23 @@
       "role": "primary"
     }
   ],
+  "ideaId": "snow-globe-of-your-year",
+  "family": "tactile-toys",
+  "emotion": "cute",
+  "interaction": [
+    "shake"
+  ],
+  "tierUsed": "M",
+  "share": {
+    "still": {
+      "capture": "still"
+    },
+    "loop": {
+      "capture": "loop",
+      "durationMs": 5000
+    },
+    "caption": "My AI Secret Santa made me a snow globe"
+  },
   "agent": {
     "name": "demo fixture"
   }

@@ -2,12 +2,17 @@
  * Builds fixtures/gifts/<NN>-<kind>/ : one complete gift per renderer kind, used by the demo calendar and the
  * e2e tests. Nothing here is a real personal gift; the content is illustrative and self-made.
  */
-import { mkdirSync, rmSync, writeFileSync, existsSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync, existsSync, readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join, resolve } from 'node:path';
 
 const OUT = resolve(process.cwd(), 'fixtures', 'gifts');
 rmSync(OUT, { recursive: true, force: true });
+
+/** Inline a kit block into a classic <script>: the kit files are ES modules without imports, so dropping `export` is enough. */
+function inlineKit(rel: string): string {
+  return readFileSync(join(process.cwd(), 'workshop', 'kit', ...rel.split('/')), 'utf8').replace(/^export (?=(const|let|function|async function|class) )/gm, '').replace(/^export \{[^}]*\};?$/gm, '');
+}
 
 function gift(dir: string, manifest: Record<string, unknown>, files: Record<string, string | Buffer>) {
   const d = join(OUT, dir);
@@ -16,7 +21,9 @@ function gift(dir: string, manifest: Record<string, unknown>, files: Record<stri
     mkdirSync(join(d, ...name.split('/').slice(0, -1)), { recursive: true });
     writeFileSync(join(d, ...name.split('/')), data);
   }
-  writeFileSync(join(d, 'gift.json'), JSON.stringify({ schema: 'advent-agent/gift@1', ...manifest, agent: { name: 'demo fixture' } }, null, 2));
+  // gift@2 when the fixture declares a share frame; the media-only fixtures stay gift@1 to exercise backward compatibility.
+  const schema = manifest.share ? 'advent-agent/gift@2' : 'advent-agent/gift@1';
+  writeFileSync(join(d, 'gift.json'), JSON.stringify({ schema, ...manifest, agent: { name: 'demo fixture' } }, null, 2));
 }
 
 /* ---------- 01 document ---------- */
@@ -67,6 +74,8 @@ gift('05-interactive-html', {
   day: 5, title: 'Your personal snow globe', category: 'Interactive little world', subtitle: 'Shake it. An absurdly small winter, entirely yours.',
   note: 'Sometimes the most unnecessary gifts are the most delightful. Click or tap the globe, or press space, to make it snow harder. Reset puts the snow back where it was.',
   primary: 'index.html', artifacts: [{ path: 'index.html', kind: 'interactive-html', role: 'primary' }],
+  ideaId: 'snow-globe-of-your-year', family: 'tactile-toys', emotion: 'cute', interaction: ['shake'], tierUsed: 'M',
+  share: { still: { capture: 'still' }, loop: { capture: 'loop', durationMs: 5000 }, caption: 'My AI Secret Santa made me a snow globe' },
 }, {
   'index.html': `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Snow globe</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 50% 25%,#e9f3f0,#c5d9d2 48%,#96b2a9);font-family:Georgia,serif;color:#14503a}button{font:inherit}.globe{width:min(70vw,320px);aspect-ratio:1;border:6px solid #fffbf0;border-radius:50%;position:relative;overflow:hidden;background:radial-gradient(circle at 38% 31%,#f5f8ed,#b4d2ca 65%,#7faca2);box-shadow:inset -18px -15px 35px #3d6f6550,inset 10px 9px 28px #ffffffb3,0 15px 32px #48685d45;cursor:pointer}.hill{position:absolute;bottom:0;height:22%;left:-20%;width:140%;border-radius:50% 50% 0 0;background:#fdf8e9}.tree{position:absolute;bottom:14%;left:50%;transform:translateX(-50%);font-size:min(30vw,120px);line-height:1}.stand{width:55%;height:46px;margin:-3px auto 16px;border-radius:8px 8px 35% 35%;background:linear-gradient(#ae6b54,#7c443b);display:grid;place-items:center;color:#f0cf99;font-size:11px;letter-spacing:.15em;text-transform:uppercase;font-family:Arial,sans-serif}.row{display:flex;gap:10px;justify-content:center}.btn{border:1px solid #14503a;background:#14503a;color:#fffbee;border-radius:5px;padding:12px 18px;cursor:pointer;min-height:44px}.btn.alt{background:transparent;color:#14503a}canvas{position:absolute;inset:0;width:100%;height:100%}@media (prefers-reduced-motion:reduce){.globe.shaking{animation:none}}@keyframes shake{20%,60%{transform:rotate(-7deg)}40%,80%{transform:rotate(7deg)}}.shaking{animation:shake .6s ease}</style></head><body><main><div class="globe" id="globe" role="button" tabindex="0" aria-label="Snow globe. Press to shake."><canvas id="c" aria-hidden="true"></canvas><div class="hill"></div><div class="tree" aria-hidden="true">🌲</div></div><div class="stand">A little winter</div><div class="row"><button class="btn" id="shake">Shake the globe</button><button class="btn alt" id="reset">Reset</button></div><p id="count" aria-live="polite" style="text-align:center;font-style:italic">0 shakes</p></main><script>
 const c=document.getElementById('c'),ctx=c.getContext('2d');let flakes=[],energy=0,shakes=0,raf;const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -76,6 +85,7 @@ function reset(){flakes=[];energy=0;shakes=0;spawn(60);document.getElementById('
 function draw(){ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='#fff';for(const f of flakes){ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,6.28);ctx.fill();if(!reduced){f.y+=f.v*(1+energy);f.x+=Math.sin(f.d+=0.02)*0.6*devicePixelRatio;if(f.y>c.height){f.y=-5;f.x=Math.random()*c.width}}}energy*=0.985;if(!reduced)raf=requestAnimationFrame(draw)}
 function shake(){shakes++;energy=Math.min(6,energy+3);spawn(40);if(flakes.length>400)flakes.splice(0,flakes.length-400);const g=document.getElementById('globe');g.classList.remove('shaking');void g.offsetWidth;g.classList.add('shaking');document.getElementById('count').textContent=shakes+' shake'+(shakes===1?'':'s');if(reduced)draw()}
 document.getElementById('shake').onclick=shake;document.getElementById('reset').onclick=reset;const g=document.getElementById('globe');g.onclick=shake;g.onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();shake()}};reset();
+window.adventCapture={async prepare(kind){shake();if(kind==='still'){await new Promise(r=>setTimeout(r,700))}}};
 </script></body></html>`,
 });
 
@@ -109,8 +119,8 @@ gift('07-song', {
 gift('08-real-world', {
   day: 8, title: 'The book you didn’t know you needed', category: 'A real thing, prepared for you',
   subtitle: 'Found, checked, linked. The buying is yours.',
-  note: 'You once mentioned you like books that make a quiet evening feel important. This is one of those. I found a copy and checked the price today. Nothing has been ordered; the choice stays with you.',
-  realWorld: { items: [{ name: 'A Field Guide to Getting Lost (paperback)', vendor: 'Your local bookshop (via the publisher’s store finder)', url: 'https://www.penguin.co.uk/books/56436/a-field-guide-to-getting-lost-by-solnit-rebecca/9781841957456', price: 12.99, currency: 'GBP', checkedAt: '2026-11-08', notes: 'Also available at most libraries; ask for the 2006 Canongate edition.' }], whatsLeft: 'Open the link, pick a shop near you or order online, pay. Or borrow it from your library. Nothing has been ordered or booked.' },
+  note: 'You once mentioned you like books that make a quiet evening feel important. This is one of those. I found a copy and checked the price today. The choice stays with you.',
+  realWorld: { items: [{ name: 'A Field Guide to Getting Lost (paperback)', vendor: 'Your local bookshop (via the publisher’s store finder)', url: 'https://www.penguin.co.uk/books/56436/a-field-guide-to-getting-lost-by-solnit-rebecca/9781841957456', price: 12.99, currency: 'GBP', checkedAt: '2026-11-08', notes: 'Also available at most libraries; ask for the 2006 Canongate edition.' }], whatsLeft: 'Open the link, pick a shop near you or order online, pay. Or borrow it from your library. It is yours to decide.' },
   artifacts: [],
 }, {});
 
@@ -146,6 +156,41 @@ await new Promise(res=>{const img=new Image();img.onload=()=>{add('remote-image'
 try{window.top.location.href='https://example.com/';setTimeout(()=>add('top-navigation', location.href.includes('example.com')?'OPEN':'locked'),100)}catch(e){add('top-navigation','locked')}
 add('done','done')}
 document.getElementById('run').onclick=run;
+</script></body></html>`,
+});
+
+/* ---------- 12 jelly fruit (kit: toys/jelly.js, capture) — gift@2, collection 1/3 ---------- */
+gift('12-jelly-fruit', {
+  day: 12, title: 'A jelly persimmon', category: 'A tactile toy', subtitle: 'Pull it. Let go. Watch it think about it.',
+  note: 'You once said persimmons taste like autumn pretending to be summer. This one wobbles like it agrees. Drag it, poke it, press Space.',
+  entry: 'index.html', ideaId: 'jelly-fruit', family: 'tactile-toys', emotion: 'cute', interaction: ['squeeze', 'stretch'], tierUsed: 'M',
+  collection: { set: 'jelly-fruits', index: 1, size: 3 },
+  share: { still: { capture: 'still' }, loop: { capture: 'loop', durationMs: 5000 }, caption: 'My AI Secret Santa made me a jelly persimmon' },
+  artifacts: [{ path: 'index.html', kind: 'interactive-html', role: 'primary' }],
+}, {
+  'index.html': `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>A jelly persimmon</title>
+<style>html,body{margin:0;height:100%}body{display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,#fff4e6,#f3d9bd);font-family:Georgia,serif;color:#5a3a20}#plate{width:min(92vw,560px);height:min(80vh,560px)}p{margin:0 0 18px;text-align:center;font-style:italic}</style></head>
+<body><main><p id="hint">drag me · poke me</p><div id="plate"></div></main>
+<script>${inlineKit('toys/jelly.js')}
+const jelly=createJelly(document.getElementById('plate'),{color:'#f2873a',highlight:'rgba(255,255,255,.55)',radius:120,label:'A jelly persimmon',shape:(a)=>1+0.06*Math.cos(2*a)-0.04*Math.sin(a)});
+window.adventCapture={async prepare(kind){document.getElementById('hint').style.visibility='hidden';jelly.stretch(1,-0.4,90);if(kind==='loop')setTimeout(()=>jelly.poke(0.8),400);await new Promise(r=>setTimeout(r,500))}};
+</script></body></html>`,
+});
+
+/* ---------- 13 pop-up card (kit: paper/pop-up-card.js) — gift@2 ---------- */
+gift('13-pop-up-card', {
+  day: 13, title: 'A forest grew in this card', category: 'A pop-up card', subtitle: 'Open it slowly.',
+  note: 'Paper forests are the only kind that fit in an envelope. Drag the cover, or press Enter, and let it stand up.',
+  entry: 'index.html', ideaId: 'pop-up-hello', family: 'paper-and-pop-ups', emotion: 'touching', interaction: ['open'], tierUsed: 'S',
+  share: { still: { capture: 'still' }, caption: 'My AI Secret Santa sent me a pop-up forest' },
+  artifacts: [{ path: 'index.html', kind: 'interactive-html', role: 'primary' }],
+}, {
+  'index.html': `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>A forest grew in this card</title>
+<style>html,body{margin:0;height:100%}body{display:grid;place-items:center;background:#e9efe6;font-family:Georgia,serif;color:#14503a}#stage{display:grid;place-items:center;width:100%;min-height:100vh}.msg{font-size:22px;text-align:center;margin-top:40%}</style></head>
+<body><div id="stage"></div>
+<script>${inlineKit('paper/pop-up-card.js')}
+const card=createPopUpCard(document.getElementById('stage'),{front:'<h1 style="font:400 34px Georgia;text-align:center;margin-top:45%">For you</h1>',insideLeft:'<p style="padding:24px;font-style:italic">A small forest grew in here while you were busy.</p>',inside:'<p class="msg">Happy December</p>',layers:[{html:'🌲',x:8,y:28,w:30,depth:30},{html:'🌲',x:52,y:22,w:34,depth:50},{html:'🦊',x:34,y:52,w:24,depth:70}],width:280,height:380,paper:'#f7f1e3'});
+window.adventCapture={async prepare(){await card.open({instant:true})}};
 </script></body></html>`,
 });
 

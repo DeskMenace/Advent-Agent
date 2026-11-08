@@ -161,7 +161,8 @@ function ConnectedInstructions(props: { day: number; door: PublicDoor; onCancel:
   );
 }
 
-function PortableInstructions(props: { day: number; door: PublicDoor; report: GateReport | null; onReport: (r: GateReport | null) => void; onCancel: () => void }) {
+/** The copyable request for a chat assistant (portable mode, AGENT_CONNECTIONS §6). */
+export function PortableRequest(props: { day: number }) {
   const [request, setRequest] = useState<string>('');
   useEffect(() => {
     api.agentContext(props.day, 'portable').then((ctx) => {
@@ -180,22 +181,30 @@ function PortableInstructions(props: { day: number; door: PublicDoor; report: Ga
         '',
         `Rules: never buy or book anything for me (a proposal with vendor, price, date checked and a link is fine). Keep real-world suggestions ${ctx.budgets.priceCeilingPerGift ? `under ${ctx.budgets.priceCeilingPerGift.amount} ${ctx.budgets.priceCeilingPerGift.currency}` : 'modest'}. Don't invent facts about me.`,
         '',
-        'Send me the result as ONE self-contained HTML file attached (with the embedded manifest from the guide), or as plain text. Don’t show me a preview and don’t describe it; just say "Your gift is wrapped."',
+        `Budget tier: ${ctx.budget.tier}. ${ctx.season.anchor === 'day1' ? 'This is Day 1: choose one of these ideas: ' + (ctx.anchorIdeas ?? []).map((i) => i.id).join(', ') + '. ' : ctx.season.anchor === 'finale' ? 'This is December 24, the finale: make it epic and call back to the season. ' : ''}Make it something to touch: gift@2 with emotion, interaction and a share frame (see the guide).`,
+        '',
+        'Send me the result as ONE self-contained HTML file attached (with the embedded manifest from the guide). Don’t show me a preview and don’t describe it; just say "Your gift is wrapped."',
       ].join('\n'));
     }).catch(() => setRequest(`You are my Secret Santa for an Advent calendar. Please make the gift for door ${props.day}. Follow https://raw.githubusercontent.com/suchipizza/Advent-Agent/main/AGENT_GUIDE.md and send me one self-contained HTML file or plain text. Never buy or book anything. Don't show me a preview.`));
   }, [props.day]);
+  return (
+    <div class="copybox">
+      <div class="control-label">Copy this request into your assistant</div>
+      <textarea aria-label="Request for your assistant" readOnly value={request} />
+      <button class="secondary-button" onClick={async () => toast((await copyText(request)) ? 'Copied.' : 'Select the text and copy it.')}>Copy the request</button>
+    </div>
+  );
+}
+
+function PortableInstructions(props: { day: number; door: PublicDoor; report: GateReport | null; onReport: (r: GateReport | null) => void; onCancel: () => void }) {
   return (
     <>
       <h1 class="gift-title">Ask your assistant, then drop the gift here.</h1>
       <p class="gift-subtitle">Works with any chat assistant or cloud agent. You might glimpse the wrapping paper while it works, so ask it to send the file without a preview.</p>
       <div class="instructions">
-        <div class="copybox">
-          <div class="control-label">1 · Copy this request into your assistant</div>
-          <textarea aria-label="Request for your assistant" readOnly value={request} />
-          <button class="secondary-button" onClick={async () => toast((await copyText(request)) ? 'Copied.' : 'Select the text and copy it.')}>Copy the request</button>
-        </div>
+        <PortableRequest day={props.day} />
         <div style="height:18px" />
-        <div class="control-label">2 · Drop what it made</div>
+        <div class="control-label">Then drop what it made</div>
         <DropArea day={props.day} onReport={props.onReport} />
       </div>
       <div class="button-row" style="justify-content:center;margin-top:24px">

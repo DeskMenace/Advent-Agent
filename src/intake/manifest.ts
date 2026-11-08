@@ -3,7 +3,7 @@
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { extname, join, posix } from 'node:path';
-import { GIFT_KINDS, GIFT_SCHEMA_ID, GiftManifestSchema, type GiftKind, type GiftManifest } from '../shared/gift.js';
+import { GIFT_KINDS, GIFT_SCHEMA_V1, GiftManifestSchema, type GiftKind, type GiftManifest } from '../shared/gift.js';
 import type { GateProblem } from '../shared/api.js';
 import { mimeFor } from './mime.js';
 import type { UnpackedFile } from './unpack.js';
@@ -40,7 +40,8 @@ function problem(code: string, message: string, path?: string, severity: 'error'
 
 /** Parse and validate a gift.json object into a manifest. */
 export function parseManifestObject(raw: unknown, fallbackDay?: number): { manifest?: GiftManifest; problems: GateProblem[] } {
-  if (raw && typeof raw === 'object' && !('schema' in raw)) (raw as Record<string, unknown>).schema = GIFT_SCHEMA_ID;
+  // A manifest without "schema" (or one the calendar builds from loose files or text) follows the lenient gift@1 rules.
+  if (raw && typeof raw === 'object' && !('schema' in raw)) (raw as Record<string, unknown>).schema = GIFT_SCHEMA_V1;
   if (raw && typeof raw === 'object' && !('day' in raw) && fallbackDay) (raw as Record<string, unknown>).day = fallbackDay;
   const result = GiftManifestSchema.safeParse(raw);
   if (result.success) return { manifest: result.data, problems: [] };

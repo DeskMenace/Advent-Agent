@@ -43,20 +43,32 @@ export function ShelfPage() {
 
 export function GiftGrid(props: { items: ShelfItem[]; season: number }) {
   if (props.items.length === 0) return <p class="empty">Nothing unwrapped yet. The shelf fills as you open doors.</p>;
+  // D15: completed collections are shown together; unfinished sets stay in their place among the other gifts.
+  const sets = new Map<string, ShelfItem[]>();
+  for (const it of props.items) if (it.collection) sets.set(it.collection.set, [...(sets.get(it.collection.set) ?? []), it]);
+  const complete = [...sets.entries()].filter(([, items]) => items.length >= (items[0]!.collection!.size ?? 3));
+  const grouped = new Set(complete.flatMap(([, items]) => items.map((i) => i.day)));
+  const card = (it: ShelfItem) => (
+    <li key={it.day}>
+      <Link href={`/gift/${props.season}/${it.day}`} class="shelf-item">
+        <div class="shelf-thumb" aria-hidden="true">{it.thumbnailUrl ? <img src={it.thumbnailUrl} alt="" /> : <span>{KIND_GLYPH[it.kind] ?? '✦'}</span>}</div>
+        <div class="shelf-body">
+          <span class="eyebrow-sm">December {it.day}{it.category ? ` · ${it.category}` : ''}{it.collection ? ` · ${it.collection.index} of ${it.collection.size}` : ''}</span>
+          <h2>{it.title}</h2>
+          <span class="date">Opened {formatDate(it.revealedAt)}</span>
+        </div>
+      </Link>
+    </li>
+  );
   return (
     <ul class="shelf-grid">
-      {props.items.map((it) => (
-        <li key={it.day}>
-          <Link href={`/gift/${props.season}/${it.day}`} class="shelf-item">
-            <div class="shelf-thumb" aria-hidden="true">{it.thumbnailUrl ? <img src={it.thumbnailUrl} alt="" /> : <span>{KIND_GLYPH[it.kind] ?? '✦'}</span>}</div>
-            <div class="shelf-body">
-              <span class="eyebrow-sm">December {it.day}{it.category ? ` · ${it.category}` : ''}</span>
-              <h2>{it.title}</h2>
-              <span class="date">Opened {formatDate(it.revealedAt)}</span>
-            </div>
-          </Link>
+      {complete.map(([set, items]) => (
+        <li key={`set-${set}`} class="collection-group">
+          <h2>Set complete: {set.replace(/-/g, ' ')}</h2>
+          <ul class="shelf-grid">{items.sort((a, b) => a.collection!.index - b.collection!.index).map(card)}</ul>
         </li>
       ))}
+      {props.items.filter((i) => !grouped.has(i.day)).map(card)}
     </ul>
   );
 }

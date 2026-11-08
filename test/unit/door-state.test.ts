@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { JOB_STATES, type JobState, type SealedGift } from '../../src/shared/door.js';
+import { GiftManifestSchema } from '../../src/shared/gift.js';
 import { cancelDoor, DoorTransitionError, envelopeState, failDoor, IN_FLIGHT, newDoorState, openDoor, recoverDoor, retryDoor, revealDoor, sealDoor, setPhase, toPublicDoor, TRANSITIONS, transition } from '../../src/core/doors.js';
 
 const gift: SealedGift = {
-  manifest: { schema: 'advent-agent/gift@1', day: 3, title: 'Secret title', note: 'secret note', artifacts: [], network: [], incomplete: [] },
+  manifest: GiftManifestSchema.parse({ schema: 'advent-agent/gift@1', day: 3, title: 'Secret title', note: 'secret note' }),
   kind: 'document',
   files: [],
   sealedAt: '2026-12-03T00:00:00Z',
