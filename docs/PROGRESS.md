@@ -14,7 +14,7 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 - [x] U1.4 unlockHour 0 / 7 / 23 behave as configured
 - [x] U1.5 DST-transition timezone (e.g. America/Sao_Paulo, Europe/Zurich) does not shift door boundaries
 - [x] U1.6 Frozen season timezone: device timezone change does not change eligibility
-- [ ] U1.7 Server rejects a future door on `POST /api/doors/:day/open` and `GET /api/doors/:day` with the lock response
+- [x] U1.7 Server rejects a future door on `POST /api/doors/:day/open` and `GET /api/doors/:day` with the lock response
 
 ### Door state machine — `test/unit/door-state.test.ts`
 - [x] U2.1 Every allowed transition succeeds; every disallowed one throws
@@ -47,10 +47,10 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 - [x] U5.4 Import round-trip restores seasons and door states
 
 ### Library — `test/unit/library.test.ts`
-- [ ] U6.1 Every `gift-library/ideas/*.md` validates against the idea schema
-- [ ] U6.2 `INDEX.json` and `INDEX.md` are up to date (CI fails when stale)
-- [ ] U6.3 78 ideas; titles and groups match `docs/spec/AI_Advent_Calendar_Gift_Idea_Bank.md`
-- [ ] U6.4 Gary never appears in the library
+- [x] U6.1 Every `gift-library/ideas/*.md` validates against the idea schema
+- [x] U6.2 `INDEX.json` and `INDEX.md` are up to date (CI fails when stale)
+- [x] U6.3 78 ideas; titles and groups match `docs/spec/AI_Advent_Calendar_Gift_Idea_Bank.md`
+- [x] U6.4 Gary never appears in the library
 
 ### Promo — `test/unit/promo.test.ts`
 - [x] U7.1 Shown only on the configured day
@@ -61,36 +61,36 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 ## 2. Integration — TEST_PLAN §2
 
 ### Fake agent adapter — `test/integration/launched.test.ts`, `test/fake-agent/`
-- [ ] I1.1 Happy path: phases reported, gift written, submitted, door `ready`
-- [ ] I1.2 Failure exit → `failed`, retry works
-- [ ] I1.3 Timeout → `failed` with timeout reason, process killed
-- [ ] I1.4 Secret in gift → gate rejects, structured error returned to the agent, door not ready
-- [ ] I1.5 Broken gift (missing primary file) → gate rejects
-- [ ] I1.6 Log output never reaches `/api/calendar`, `/api/doors/:day` or SSE
+- [x] I1.1 Happy path: phases reported, gift written, submitted, door `ready`
+- [x] I1.2 Failure exit → `failed`, retry works
+- [x] I1.3 Timeout → `failed` with timeout reason, process killed
+- [x] I1.4 Secret in gift → gate rejects, structured error returned to the agent, door not ready
+- [x] I1.5 Broken gift (missing primary file) → gate rejects
+- [x] I1.6 Log output never reaches `/api/calendar`, `/api/doors/:day` or SSE
 
 ### MCP — `test/integration/mcp.test.ts`
-- [ ] I2.1 Every tool callable from an SDK client (`get_calendar_context`, `list_workshop`, `read_workshop_guide`, `list_ideas`, `read_idea`, `start_gift`, `report_progress`, `check_gift`, `submit_gift`)
-- [ ] I2.2 Inline `files[]` submission seals a gift
-- [ ] I2.3 "No pending door" case returns a clear message
-- [ ] I2.4 Submission for an ineligible day is rejected
-- [ ] I2.5 Resources expose the guides
+- [x] I2.1 Every tool callable from an SDK client (`get_calendar_context`, `list_workshop`, `read_workshop_guide`, `list_ideas`, `read_idea`, `start_gift`, `report_progress`, `check_gift`, `submit_gift`)
+- [x] I2.2 Inline `files[]` submission seals a gift
+- [x] I2.3 "No pending door" case returns a clear message
+- [x] I2.4 Submission for an ineligible day is rejected
+- [x] I2.5 Resources expose the guides
 
 ### CLI and HTTP submit — `test/integration/http-auth.test.ts`
-- [ ] I3.1 Mutating routes without a token or cookie → 401
-- [ ] I3.2 Bad `Host` (e.g. `evil.com`, DNS-rebinding style) → 403
-- [ ] I3.3 Cross-origin `Origin` → 403
-- [ ] I3.4 `advent-agent submit` with the token succeeds; without it fails
+- [x] I3.1 Mutating routes without a token or cookie → 401
+- [x] I3.2 Bad `Host` (e.g. `evil.com`, DNS-rebinding style) → 403
+- [x] I3.3 Cross-origin `Origin` → 403
+- [x] I3.4 `advent-agent submit` with the token succeeds; without it fails
 
 ### Scheduler — `test/integration/scheduler.test.ts`
-- [ ] I4.1 Preparation starts at the configured time with a faked clock
-- [ ] I4.2 Catch-up after a simulated sleep prepares missed doors
-- [ ] I4.3 No duplicate runs for the same door
-- [ ] I4.4 Late preparation is recorded honestly (`preparedLate`, reason)
+- [x] I4.1 Preparation starts at the configured time with a faked clock
+- [x] I4.2 Catch-up after a simulated sleep prepares missed doors
+- [x] I4.3 No duplicate runs for the same door
+- [x] I4.4 Late preparation is recorded honestly (`preparedLate`, reason)
 
 ### Service install — `test/integration/service.test.ts`
-- [ ] I5.1 launchd plist generated correctly (file output)
-- [ ] I5.2 systemd `--user` unit generated correctly
-- [ ] I5.3 Windows Task Scheduler XML generated correctly
+- [x] I5.1 launchd plist generated correctly (file output)
+- [x] I5.2 systemd `--user` unit generated correctly
+- [x] I5.3 Windows Task Scheduler XML generated correctly
 
 ## 3. End-to-end (Playwright) — TEST_PLAN §3 and DESIGN_SPEC §16
 

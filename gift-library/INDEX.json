@@ -1,0 +1,1255 @@
+{
+  "schema": "advent-agent/idea-index@1",
+  "count": 78,
+  "groups": {
+    "A": "Humour, personal parody and fictional identity",
+    "B": "Games, playable surprises and puzzles",
+    "C": "Visual, illustrated and generative gifts",
+    "D": "Audio, music and video",
+    "E": "Letters, stories, writing and reflective gifts",
+    "F": "Thoughtful everyday utilities and agent redeemables",
+    "G": "Real-life adventures, meals and offline surprises",
+    "H": "Real purchasable and makeable gifts (user always pays)"
+  },
+  "ideas": [
+    {
+      "id": "annual-roast",
+      "title": "The Annual Roast",
+      "group": "A",
+      "summary": "A playful roast drawn from known habits, recurring events or opted-in work context; no coding requirement.",
+      "suitable_if": "The agent knows real, harmless habits, recurring events or opted-in work context to tease; the recipient enjoys being teased.",
+      "skills": [
+        "gift-director",
+        "storyteller"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/annual-roast.md"
+    },
+    {
+      "id": "fake-documentary",
+      "title": "The Fake Documentary",
+      "group": "A",
+      "summary": "Mockumentary script, illustrated documentary, or short video about a theme in the user's life.",
+      "suitable_if": "A theme in the recipient's life is known and lends itself to earnest narration (a plant collection, a running route, a kitchen ritual).",
+      "skills": [
+        "gift-director",
+        "storyteller",
+        "art-studio"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/fake-documentary.md"
+    },
+    {
+      "id": "museum-of-abandoned-ideas",
+      "title": "The Museum of Abandoned Ideas",
+      "group": "A",
+      "summary": "Virtual museum of unfinished ideas, hobbies or projects; can be nontechnical.",
+      "suitable_if": "The agent genuinely knows about shelved ideas, hobbies or projects; this works for nontechnical people too.",
+      "skills": [
+        "gift-director",
+        "storyteller",
+        "art-studio",
+        "arcade"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/museum-of-abandoned-ideas.md"
+    },
+    {
+      "id": "ridiculous-merch-design",
+      "title": "The Ridiculous Merch Design",
+      "group": "A",
+      "summary": "Original humorous mug, sticker, shirt or bag design with optional purchase path.",
+      "suitable_if": "A running joke, catchphrase or small obsession is known that would look good on a mug, sticker, shirt or bag.",
+      "skills": [
+        "gift-director",
+        "art-studio",
+        "concierge"
+      ],
+      "effort": "medium",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/ridiculous-merch-design.md"
+    },
+    {
+      "id": "villain-origin-story",
+      "title": "The Villain Origin Story",
+      "group": "A",
+      "summary": "Invent a melodramatic origin story inspired by a real frustration.",
+      "suitable_if": "A real, benign frustration is known (a flaky printer, a cold office, a commute) that can be inflated into melodrama.",
+      "skills": [
+        "gift-director",
+        "storyteller",
+        "art-studio"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/villain-origin-story.md"
+    },
+    {
+      "id": "developer-wrapped",
+      "title": "Your Developer Wrapped",
+      "group": "A",
+      "summary": "Spotify-style interactive recap of developer activity; only if development data is available.",
+      "suitable_if": "Development data is available (commit history, repos, languages) and the recipient agreed to its use.",
+      "skills": [
+        "gift-director",
+        "maker",
+        "art-studio"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/developer-wrapped.md"
+    },
+    {
+      "id": "startup-obituary",
+      "title": "Your Startup's Obituary",
+      "group": "A",
+      "summary": "Affectionate fictional obituary for a live or abandoned project/startup; founder-context only.",
+      "suitable_if": "Founder-context only: the recipient has a live or abandoned project or startup and is comfortable joking about it.",
+      "skills": [
+        "gift-director",
+        "storyteller"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/startup-obituary.md"
+    },
+    {
+      "id": "bug-invaders",
+      "title": "Bug Invaders",
+      "group": "B",
+      "summary": "Invaders-style game with bugs from their work; developer-context only, or substitute other antagonists.",
+      "suitable_if": "Developer-context only for the bug theme: real (harmless) bug names or error messages are known; otherwise substitute other antagonists such as chores or weeds.",
+      "skills": [
+        "gift-director",
+        "arcade"
+      ],
+      "effort": "high",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/bug-invaders.md"
+    },
+    {
+      "id": "custom-web-game",
+      "title": "Custom Web Game",
+      "group": "B",
+      "summary": "Make an original small browser game: Winter Wordle, Reindeer Runner, Snowflake Catcher, themed platformer or text RPG.",
+      "suitable_if": "Almost always; works for anyone who can click or tap. Themes can be festive or drawn from known interests.",
+      "skills": [
+        "gift-director",
+        "arcade",
+        "art-studio"
+      ],
+      "effort": "high",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/custom-web-game.md"
+    },
+    {
+      "id": "daily-mini-crossword",
+      "title": "Daily Mini-Crossword",
+      "group": "B",
+      "summary": "Mini crossword/word puzzle containing opt-in in-jokes and familiar vocabulary.",
+      "suitable_if": "Familiar vocabulary and opt-in in-jokes are known; the recipient likes word puzzles.",
+      "skills": [
+        "gift-director",
+        "arcade",
+        "storyteller"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/daily-mini-crossword.md"
+    },
+    {
+      "id": "developer-bingo",
+      "title": "Developer Bingo",
+      "group": "B",
+      "summary": "Bingo of common things the human does; developer variant or universal variant.",
+      "suitable_if": "Common things the recipient does are known; a developer variant for coders, a universal variant (meetings, coffee, weather) for everyone else.",
+      "skills": [
+        "gift-director",
+        "arcade",
+        "storyteller"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/developer-bingo.md"
+    },
+    {
+      "id": "fidget-toy",
+      "title": "Fidget Toy",
+      "group": "B",
+      "summary": "Working browser toy: bubble wrap, sand, Newton's cradle, kinetic lights or similar.",
+      "suitable_if": "Almost anyone; a good fallback when little context is known.",
+      "skills": [
+        "gift-director",
+        "arcade",
+        "art-studio",
+        "sound-studio"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/fidget-toy.md"
+    },
+    {
+      "id": "fortune-cookie",
+      "title": "Fortune Cookie",
+      "group": "B",
+      "summary": "Clickable/crackable animated cookie revealing a witty or thoughtful fortune.",
+      "suitable_if": "Almost anyone; shines when fortunes can nod to known hopes or plans.",
+      "skills": [
+        "gift-director",
+        "arcade",
+        "storyteller"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/fortune-cookie.md"
+    },
+    {
+      "id": "holiday-trivia-challenge",
+      "title": "Holiday Trivia Challenge",
+      "group": "B",
+      "summary": "Tailored interactive quiz on favorite pop culture, interests or seasonal topics.",
+      "suitable_if": "Favourite pop culture, interests or seasonal topics are known, or a general seasonal quiz is welcome.",
+      "skills": [
+        "gift-director",
+        "arcade"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/holiday-trivia-challenge.md"
+    },
+    {
+      "id": "personal-puzzle-box",
+      "title": "Personal Puzzle Box",
+      "group": "B",
+      "summary": "Printable puzzle or browser puzzle with several clues and final hidden message.",
+      "suitable_if": "Several small shared facts or interests exist to build clues from; the recipient likes solving things.",
+      "skills": [
+        "gift-director",
+        "arcade",
+        "storyteller"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/personal-puzzle-box.md"
+    },
+    {
+      "id": "pixel-art-canvas-or-painter",
+      "title": "Pixel Art Canvas or Painter",
+      "group": "B",
+      "summary": "Working festive or personalized mini drawing tool with palette and saving/export.",
+      "suitable_if": "The recipient enjoys doodling, or children are around; works with no personal context.",
+      "skills": [
+        "gift-director",
+        "maker",
+        "art-studio"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/pixel-art-canvas-or-painter.md"
+    },
+    {
+      "id": "impossible-quiz",
+      "title": "The Impossible Quiz",
+      "group": "B",
+      "summary": "A quirky trivia game using known harmless interests and memories.",
+      "suitable_if": "Known harmless interests and shared memories can become questions with surprising answers.",
+      "skills": [
+        "gift-director",
+        "arcade",
+        "storyteller"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/impossible-quiz.md"
+    },
+    {
+      "id": "three-riddle-escape-room",
+      "title": "Three-Riddle Escape Room",
+      "group": "B",
+      "summary": "A miniature escape-room page where three puzzles unlock a gift or message.",
+      "suitable_if": "The recipient likes puzzles and there is a message or small reveal worth locking behind them.",
+      "skills": [
+        "gift-director",
+        "arcade",
+        "art-studio",
+        "storyteller"
+      ],
+      "effort": "high",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/three-riddle-escape-room.md"
+    },
+    {
+      "id": "ai-agent-pixel-portrait",
+      "title": "AI Agent Pixel Portrait",
+      "group": "C",
+      "summary": "Portrait of the gifting agent in a festive scene, as they imagine themselves.",
+      "suitable_if": "Almost anyone; a charming self-introduction early in the calendar.",
+      "skills": [
+        "gift-director",
+        "art-studio"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/ai-agent-pixel-portrait.md"
+    },
+    {
+      "id": "animated-gif-loop",
+      "title": "Animated GIF Loop",
+      "group": "C",
+      "summary": "A short cozy original loop, steam from a mug, lights, snowfall or pet character.",
+      "suitable_if": "Almost anyone; a pet or favourite cosy ritual makes it personal.",
+      "skills": [
+        "gift-director",
+        "art-studio"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/animated-gif-loop.md"
+    },
+    {
+      "id": "ascii-or-isometric-diorama",
+      "title": "ASCII or Isometric Diorama",
+      "group": "C",
+      "summary": "Miniature illustration of a desk, room, imagined retreat or cherished place.",
+      "suitable_if": "A desk, room, imagined retreat or cherished place is known or can be invented together.",
+      "skills": [
+        "gift-director",
+        "art-studio"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/ascii-or-isometric-diorama.md"
+    },
+    {
+      "id": "generative-art-piece",
+      "title": "Generative Art Piece",
+      "group": "C",
+      "summary": "Original procedural artwork, optionally interactive and seeded by the date.",
+      "suitable_if": "Almost anyone; especially good when a favourite palette or aesthetic is known.",
+      "skills": [
+        "gift-director",
+        "art-studio"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/generative-art-piece.md"
+    },
+    {
+      "id": "illustrated-digital-postcard",
+      "title": "Illustrated Digital Postcard",
+      "group": "C",
+      "summary": "Postcard with thoughtful message from a real or imaginary destination.",
+      "suitable_if": "Almost anyone; shines when a real destination the recipient loves or dreams of is known.",
+      "skills": [
+        "gift-director",
+        "art-studio",
+        "storyteller"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/illustrated-digital-postcard.md"
+    },
+    {
+      "id": "personal-trading-card",
+      "title": "The Personal Trading Card",
+      "group": "C",
+      "summary": "Collectible illustrated card with playful stats and a special power.",
+      "suitable_if": "A few playful, harmless traits or skills are known to turn into stats and a special power.",
+      "skills": [
+        "gift-director",
+        "art-studio",
+        "storyteller"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/personal-trading-card.md"
+    },
+    {
+      "id": "tiny-digital-snow-globe",
+      "title": "Tiny Digital Snow Globe",
+      "group": "C",
+      "summary": "Interactive snow globe with click/shake particles, ambient audio, a personal miniature scene.",
+      "suitable_if": "Almost anyone; a personal miniature scene makes it special when a cherished place is known.",
+      "skills": [
+        "gift-director",
+        "art-studio",
+        "sound-studio",
+        "arcade"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/tiny-digital-snow-globe.md"
+    },
+    {
+      "id": "weekly-avatar-evolution",
+      "title": "Weekly Avatar Evolution",
+      "group": "C",
+      "summary": "Same avatar returns in a new outfit or environment each week.",
+      "suitable_if": "An avatar gift already exists (or will) and the recipient enjoys collectible series.",
+      "skills": [
+        "gift-director",
+        "art-studio"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/weekly-avatar-evolution.md"
+    },
+    {
+      "id": "winter-desktop-and-phone-wallpaper",
+      "title": "Winter Desktop and Phone Wallpaper",
+      "group": "C",
+      "summary": "Quality wallpapers in favorite aesthetic and proper device aspect ratios.",
+      "suitable_if": "Almost anyone; a favourite aesthetic or device is a bonus.",
+      "skills": [
+        "gift-director",
+        "art-studio"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/winter-desktop-and-phone-wallpaper.md"
+    },
+    {
+      "id": "pixel-avatar",
+      "title": "Your Pixel Avatar",
+      "group": "C",
+      "summary": "Personalized pixel avatar/character, optionally playable, based only on opted-in traits.",
+      "suitable_if": "Opted-in traits (hairstyle, glasses, favourite jacket, hobby props) are known.",
+      "skills": [
+        "gift-director",
+        "art-studio",
+        "arcade"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/pixel-avatar.md"
+    },
+    {
+      "id": "project-as-a-creature",
+      "title": "Your Project as a Creature",
+      "group": "C",
+      "summary": "Monstrous mascot for a project or other cherished undertaking.",
+      "suitable_if": "A project or other cherished undertaking (a garden, a band, a thesis) is known well enough to give it a personality.",
+      "skills": [
+        "gift-director",
+        "art-studio",
+        "storyteller"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/project-as-a-creature.md"
+    },
+    {
+      "id": "ambient-soundscape",
+      "title": "Ambient Soundscape",
+      "group": "D",
+      "summary": "Custom relaxation mix: a cabin at night, fireplace, snowfall, rain or another selected world.",
+      "suitable_if": "Almost anyone; a chosen world (cabin, rain, fireplace, snowfall) matched to taste makes it personal.",
+      "skills": [
+        "gift-director",
+        "sound-studio",
+        "art-studio"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/ambient-soundscape.md"
+    },
+    {
+      "id": "cinematic-mini-trailer",
+      "title": "Cinematic Mini Trailer",
+      "group": "D",
+      "summary": "Short original video trailer for something the human cares about, if video tools exist.",
+      "suitable_if": "Video tools (or a canvas-to-WebM pipeline) exist and something the recipient cares about is known.",
+      "skills": [
+        "gift-director",
+        "art-studio",
+        "sound-studio",
+        "storyteller"
+      ],
+      "effort": "high",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/cinematic-mini-trailer.md"
+    },
+    {
+      "id": "fake-radio-broadcast",
+      "title": "Fake Radio Broadcast",
+      "group": "D",
+      "summary": "One-minute fictional winter news report or interview about the human.",
+      "suitable_if": "Harmless, shared facts about the recipient can become fictional \"news\"; a robot voice or a written transcript is acceptable.",
+      "skills": [
+        "gift-director",
+        "storyteller",
+        "sound-studio"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/fake-radio-broadcast.md"
+    },
+    {
+      "id": "music-box-melody",
+      "title": "Music-Box Melody",
+      "group": "D",
+      "summary": "A tiny animated music box that plays a short original melody.",
+      "suitable_if": "Almost anyone; a quiet, universal gift that needs little context.",
+      "skills": [
+        "gift-director",
+        "sound-studio",
+        "art-studio"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/music-box-melody.md"
+    },
+    {
+      "id": "original-holiday-song-or-track",
+      "title": "Original Holiday Song or Track",
+      "group": "D",
+      "summary": "A complete original instrumental or vocal recording tailored to interests and mood.",
+      "suitable_if": "Interests and mood are known; the recipient enjoys music. Works with the built-in synth, no paid service required.",
+      "skills": [
+        "gift-director",
+        "sound-studio",
+        "storyteller"
+      ],
+      "effort": "high",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/original-holiday-song-or-track.md"
+    },
+    {
+      "id": "personalized-ai-carol",
+      "title": "Personalized AI Carol",
+      "group": "D",
+      "summary": "Original holiday carol with words and optionally a recording.",
+      "suitable_if": "The recipient enjoys carols or singalongs; names, places and rituals are known for the words.",
+      "skills": [
+        "gift-director",
+        "storyteller",
+        "sound-studio"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/personalized-ai-carol.md"
+    },
+    {
+      "id": "short-personal-jingle",
+      "title": "Short Personal Jingle",
+      "group": "D",
+      "summary": "Quick catchy original tune about a benign life moment or accomplishment.",
+      "suitable_if": "A benign life moment or accomplishment is known (the new bookshelf, the half marathon).",
+      "skills": [
+        "gift-director",
+        "sound-studio"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/short-personal-jingle.md"
+    },
+    {
+      "id": "fake-documentary-video",
+      "title": "The Fake Documentary Video",
+      "group": "D",
+      "summary": "Rendered mock documentary, beyond just a script, if video tools and budget permit.",
+      "suitable_if": "Video tools and budget permit a rendered film, and a mockumentary theme is already strong.",
+      "skills": [
+        "gift-director",
+        "art-studio",
+        "sound-studio",
+        "storyteller"
+      ],
+      "effort": "high",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/fake-documentary-video.md"
+    },
+    {
+      "id": "letter-from-future-you",
+      "title": "A Letter from Future You",
+      "group": "E",
+      "summary": "Fictional, kind letter from the person in a chosen future year, such as December 2027.",
+      "suitable_if": "Hopes, plans or values the recipient has shared can be gently projected into a chosen future year.",
+      "skills": [
+        "gift-director",
+        "storyteller"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/letter-from-future-you.md"
+    },
+    {
+      "id": "present-for-your-pet",
+      "title": "A Present for Your Pet",
+      "group": "E",
+      "summary": "Pet-themed portrait, fictional story, or small game, only if pet context exists.",
+      "suitable_if": "Only if pet context exists: the pet's name, species and a few traits are known.",
+      "skills": [
+        "gift-director",
+        "art-studio",
+        "storyteller",
+        "arcade"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/present-for-your-pet.md"
+    },
+    {
+      "id": "world-made-for-you",
+      "title": "A World Made for You",
+      "group": "E",
+      "summary": "Small explorable fictional setting or immersive story using favorite themes.",
+      "suitable_if": "Favourite themes, genres or settings are known.",
+      "skills": [
+        "gift-director",
+        "storyteller",
+        "art-studio",
+        "arcade"
+      ],
+      "effort": "high",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/world-made-for-you.md"
+    },
+    {
+      "id": "handwritten-style-card",
+      "title": "Handwritten-Style Card",
+      "group": "E",
+      "summary": "Carefully composed personal note rendered as a beautiful readable card.",
+      "suitable_if": "Always suitable; the one gift that needs no special context, only honesty.",
+      "skills": [
+        "gift-director",
+        "storyteller",
+        "art-studio"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/handwritten-style-card.md"
+    },
+    {
+      "id": "poem-in-a-specific-form",
+      "title": "Poem in a Specific Form",
+      "group": "E",
+      "summary": "Haiku chain, limerick, sonnet, spoken-word poem or original short verse.",
+      "suitable_if": "Always suitable; choose the form to match the recipient's taste and the day's mood.",
+      "skills": [
+        "gift-director",
+        "storyteller"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/poem-in-a-specific-form.md"
+    },
+    {
+      "id": "book-youd-write",
+      "title": "The Book You'd Write",
+      "group": "E",
+      "summary": "Invented book cover, blurb, opening chapter based on creative tastes.",
+      "suitable_if": "Creative tastes (genres, authors, themes) are known.",
+      "skills": [
+        "gift-director",
+        "storyteller",
+        "art-studio"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/book-youd-write.md"
+    },
+    {
+      "id": "compliment-you-didnt-expect",
+      "title": "The Compliment You Didn't Expect",
+      "group": "E",
+      "summary": "Thoughtful appreciation grounded in known behavior, not generic praise.",
+      "suitable_if": "Known behaviour (not stated traits) can be appreciated specifically; the agent has observed something real.",
+      "skills": [
+        "gift-director",
+        "storyteller"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/compliment-you-didnt-expect.md"
+    },
+    {
+      "id": "things-you-actually-accomplished",
+      "title": "The Things You Actually Accomplished",
+      "group": "E",
+      "summary": "Visual scrapbook celebrating verified progress without invented achievements.",
+      "suitable_if": "Verified progress is available (a log, repos, a shared list of wins) so every entry is real.",
+      "skills": [
+        "gift-director",
+        "storyteller",
+        "art-studio"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/things-you-actually-accomplished.md"
+    },
+    {
+      "id": "tiny-celebration",
+      "title": "The Tiny Celebration",
+      "group": "E",
+      "summary": "Animated celebratory page for a small genuine achievement.",
+      "suitable_if": "A small, genuine achievement is known (a plant survived, a drawer got organised).",
+      "skills": [
+        "gift-director",
+        "arcade",
+        "art-studio"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/tiny-celebration.md"
+    },
+    {
+      "id": "year-in-review-micro-story",
+      "title": "Year-in-Review Micro-Story",
+      "group": "E",
+      "summary": "Cozy story starring the person or fictional proxies, reflecting on their year.",
+      "suitable_if": "Enough shared events from the year are known to shape a plot, or fictional proxies can carry a gentle reflection.",
+      "skills": [
+        "gift-director",
+        "storyteller",
+        "art-studio"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/year-in-review-micro-story.md"
+    },
+    {
+      "id": "tool-youd-actually-use",
+      "title": "A Tool You'd Actually Use",
+      "group": "F",
+      "summary": "General-purpose personalized timer, converter, checklist or tiny app.",
+      "suitable_if": "A small daily need is known (a tea timer, a unit converter, a packing checklist).",
+      "skills": [
+        "gift-director",
+        "maker",
+        "art-studio"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/tool-youd-actually-use.md"
+    },
+    {
+      "id": "personalized-coupon-iou",
+      "title": "Personalized Coupon / IOU",
+      "group": "F",
+      "summary": "Redeemable agent promise such as create a story or plan a day; only for actions it can actually perform.",
+      "suitable_if": "The agent can genuinely perform the promised action later (write a story, plan a day, build a tool) with the tools it has.",
+      "skills": [
+        "gift-director",
+        "storyteller",
+        "art-studio"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/personalized-coupon-iou.md"
+    },
+    {
+      "id": "annoyance-killer",
+      "title": "The Annoyance Killer",
+      "group": "F",
+      "summary": "A small approved utility removing a genuinely repetitive annoyance.",
+      "suitable_if": "A genuinely repetitive annoyance is known and the recipient approved building small utilities; the utility runs sandboxed in the gift.",
+      "skills": [
+        "gift-director",
+        "maker"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/annoyance-killer.md"
+    },
+    {
+      "id": "forgotten-feature",
+      "title": "The Forgotten Feature",
+      "group": "F",
+      "summary": "A sandboxed demo or proposal for a neglected feature; coding-context only.",
+      "suitable_if": "Coding-context only: a neglected feature or issue of the recipient's own project is known.",
+      "skills": [
+        "gift-director",
+        "maker"
+      ],
+      "effort": "high",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/forgotten-feature.md"
+    },
+    {
+      "id": "magic-shortcut",
+      "title": "The Magic Shortcut",
+      "group": "F",
+      "summary": "Useful shortcut, script or workflow suggestion for something repeated.",
+      "suitable_if": "Something the recipient repeats is known and a shortcut, script or workflow could save real time.",
+      "skills": [
+        "gift-director",
+        "maker"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/magic-shortcut.md"
+    },
+    {
+      "id": "one-click-generator",
+      "title": "The One-Click Generator",
+      "group": "F",
+      "summary": "Small functional template generator that saves repetitive work.",
+      "suitable_if": "A repetitive piece of work with a clear template is known (invoices, meeting notes, lesson plans, D&D encounters).",
+      "skills": [
+        "gift-director",
+        "maker"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/one-click-generator.md"
+    },
+    {
+      "id": "readme-makeover",
+      "title": "The README Makeover",
+      "group": "F",
+      "summary": "Proposed beautiful README improvement; software-project context only.",
+      "suitable_if": "Software-project context only: the recipient has a project with a README that could shine.",
+      "skills": [
+        "gift-director",
+        "maker",
+        "storyteller"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/readme-makeover.md"
+    },
+    {
+      "id": "secret-improvement",
+      "title": "The Secret Improvement",
+      "group": "F",
+      "summary": "Reviewed proposed patch or workflow improvement; never silently edits real data.",
+      "suitable_if": "A reviewed patch or workflow improvement is possible and the recipient has approved proposals for a specific project.",
+      "skills": [
+        "gift-director",
+        "maker"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/secret-improvement.md"
+    },
+    {
+      "id": "personal-cheat-sheet",
+      "title": "Your Personal Cheat Sheet",
+      "group": "F",
+      "summary": "Beautiful reference card for something frequently researched or done.",
+      "suitable_if": "Something the recipient frequently researches or does is known (a tool, a recipe technique, a language).",
+      "skills": [
+        "gift-director",
+        "maker",
+        "art-studio"
+      ],
+      "effort": "low",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/personal-cheat-sheet.md"
+    },
+    {
+      "id": "personal-dashboard",
+      "title": "Your Personal Dashboard",
+      "group": "F",
+      "summary": "Tiny dashboard about a permitted project, hobby or personal interest.",
+      "suitable_if": "A permitted project, hobby or interest has data the recipient agreed to use (reading log, garden notes, training).",
+      "skills": [
+        "gift-director",
+        "maker",
+        "art-studio"
+      ],
+      "effort": "medium",
+      "real_world": "none",
+      "status": "candidate",
+      "file": "ideas/personal-dashboard.md"
+    },
+    {
+      "id": "a-night-somewhere",
+      "title": "A Night somewhere",
+      "group": "G",
+      "summary": "Research a suitable overnight stay, route, dates, seasonal access, pricing and booking link; recipient books/pays.",
+      "suitable_if": "The recipient's region, mobility, budget sense and travel preferences are known; a real stay can be verified with live pricing and seasonal access.",
+      "skills": [
+        "gift-director",
+        "concierge",
+        "storyteller",
+        "art-studio"
+      ],
+      "effort": "high",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/a-night-somewhere.md"
+    },
+    {
+      "id": "collectible-winter-drink-recipe-card",
+      "title": "Collectible Winter Drink Recipe Card",
+      "group": "G",
+      "summary": "Beautiful collectible recipe card for a festive drink.",
+      "suitable_if": "Almost anyone; tastes (sweet, spiced, caffeine, alcohol) make it personal.",
+      "skills": [
+        "gift-director",
+        "art-studio",
+        "storyteller"
+      ],
+      "effort": "low",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/collectible-winter-drink-recipe-card.md"
+    },
+    {
+      "id": "daily-holiday-recipe-and-pairing",
+      "title": "Daily Holiday Recipe and Pairing",
+      "group": "G",
+      "summary": "Cooking steps and optional matching drink, chosen for dietary constraints if known.",
+      "suitable_if": "Dietary constraints are known or the recipe is safely universal; the recipient cooks.",
+      "skills": [
+        "gift-director",
+        "storyteller",
+        "art-studio"
+      ],
+      "effort": "low",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/daily-holiday-recipe-and-pairing.md"
+    },
+    {
+      "id": "24-hour-challenge",
+      "title": "The 24-Hour Challenge",
+      "group": "G",
+      "summary": "Small achievable playful challenge with tracker, never manipulative.",
+      "suitable_if": "A playful, small challenge fits the recipient's day (no phone before coffee, draw one thing, say hello to a stranger).",
+      "skills": [
+        "gift-director",
+        "maker",
+        "storyteller"
+      ],
+      "effort": "low",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/24-hour-challenge.md"
+    },
+    {
+      "id": "micro-adventure",
+      "title": "The Micro Adventure",
+      "group": "G",
+      "summary": "Real nearby outing presented as a whimsical quest with practical information.",
+      "suitable_if": "The recipient's area is known and a real nearby outing (a hill, a museum, a lake) can be verified with practical details.",
+      "skills": [
+        "gift-director",
+        "concierge",
+        "storyteller",
+        "art-studio"
+      ],
+      "effort": "medium",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/micro-adventure.md"
+    },
+    {
+      "id": "mystery-walk",
+      "title": "The Mystery Walk",
+      "group": "G",
+      "summary": "Local walk with small riddles and a final surprise, using reliable route information.",
+      "suitable_if": "The recipient's general area is known, reliable route information is available, and walking is accessible to them.",
+      "skills": [
+        "gift-director",
+        "concierge",
+        "storyteller"
+      ],
+      "effort": "medium",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/mystery-walk.md"
+    },
+    {
+      "id": "new-hobby-roulette",
+      "title": "The New Hobby Roulette",
+      "group": "G",
+      "summary": "Interactive roulette of accessible hobbies the person might enjoy.",
+      "suitable_if": "Some interests and constraints (space, budget, time) are known so the hobbies are genuinely accessible.",
+      "skills": [
+        "gift-director",
+        "arcade",
+        "concierge"
+      ],
+      "effort": "medium",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/new-hobby-roulette.md"
+    },
+    {
+      "id": "scavenger-hunt",
+      "title": "The Scavenger Hunt",
+      "group": "G",
+      "summary": "At-home or local hunt with clues that require no unsafe activities.",
+      "suitable_if": "The recipient's home or local area is known well enough to write fair clues; the hunt stays safe.",
+      "skills": [
+        "gift-director",
+        "storyteller",
+        "arcade"
+      ],
+      "effort": "low",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/scavenger-hunt.md"
+    },
+    {
+      "id": "secret-recipe",
+      "title": "The Secret Recipe",
+      "group": "G",
+      "summary": "Recipe with personalized name, plausible instructions and a fun backstory.",
+      "suitable_if": "Tastes or dietary notes are known; cooking is something the recipient enjoys or wants to try.",
+      "skills": [
+        "gift-director",
+        "storyteller",
+        "art-studio"
+      ],
+      "effort": "low",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/secret-recipe.md"
+    },
+    {
+      "id": "strangers-recommendation",
+      "title": "The Stranger's Recommendation",
+      "group": "G",
+      "summary": "Unexpected book, film, game or place with a specific reason and a real link when needed.",
+      "suitable_if": "Tastes are known well enough to pick something unexpected but fitting, and the recommendation can be verified to exist.",
+      "skills": [
+        "gift-director",
+        "concierge",
+        "storyteller"
+      ],
+      "effort": "low",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/strangers-recommendation.md"
+    },
+    {
+      "id": "weekend-side-quest",
+      "title": "The Weekend Side Quest",
+      "group": "G",
+      "summary": "Fun achievable offline mission matched to actual interests and constraints.",
+      "suitable_if": "Actual interests and constraints (time, budget, mobility, companions) are known.",
+      "skills": [
+        "gift-director",
+        "concierge",
+        "storyteller"
+      ],
+      "effort": "low",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/weekend-side-quest.md"
+    },
+    {
+      "id": "custom-enamel-pin",
+      "title": "A Custom Enamel Pin",
+      "group": "H",
+      "summary": "Original pin artwork + realistic preview + production specification + vetted vendor + ordering path.",
+      "suitable_if": "A small icon-worthy idea from the recipient's world exists, and a pin manufacturer can be vetted with minimum order and estimated cost.",
+      "skills": [
+        "gift-director",
+        "art-studio",
+        "concierge"
+      ],
+      "effort": "high",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/custom-enamel-pin.md"
+    },
+    {
+      "id": "custom-merch",
+      "title": "Custom Merch",
+      "group": "H",
+      "summary": "Real merch design plus usable print-on-demand vendor or ready-to-upload production asset.",
+      "suitable_if": "A design idea rooted in the recipient's interests exists and a print-on-demand vendor can be named with a usable path.",
+      "skills": [
+        "gift-director",
+        "art-studio",
+        "concierge"
+      ],
+      "effort": "medium",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/custom-merch.md"
+    },
+    {
+      "id": "book-you-didnt-know-you-needed",
+      "title": "The Book You Didn't Know You Needed",
+      "group": "H",
+      "summary": "Specific title and verified retailer/library links, price if available.",
+      "suitable_if": "Reading taste is known and the title can be verified with retailer and library links.",
+      "skills": [
+        "gift-director",
+        "concierge",
+        "storyteller"
+      ],
+      "effort": "low",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/book-you-didnt-know-you-needed.md"
+    },
+    {
+      "id": "experience-gift",
+      "title": "The Experience Gift",
+      "group": "H",
+      "summary": "Relevant workshop, exhibit, lesson or experience with bookable link and actual conditions.",
+      "suitable_if": "Interests and location are known; a relevant workshop, exhibit, lesson or experience can be verified with a bookable link and real conditions.",
+      "skills": [
+        "gift-director",
+        "concierge",
+        "storyteller"
+      ],
+      "effort": "medium",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/experience-gift.md"
+    },
+    {
+      "id": "gift-for-someone-else",
+      "title": "The Gift for Someone Else",
+      "group": "H",
+      "summary": "Thoughtful gift idea for a known recipient or pet; protect third-party privacy.",
+      "suitable_if": "A known recipient (partner, friend, child, pet) is explicitly in scope and their privacy can be protected; the idea stays modest and verified.",
+      "skills": [
+        "gift-director",
+        "concierge",
+        "storyteller"
+      ],
+      "effort": "low",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/gift-for-someone-else.md"
+    },
+    {
+      "id": "hobby-upgrade",
+      "title": "The Hobby Upgrade",
+      "group": "H",
+      "summary": "Well-matched small practical item with specific purchasing details.",
+      "suitable_if": "A hobby and its current gear are known so a small practical upgrade is well matched and within the price ceiling.",
+      "skills": [
+        "gift-director",
+        "concierge"
+      ],
+      "effort": "low",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/hobby-upgrade.md"
+    },
+    {
+      "id": "makers-present",
+      "title": "The Maker's Present",
+      "group": "H",
+      "summary": "Small kit or hobby materials with real items and purchase links.",
+      "suitable_if": "A hobby or a desire to make something is known and the kit or materials can be verified with real items and links within the ceiling.",
+      "skills": [
+        "gift-director",
+        "concierge",
+        "maker"
+      ],
+      "effort": "medium",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/makers-present.md"
+    },
+    {
+      "id": "mystery-box",
+      "title": "The Mystery Box",
+      "group": "H",
+      "summary": "Curated purchasable bundle with line-item prices and vendor links; no payment by agent.",
+      "suitable_if": "Tastes and the price ceiling are known; several small items can be curated with line-item prices and vendor links.",
+      "skills": [
+        "gift-director",
+        "concierge",
+        "storyteller",
+        "art-studio"
+      ],
+      "effort": "medium",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/mystery-box.md"
+    },
+    {
+      "id": "perfectly-obscure-object",
+      "title": "The Perfectly Obscure Object",
+      "group": "H",
+      "summary": "Specific quirky item with verified vendor, price, listing, availability where possible.",
+      "suitable_if": "Tastes and the price ceiling are known; a specific quirky item can be verified with a real vendor, listing and price.",
+      "skills": [
+        "gift-director",
+        "concierge",
+        "storyteller"
+      ],
+      "effort": "medium",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/perfectly-obscure-object.md"
+    },
+    {
+      "id": "printable-present",
+      "title": "The Printable Present",
+      "group": "H",
+      "summary": "Actual 3D-printable or printable craft file with fabrication guidance.",
+      "suitable_if": "The recipient has (or has access to) a printer or 3D printer, and a craft or object fits their taste.",
+      "skills": [
+        "gift-director",
+        "maker",
+        "art-studio"
+      ],
+      "effort": "medium",
+      "real_world": "suggest",
+      "status": "candidate",
+      "file": "ideas/printable-present.md"
+    }
+  ]
+}
