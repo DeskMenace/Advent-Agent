@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.tgz
+.DS_Store
+test-results/
+playwright-report/
+.advent-agent-test/
+test/e2e/__snapshots__/**/*-actual.png
+coverage/

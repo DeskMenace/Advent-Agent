@@ -1,0 +1,71 @@
+{
+  "name": "advent-agent",
+  "version": "1.0.0-rc.0",
+  "description": "A local-first advent calendar where your own AI agent makes the gift behind each of the 24 doors. Your AI agent is your Secret Santa.",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "advent-agent": "./bin/advent-agent.js" },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "engines": { "node": ">=20" },
+  "repository": { "type": "git", "url": "git+https://github.com/suchipizza/Advent-Agent.git" },
+  "homepage": "https://github.com/suchipizza/Advent-Agent#readme",
+  "bugs": { "url": "https://github.com/suchipizza/Advent-Agent/issues" },
+  "keywords": ["advent", "calendar", "ai", "agent", "mcp", "claude", "codex", "gemini", "gift", "christmas", "local-first"],
+  "files": [
+    "bin/",
+    "dist/",
+    "schema/",
+    "workshop/",
+    "gift-library/",
+    "AGENT_GUIDE.md",
+    "README.md",
+    "THIRD_PARTY.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "tsx src/cli/main.ts dev",
+    "build": "npm run build:server && npm run build:ui && npm run schema:gen",
+    "build:server": "tsc -p tsconfig.build.json",
+    "build:ui": "vite build ui",
+    "schema:gen": "tsx scripts/gen-schema.ts",
+    "library:index": "tsx scripts/library-index.ts",
+    "library:convert": "tsx scripts/library-convert.ts",
+    "fixtures:build": "tsx scripts/build-fixtures.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run test/unit",
+    "test:integration": "vitest run test/integration",
+    "test:agents": "vitest run test/agents --config vitest.agents.config.ts",
+    "test:packaging": "vitest run test/packaging --config vitest.packaging.config.ts",
+    "e2e": "playwright test",
+    "ci": "npm run typecheck && npm run library:index -- --check && npm test && npm run build && npm run e2e"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.6",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "hono": "^4.13.17",
+    "open": "^11.0.4",
+    "playwright-core": "^1.65.0",
+    "yauzl": "^3.4.0",
+    "yazl": "^3.3.1",
+    "zod": "^4.6.7",
+    "gary.js": "^0.2.0"
+  },
+  "optionalDependencies": {
+    "@napi-rs/keyring": "^2.1.2"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.65.0",
+    "@preact/preset-vite": "^2.10.6",
+    "@types/node": "^22.20.5",
+    "@types/yauzl": "^2.10.3",
+    "@types/yazl": "^2.4.6",
+    "preact": "^10.29.8",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.7",
+    "vitest": "^5.1.0"
+  }
+}
