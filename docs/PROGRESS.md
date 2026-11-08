@@ -8,43 +8,43 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 ## 1. Unit (Vitest) — TEST_PLAN §1
 
 ### Eligibility — `test/unit/eligibility.test.ts`
-- [ ] U1.1 Before Dec 1: no door eligible, countdown to Dec 1 at unlockHour
-- [ ] U1.2 Dec N at unlockHour −1 min: door N locked; +1 min: door N eligible
-- [ ] U1.3 Dec 24: all 24 eligible; after the season (Dec 25–Jan 31): all 24 eligible, season marked ended
-- [ ] U1.4 unlockHour 0 / 7 / 23 behave as configured
-- [ ] U1.5 DST-transition timezone (e.g. America/Sao_Paulo, Europe/Zurich) does not shift door boundaries
-- [ ] U1.6 Frozen season timezone: device timezone change does not change eligibility
+- [x] U1.1 Before Dec 1: no door eligible, countdown to Dec 1 at unlockHour
+- [x] U1.2 Dec N at unlockHour −1 min: door N locked; +1 min: door N eligible
+- [x] U1.3 Dec 24: all 24 eligible; after the season (Dec 25–Jan 31): all 24 eligible, season marked ended
+- [x] U1.4 unlockHour 0 / 7 / 23 behave as configured
+- [x] U1.5 DST-transition timezone (e.g. America/Sao_Paulo, Europe/Zurich) does not shift door boundaries
+- [x] U1.6 Frozen season timezone: device timezone change does not change eligibility
 - [ ] U1.7 Server rejects a future door on `POST /api/doors/:day/open` and `GET /api/doors/:day` with the lock response
 
 ### Door state machine — `test/unit/door-state.test.ts`
-- [ ] U2.1 Every allowed transition succeeds; every disallowed one throws
-- [ ] U2.2 Idempotent open: a second open returns the existing job, no new attempt
-- [ ] U2.3 Retry creates attempt N+1, archives the previous workspace, never merges
-- [ ] U2.4 Cancel from queued / preparing / waiting_* → cancelled
-- [ ] U2.5 Crash recovery: a persisted state in each in-flight state recovers to a consistent state on restart
+- [x] U2.1 Every allowed transition succeeds; every disallowed one throws
+- [x] U2.2 Idempotent open: a second open returns the existing job, no new attempt
+- [x] U2.3 Retry creates attempt N+1, archives the previous workspace, never merges
+- [x] U2.4 Cancel from queued / preparing / waiting_* → cancelled
+- [x] U2.5 Crash recovery: a persisted state in each in-flight state recovers to a consistent state on restart
 
 ### Manifest and package parsing — `test/unit/package-parse.test.ts`
-- [ ] U3.1 Form A (folder/zip with gift.json) parses
-- [ ] U3.2 Form B (single HTML with embedded manifest) parses; without a manifest the title comes from `<title>` and the day is requested
-- [ ] U3.3 Form C (text/markdown paste) → document gift; first-line `# Title` becomes the title
-- [ ] U3.4 Form D (loose media) → minimal manifest, kinds inferred
-- [ ] U3.5 Missing required fields rejected with structured errors; unknown extra fields tolerated
-- [ ] U3.6 `schema/gift.schema.json` is in sync with the zod schema
+- [x] U3.1 Form A (folder/zip with gift.json) parses
+- [x] U3.2 Form B (single HTML with embedded manifest) parses; without a manifest the title comes from `<title>` and the day is requested
+- [x] U3.3 Form C (text/markdown paste) → document gift; first-line `# Title` becomes the title
+- [x] U3.4 Form D (loose media) → minimal manifest, kinds inferred
+- [x] U3.5 Missing required fields rejected with structured errors; unknown extra fields tolerated
+- [x] U3.6 `schema/gift.schema.json` is in sync with the zod schema
 
 ### Intake security — `test/unit/intake-security.test.ts`
-- [ ] U4.1 Zip-slip (`../`, absolute paths) rejected
-- [ ] U4.2 Symlinks rejected
-- [ ] U4.3 Zip bomb / >200 files / >200 MB rejected
-- [ ] U4.4 Oversized single file rejected
-- [ ] U4.5 Executables (.exe .sh .app .dll .bat .cmd .scr .msi .ps1 .jar .com) stored download-only with a warning, never served inline
-- [ ] U4.6 Secret scanner: true positives (API-key patterns, `api.token` contents, `.env` lines, absolute home paths) and false positives (plain prose, short hex) behave as specified
+- [x] U4.1 Zip-slip (`../`, absolute paths) rejected
+- [x] U4.2 Symlinks rejected
+- [x] U4.3 Zip bomb / >200 files / >200 MB rejected
+- [x] U4.4 Oversized single file rejected
+- [x] U4.5 Executables (.exe .sh .app .dll .bat .cmd .scr .msi .ps1 .jar .com) stored download-only with a warning, never served inline
+- [x] U4.6 Secret scanner: true positives (API-key patterns, `api.token` contents, `.env` lines, absolute home paths) and false positives (plain prose, short hex) behave as specified
 - [ ] U4.7 Agent text sanitisation: raw HTML never reaches the app DOM (markdown allow-list)
 
 ### Storage — `test/unit/storage.test.ts`
-- [ ] U5.1 Atomic write: simulated crash between temp write and rename leaves the previous file intact
-- [ ] U5.2 Schema migration runs with a backup first
-- [ ] U5.3 Export contains no `api.token`, `session.key`, `log.txt` or keychain values
-- [ ] U5.4 Import round-trip restores seasons and door states
+- [x] U5.1 Atomic write: simulated crash between temp write and rename leaves the previous file intact
+- [x] U5.2 Schema migration runs with a backup first
+- [x] U5.3 Export contains no `api.token`, `session.key`, `log.txt` or keychain values
+- [x] U5.4 Import round-trip restores seasons and door states
 
 ### Library — `test/unit/library.test.ts`
 - [ ] U6.1 Every `gift-library/ideas/*.md` validates against the idea schema
@@ -53,10 +53,10 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 - [ ] U6.4 Gary never appears in the library
 
 ### Promo — `test/unit/promo.test.ts`
-- [ ] U7.1 Shown only on the configured day
-- [ ] U7.2 Shown only after reveal
-- [ ] U7.3 Hidden after `expires`
-- [ ] U7.4 Hidden when `enabled` is false or the code is unset
+- [x] U7.1 Shown only on the configured day
+- [x] U7.2 Shown only after reveal
+- [x] U7.3 Hidden after `expires`
+- [x] U7.4 Hidden when `enabled` is false or the code is unset
 
 ## 2. Integration — TEST_PLAN §2
 
@@ -160,7 +160,7 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 - [ ] D2 Gift pages keep typography, paper treatment and hierarchy (snapshot)
 - [ ] D3 No broken/empty media frames or layout shifts at common sizes
 - [ ] D4 Agent companion card present and gift-specific (renderer fixtures)
-- [ ] D5 New gift kinds register without touching the calendar (`test/unit/renderer-registry.test.ts`)
+- [x] D5 New gift kinds register without touching the calendar (`test/unit/renderer-registry.test.ts`)
 - [ ] D6 On-demand is the default; scheduled mode offered only with the companion service (setup e2e)
 - [ ] D7 No API key required to finish setup; keys optional, add/remove locally (settings e2e)
 - [ ] D8 Purchase: the agent never purchases; "I bought it" marks are user-only; price ceiling respected in briefs (`test/unit/brief.test.ts`)
