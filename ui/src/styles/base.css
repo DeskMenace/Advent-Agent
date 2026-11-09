@@ -56,7 +56,7 @@ img, video { max-width: 100%; }
 .site-footer { display: flex; justify-content: center; padding: 40px 0 8px; }
 .gh-mark { color: var(--foreground); display: inline-flex; padding: 8px; transition: color 0.2s; }
 .gh-mark:hover { color: var(--burgundy); }
-.gh-mark svg { width: 18px; height: 18px; display: block; }
+.gh-mark svg { width: 26px; height: 26px; display: block; }
 
 .eyebrow { font-size: 11px; letter-spacing: 0.25em; font-weight: 800; color: var(--red); text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
 .eyebrow:before { content: ''; width: 23px; height: 1px; background: currentColor; }

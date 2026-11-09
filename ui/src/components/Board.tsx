@@ -111,7 +111,6 @@ export function Board(props: BoardProps) {
               );
             })}
           </ol>
-          <p class="board-foot" aria-hidden="true">A small surprise is a beautiful thing</p>
         </div>
       </div>
       <div class="board-footer">

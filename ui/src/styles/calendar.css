@@ -42,13 +42,11 @@
 .board-top .ribbon-v { position: absolute; top: -6px; height: 100%; width: 9%; left: 50%; transform: translateX(-50%); background: linear-gradient(90deg, #8e172c, #c63146 45%, #aa1c33); box-shadow: 4px 1px 7px #37212040; }
 .bow { width: min(52%, 300px); height: auto; aspect-ratio: 400 / 180; position: absolute; left: 50%; top: 0; transform: translateX(-50%); filter: drop-shadow(0 8px 5px rgba(67, 25, 18, 0.3)); z-index: 2; }
 .board-grid { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; list-style: none; margin: 0; padding: 0; }
-.board-foot { margin: 20px 0 0; text-align: center; font-size: 9px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: color-mix(in oklab, var(--cream-m) 80%, transparent); }
 .board-footer { display: flex; justify-content: space-between; gap: 12px; margin-top: 16px; font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--forest); }
 .board-footer span { display: inline-flex; align-items: center; gap: 8px; }
 .board-footer svg { width: 12px; height: 12px; color: var(--burgundy); }
 @media (max-width: 420px) {
   .board-footer { letter-spacing: 0.08em; font-size: 9px; }
-  .board-foot { letter-spacing: 0.16em; font-size: 8px; }
 }
 @media (min-width: 640px) {
   .board-frame { padding: 16px; }

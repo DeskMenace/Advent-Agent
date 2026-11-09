@@ -25,7 +25,7 @@ function Steps(props: { unlockHour: number }) {
 }
 
 function Footnote() {
-  return <p class="footnote"><Lock /><span>Runs entirely on your computer. Nothing is sent to us.</span></p>;
+  return <p class="footnote"><Lock /><span>Fully local. Nothing leaves your device.</span></p>;
 }
 
 export function CalendarPage(props: { door?: number }) {

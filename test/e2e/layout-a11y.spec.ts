@@ -80,7 +80,7 @@ test.describe('accessibility (E9)', () => {
         expect(serious.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);
         const contrast = await new AxeBuilder({ page }).withRules(['color-contrast']).analyze();
         // Decorative board text and envelope numbers are aria-hidden (each envelope's label carries its date and state).
-        const bad = contrast.violations.flatMap((v) => v.nodes.map((n) => n.target.join(' '))).filter((t) => !t.includes('board-foot') && !t.includes('.num'));
+        const bad = contrast.violations.flatMap((v) => v.nodes.map((n) => n.target.join(' '))).filter((t) => !t.includes('.num'));
         expect(bad).toEqual([]);
       } finally {
         if (path === 'onboarding') await api('PUT', '/api/settings', { onboardingDone: true });
