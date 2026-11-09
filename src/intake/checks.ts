@@ -55,6 +55,7 @@ export function checkManifest(root: string, files: UnpackedFile[], manifest: Gif
   for (const path of named) {
     if (!byPath.has(path) && !fileExists(root, path)) problems.push(p('file_missing', `The manifest names ${path}, but the file is not in the package.`, path));
   }
+  if (manifest.save && !files.some((f) => f.path === manifest.save!.file)) problems.push(p('save_missing', `save.file "${manifest.save.file}" is not in the package. Point it at the gift's primary file.`, manifest.save.file));
   if (!manifest.primary && manifest.artifacts.length === 0 && !manifest.realWorld && !(manifest.links && manifest.links.length)) {
     problems.push(p('nothing_to_show', 'The gift has no primary file, no artifacts, no real-world proposal and no links. There is nothing to open.'));
   }
@@ -65,7 +66,7 @@ export function checkManifest(root: string, files: UnpackedFile[], manifest: Gif
   else problems.push(p('schema_v1', 'This gift uses the older gift@1 manifest. Use "schema": "advent-agent/gift@2" with emotion, interaction and a share frame (see the gift-director skill).', undefined, 'warning'));
 
   // D1: never claim a purchase or booking.
-  const claimTexts = [manifest.title, manifest.subtitle ?? '', manifest.note, manifest.realWorld?.whatsLeft ?? '', ...(manifest.realWorld?.items.map((i) => i.notes ?? '') ?? []), manifest.share?.caption ?? '', ...manifest.downloads.map((d) => d.label), ...manifest.print.map((x) => x.product ?? '')];
+  const claimTexts = [manifest.title, manifest.subtitle ?? '', manifest.note ?? '', manifest.realWorld?.whatsLeft ?? '', manifest.signature ?? '', ...(manifest.realWorld?.items.map((i) => i.notes ?? '') ?? []), manifest.share?.caption ?? '', ...manifest.downloads.map((d) => d.label), ...manifest.print.map((x) => x.product ?? '')];
   if (v2) {
     // gift@2: the words may not appear at all, not even negated (SPEC_CHANGES "check_gift additionally fails on").
     const all = claimTexts.join('\n').toLowerCase();

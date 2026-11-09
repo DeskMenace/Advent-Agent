@@ -7,7 +7,9 @@ The canonical description of what each field is for lives in `gift-director/refe
 | `schema` | `"advent-agent/gift@2"` | yes | exact string |
 | `day` | integer 1–24 | yes | must equal the door you were asked to prepare (`day_mismatch`) |
 | `title` | string 1–160 | yes | shown after the reveal |
-| `note` | string 1–8000 | yes | your card to the recipient: 2–4 sentences, why you made this |
+| `note` | string ≤ 8000 | no (recommended) | your card to the recipient, in your voice: 2–4 sentences, why you made this. Shown exactly as written; nothing is shown without it |
+| `signature` | string ≤ 40 | no | signs your note: any name you like |
+| `save` | `{ file, type }` | no | the gift's primary file in its natural format, for Save; must be in the package |
 | `ideaId` | string or `null` | expected | library idea id, or `null` for your own invention |
 | `family` | string | expected | `paper-and-pop-ups`, `tactile-toys`, `living-things`, `sound`, `games`, `deadpan-documents`, `printables`, `heart`, `real-world`, `finale` |
 | `emotion` | enum | yes (`emotion_missing`) | `funny`, `ridiculous`, `absurd`, `cute`, `touching`: one, on purpose |
@@ -18,12 +20,12 @@ The canonical description of what each field is for lives in `gift-director/refe
 | `entry` | relative path | folder gifts | the page to open first (alias of the older `primary`) |
 | `share.still` | path or `{ "capture": "still" }` | yes (`share_missing`) | a 1080×1350 `share.png`, or a capture request answered by `window.adventCapture.prepare("still")` |
 | `share.loop` | path or `{ "capture": "loop", "durationMs": 3000–10000 }` | no | for gifts whose magic is motion; a `share.webm` you recorded also works |
-| `share.caption` | string ≤ 300 | expected | what the person might write when posting it, in their language |
+| `share.caption` | string ≤ 300 | no | ignored since D26: the calendar uses one fixed caption |
 | `share.privateText` | strings | no | names, places and text the privacy preview offers to blur (pair with `data-advent-private`) |
 | `downloads[]` | `{ label, file }` | no | wallpapers at real sizes, print files, WAV, sticker sheet, high-score card |
 | `print[]` | `{ service, url, product?, price?, currency?, checkedAt?, shipsTo?, file? }` | no | 2–3 real print services that ship to the person's country; the agent never pays or places anything |
 | `credits[]` | `{ what, source, license, url? }` | when you adapted anything | licence must be MIT, BSD, ISC, Apache-2.0, CC0, Unlicense, CC BY, OFL or public domain (`credit_license`) |
-| `realWorld` | `{ items[], whatsLeft }` or `null` | no | concierge proposal (see `concierge`); items `{ name, vendor, url, price?, currency?, checkedAt, notes? }` |
+| `realWorld` | `{ items[], whatsLeft? }` or `null` | no | concierge proposal (see `concierge`); items `{ name, vendor, url, price?, currency?, checkedAt, notes? }` |
 | `song` | `{ score, renderSheet?, wav? }` | song gifts | relative paths; a song gift has all three |
 | `artifacts[]` | `{ path, kind, title?, role?, alt?, mime? }` | no | extra files the calendar should know about; `alt` on every image |
 | `category`, `subtitle` | strings | no | display only |

@@ -67,7 +67,8 @@ export type RealWorldItem = z.infer<typeof RealWorldItemSchema>;
 
 export const RealWorldSchema = z.object({
   items: z.array(RealWorldItemSchema).min(1).max(20),
-  whatsLeft: z.string().min(1).max(2000),
+  /** Optional since round 2: the agent may say what's left in its own note instead. */
+  whatsLeft: z.string().min(1).max(2000).optional(),
 });
 
 export const SongSchema = z.object({
@@ -139,7 +140,12 @@ export const GiftManifestSchema = z.object({
   title: z.string().min(1).max(160),
   category: z.string().max(80).optional(),
   subtitle: z.string().max(300).optional(),
-  note: z.string().min(1).max(8000),
+  /** Written by the agent only. The calendar never writes, completes or replaces it; absent means no note is shown. */
+  note: z.string().max(8000).optional(),
+  /** The agent's signature under its note, any name it likes (optional). */
+  signature: z.string().min(1).max(40).optional(),
+  /** The gift's primary file in its natural format, for Save. */
+  save: z.object({ file: RelativePathSchema, type: z.string().min(1).max(100) }).optional(),
   primary: RelativePathSchema.optional(),
   artifacts: z.array(ArtifactSchema).max(200).default([]),
   song: SongSchema.optional(),

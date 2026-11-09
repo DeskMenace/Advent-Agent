@@ -124,3 +124,27 @@ Agents use everything they legitimately know (memory, profile, history, granted 
 - The fixture gifts stay in the repository as test data only (`fixtures/gifts/`, `scripts/fixture-calendar.ts`, used by the e2e suite and `npm run dev`). They are not in the npm package.
 - The gift lab (`advent-agent lab`) stays: it runs the user's own agent and is meant for reviewing ideas, not for showing samples.
 
+
+## D25. Onboarding, calendar redesign, reveal and sharing (9 November 2026, from HANDOFF_ONBOARDING_AND_DESIGN)
+- **Setup wizard is now two screens** (welcome, agent connection). Delivery and budget moved to the first-launch onboarding modal on the calendar; the profile ("About you") and the `.ics` reminder live only in Settings. Timezone defaults to the device; unlock hour to midnight.
+- **Day 1 starts after onboarding**, not at setup completion, so the budget the user picks applies. Finishing *or* dismissing onboarding (`POST /api/onboarding/complete`) saves the choices or the defaults (On demand, Standard), sets `onboardingDone`, and starts Day 1. Re-running setup after onboarding still starts Day 1 at once.
+- **Scheduled delivery** is selectable only in launched mode; the server forces `on_demand` otherwise.
+- **The reveal is a modal on the calendar.** `/door/:day` now opens that modal; the preparation page is gone. Connected and portable instructions (the sentence to say, the request to paste, the drop area) sit under the wrapped present. A locked door that is being wrapped early (Day 1, the finale) opens the modal too, so those modes can still fill it before its day.
+- **Opened doors carry title and thumbnail** in `/api/calendar` (they are already revealed, so no spoiler), for the peeking corner and the aria-label.
+- **Gift page moves to `/gifts/:day`.** `/gift/:season/:day` still works for past seasons; there is no archive UI. Feedback, "I bought it" and the voucher slip stay on the gift page below the actions.
+- **Chrome:** the "Advent Agent · made by Desk Menace" line under the board is removed (handoff §1.3: "Nothing else"). The Desk Menace credit remains in the share mark, the CLI's first run and Gary's menu.
+- **Profile** gains `name` ("What to call you"). People and pets are one field in the UI (stored in `people`).
+- **Pretend date** (developers only): `ADVENT_PRETEND_DATE=2026-12-08` or `--pretend-date`, honoured on any home including the default one. A bare date keeps the real time of day in the season's timezone; a full ISO instant pins the clock. Never shown in the UI.
+- **Calendar events** for Gary are `CustomEvent`s on `window`: `door:locked-click`, `gift:preparing`, `gift:ready`, `gift:revealed`, each with `{ day }`.
+- **Fonts** Fraunces and Instrument Sans are bundled from `@fontsource/*` (SIL OFL), Latin subset only.
+- **Shelf thumbnails** use the gift's sealed thumbnail (from the test drive); gifts without one show a star. Capturing a share still per card would launch a headless browser for every gift.
+
+## D26. Only the user and their agent (9 November 2026, round 2 after Noémie tested the preview)
+Principle: once the user starts opening gifts, it's only them and their agent. The calendar is the wrapping paper: it never speaks inside a gift, never hints at what kinds of gifts exist, and never brands the gift. **Replaces D21.**
+- **No gift-type hints** before a gift is opened: budget copy is about size and tokens only; the agent-mode table no longer lists "gifts possible"; README/FAQ give no gift examples; the portable request no longer names Day 1 idea ids (the public guide now has a "Door 1 and December 24" section instead).
+- **The note is the agent's alone.** `note` is optional in gift.json; the intake no longer invents notes or categories for loose drops (HTML, text, media). New optional `signature` (≤ 40 chars). The note renders in a small terminal panel, typed once (instant with reduced motion), signed only if the agent signed. The calendar's own "— your advent gift-maker" line is gone everywhere, including exports.
+- **Nothing from us inside a gift:** no kind labels, captions or "plays inline" bars in renderers; real-world gifts show only item, vendor, price and link plus the agent's note (`realWorld.whatsLeft` is optional and no longer shown). Feedback chips, the "I bought it" mark and the voucher slip are removed from the gift page (decision 7 on the voucher is still open; the server keeps the data and APIs).
+- **No share mark** on any export (still, loop, saved file). Fixed caption `My AI agent made this gift for me 🎁` (gift.json `share.caption` is ignored); one link, `https://deskmenace.com`, no path, no `ref`. Copy link is removed. Instagram and TikTok copy the caption without the URL.
+- **Save = the gift itself** (`GET /api/save/:day`, `/api/save/:day/file?id=`): the agent's declared `save.file` first, otherwise by form: interactive/HTML card → own HTML with local assets inlined; styled HTML document → PDF (HTML without a browser); plain text → .txt; song → WAV plus lyrics .txt from the score; real-world and links → a bare page with only the agent's details; motion → MP4/WebM and GIF; then `downloads`, `print` files and download artifacts. The old standalone page with our layout is gone. Songs without a WAV keep the in-gift player's own export.
+- **Footer:** "Runs entirely on your computer. Nothing is sent to us."
+- The config key `share.mark` stays readable for old configs but is ignored, and its Settings toggle is removed.

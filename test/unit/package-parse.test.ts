@@ -101,7 +101,7 @@ describe('package forms', () => {
     expect(r.ok).toBe(false);
     expect(r.problems.map((p) => p.code)).toContain('manifest_invalid');
     expect(r.problems.some((p) => p.message.includes('title'))).toBe(true);
-    expect(r.problems.some((p) => p.message.includes('note'))).toBe(true);
+    expect(r.problems.some((p) => p.message.includes('note'))).toBe(false); // the note is optional (D26)
     const ok = await zipOf({ 'gift.json': JSON.stringify({ day: 7, title: 'T', note: 'N', primary: 'index.html', artifacts: [{ path: 'index.html', kind: 'interactive-html' }], extra: 1 }), 'index.html': html }, 'ok.zip');
     expect((await runGate({ type: 'zip', file: ok }, { day: 7, render: false })).ok).toBe(true);
     expect((await runGate({ type: 'zip', file: ok }, { day: 8, render: false })).problems.map((p) => p.code)).toContain('day_mismatch');
@@ -154,5 +154,22 @@ describe('package forms', () => {
     writeFileSync(join(folder, 'index.html'), html);
     const r = await runGate({ type: 'folder', path: folder }, { day: 4, render: false });
     expect(r.ok).toBe(true);
+  });
+});
+
+describe('agent-only notes (D26)', () => {
+  it('loose drops get no invented note or category', async () => {
+    const { manifestFromText } = await import('../../src/intake/manifest.js');
+    const m = manifestFromText('# Hello\n\nA poem.', 3);
+    expect(m).not.toHaveProperty('note');
+    expect(m).not.toHaveProperty('category');
+  });
+  it('signature and save are accepted; save must point at a packaged file', async () => {
+    const good = await zipOf({ 'gift.json': JSON.stringify({ day: 7, title: 'T', note: 'N', signature: 'Pip', save: { file: 'index.html', type: 'text/html' }, primary: 'index.html', artifacts: [{ path: 'index.html', kind: 'interactive-html' }] }), 'index.html': html }, 'sig.zip');
+    const r = await runGate({ type: 'zip', file: good }, { day: 7, render: false });
+    expect(r.ok).toBe(true);
+    expect(r.manifest?.signature).toBe('Pip');
+    const bad = await zipOf({ 'gift.json': JSON.stringify({ day: 7, title: 'T', save: { file: 'nope.png', type: 'image/png' }, primary: 'index.html', artifacts: [{ path: 'index.html', kind: 'interactive-html' }] }), 'index.html': html }, 'bad-save.zip');
+    expect((await runGate({ type: 'zip', file: bad }, { day: 7, render: false })).problems.map((p) => p.code)).toContain('save_missing');
   });
 });

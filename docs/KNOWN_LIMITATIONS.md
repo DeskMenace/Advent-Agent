@@ -19,3 +19,9 @@ Things that could not be built or verified as specified, with the reason. Nothin
 | Kit blocks marked "planned" | 16 of 44 names | The ideas name 44 kit blocks. The 10 priority groups from SPEC_CHANGES are built; 16 others (wheel, map, countdown, scroll-scenes, pop, ticket, bracket, balloon, glass, charts, css-3d-box, stars, shake, water, stage, gallery) are listed in `workshop/kit/INDEX.json` as planned, and agents build them from scratch, as the library README allows. |
 | Kit blocks on real devices | Not hand-tested | Every new block ran in a headless Chrome smoke test; touch, gyro/motion permissions and audio output on real phones were not checked by hand. |
 | Gift-quality scoring | Internal, not run | SPEC_CHANGES' scoring of `day1`/`finale` ideas across personas, models and tiers is the gift lab's job (Q15 in `docs/PROGRESS.md`). |
+
+## Hosted gift links (9 November 2026)
+Sharing exports files and hands off to each network; there is no public link to a gift, because gifts live only on the user's computer. A hosted link would need a backend and a privacy decision. Possible later feature.
+
+## TikTok and Instagram loops without ffmpeg
+The share loop is MP4 only when `ffmpeg` is installed; otherwise it is WebM, which TikTok and Instagram may refuse on upload.

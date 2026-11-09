@@ -121,3 +121,16 @@ describe('door state machine', () => {
     expect(locked.phase).toBeUndefined();
   });
 });
+
+describe('pretend date (developer only)', async () => {
+  const { pretendNow } = await import('../../src/core/clock.js');
+  it('keeps the real time of day in the season timezone', () => {
+    const real = new Date('2026-11-09T10:15:30Z'); // 11:15:30 in Zurich
+    expect(pretendNow('Europe/Zurich', '2026-12-08', real)?.toISOString()).toBe('2026-12-08T10:15:30.000Z');
+  });
+  it('accepts an exact instant and ignores nonsense', () => {
+    expect(pretendNow('UTC', '2026-12-08T07:30:00Z')?.toISOString()).toBe('2026-12-08T07:30:00.000Z');
+    expect(pretendNow('UTC', 'soon')).toBeUndefined();
+    expect(pretendNow('UTC', undefined)).toBeUndefined();
+  });
+});

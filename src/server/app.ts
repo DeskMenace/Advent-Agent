@@ -24,7 +24,7 @@ import { mcpConfigSnippets, installMcpConfig, type McpHostId } from '../mcp/host
 import { installSkills, uninstallSkills, skillTargets } from '../mcp/skills-install.js';
 import { readIdeaIndex, readIdea, listWorkshop, readWorkshopGuide } from '../core/workshop.js';
 import { setProviderKey, deleteProviderKey, keychainAvailable } from '../providers/keychain.js';
-import { shareInfo, shareLoop, shareStandalone, shareStill, ShareError } from '../share/export.js';
+import { saveFile, saveOptions, shareInfo, shareLoop, shareStill, ShareError } from '../share/export.js';
 import { labReviewSheet, saveLabReview } from '../lab/review.js';
 import { buildReminderIcs } from '../core/reminder.js';
 
@@ -152,7 +152,34 @@ export function createApp({ service, auth, onShutdown }: AppDeps): Hono {
     const cfg = service.store.saveConfig((cur) => ConfigSchema.parse({ ...cur, ...raw, providers: cur.providers, setupComplete: true }));
     service.ensureSeason('live');
     service.updateSeasonFromConfig();
-    // D15: Day 1 is made during setup so door 1 opens instantly on December 1.
+    // D15: Day 1 is made right after setup so door 1 opens instantly. A first install starts it when onboarding
+    // (delivery + budget) is completed or dismissed, so the budget the user picks applies; a re-run of setup starts it now.
+    if (cfg.onboardingDone) {
+      try { service.prepareEarly(1); } catch (e) { console.error('day 1 preparation:', (e as Error).message); }
+    }
+    service.events.emitSse({ type: 'calendar' });
+    return c.json(settingsView(cfg));
+  });
+  /** First-launch onboarding (handoff §0): save the choices (or the defaults when dismissed), then start Day 1. */
+  api.post('/onboarding/complete', async (c) => {
+    const raw = z.object({
+      deliveryMode: z.enum(['on_demand', 'scheduled']).optional(),
+      scheduleTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+      unlockHour: z.number().int().min(0).max(23).optional(),
+      generosity: z.enum(['light', 'standard', 'generous']).optional(),
+    }).parse(await c.req.json().catch(() => ({})));
+    const cfg = service.store.saveConfig((cur) => {
+      const schedulable = cur.connection.mode === 'launched';
+      return ConfigSchema.parse({
+        ...cur,
+        deliveryMode: schedulable ? (raw.deliveryMode ?? 'on_demand') : 'on_demand',
+        scheduleTime: raw.scheduleTime ?? cur.scheduleTime,
+        unlockHour: raw.unlockHour ?? cur.unlockHour,
+        budgets: { ...cur.budgets, generosity: raw.generosity ?? 'standard' },
+        onboardingDone: true,
+      });
+    });
+    service.updateSeasonFromConfig();
     try { service.prepareEarly(1); } catch (e) { console.error('day 1 preparation:', (e as Error).message); }
     service.events.emitSse({ type: 'calendar' });
     return c.json(settingsView(cfg));
@@ -235,7 +262,7 @@ export function createApp({ service, auth, onShutdown }: AppDeps): Hono {
   });
   api.post('/backup', (c) => c.json({ folder: service.store.backup('manual') }));
   api.get('/share/:day/preview', (c) => c.json(shareInfo(service, DaySchema.parse(c.req.param('day')))));
-  const shareOpts = (c: Context) => ({ blur: c.req.query('blur') === '1', includeNote: c.req.query('note') === '1' });
+  const shareOpts = (c: Context) => ({ blur: c.req.query('blur') === '1' });
   const shareFail = (c: Context, e: unknown) => {
     if (e instanceof ShareError) return c.json({ error: e.code, message: e.message }, 409);
     throw e;
@@ -244,7 +271,7 @@ export function createApp({ service, auth, onShutdown }: AppDeps): Hono {
     const day = DaySchema.parse(c.req.param('day'));
     try {
       const r = await shareStill(service, day, shareOpts(c));
-      return c.body(new Uint8Array(r.data), 200, { 'content-type': r.mime, 'x-advent-stamped': r.stamped ? '1' : '0', 'content-disposition': `attachment; filename="advent-agent-day-${day}.${r.mime === 'image/png' ? 'png' : r.mime.split('/')[1]}"` });
+      return c.body(new Uint8Array(r.data), 200, { 'content-type': r.mime, 'content-disposition': `attachment; filename="advent-day-${day}.${r.mime === 'image/png' ? 'png' : r.mime.split('/')[1]}"` });
     } catch (e) { return shareFail(c, e); }
   });
   api.get('/share/:day/loop', async (c) => {
@@ -252,7 +279,7 @@ export function createApp({ service, auth, onShutdown }: AppDeps): Hono {
     const format = (['mp4', 'gif', 'webm'] as const).find((f) => f === c.req.query('format'));
     try {
       const r = await shareLoop(service, day, { ...shareOpts(c), format });
-      return c.body(new Uint8Array(r.data), 200, { 'content-type': r.mime, 'x-advent-stamped': r.stamped ? '1' : '0', 'content-disposition': `attachment; filename="advent-agent-day-${day}-loop.${r.ext}"` });
+      return c.body(new Uint8Array(r.data), 200, { 'content-type': r.mime, 'content-disposition': `attachment; filename="advent-day-${day}.${r.ext}"` });
     } catch (e) { return shareFail(c, e); }
   });
   api.get('/share/:day/download', (c) => {
@@ -262,11 +289,13 @@ export function createApp({ service, auth, onShutdown }: AppDeps): Hono {
     if (!g.gift.files.some((f) => f.path === file)) throw new ApiError(404, 'not_found', 'No such file in this gift.');
     return serveFile(c, service.store.home.giftDir(g.season, day), file, { 'content-disposition': `attachment; filename="${file.split('/').pop()!.replace(/"/g, '')}"` });
   });
-  api.get('/share/:day/standalone', async (c) => {
+  // Save (D26): the gift itself in its natural format.
+  api.get('/save/:day', (c) => c.json({ options: saveOptions(service, DaySchema.parse(c.req.param('day'))) }));
+  api.get('/save/:day/file', async (c) => {
     const day = DaySchema.parse(c.req.param('day'));
     try {
-      const r = await shareStandalone(service, day, shareOpts(c));
-      return c.body(new Uint8Array(r.data), 200, { 'content-type': r.mime, 'content-disposition': `attachment; filename="${r.filename}"` });
+      const r = await saveFile(service, day, c.req.query('id') ?? 'gift');
+      return c.body(new Uint8Array(r.data), 200, { 'content-type': r.mime, 'content-disposition': `attachment; filename="${r.filename.replace(/"/g, '')}"` });
     } catch (e) { return shareFail(c, e); }
   });
 

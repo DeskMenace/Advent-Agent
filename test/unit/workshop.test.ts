@@ -169,7 +169,8 @@ describe('workshop hygiene', () => {
     expect(['S', 'M']).toContain(manifest.data?.tierUsed);
     expect(text).toContain('Your gift is wrapped. Open door N in your calendar.');
     expect(text).toMatch(/never purchases or books/);
-    expect(text).toContain('The choice is yours: open the link to buy it.');
+    expect(text).toContain('`signature`'); // D26: the agent may sign its own note
+    expect(text).not.toMatch(/share mark|160×48/);
     const snippet = text.match(/```html\n<button id="play"[\s\S]*?```/)![0]!;
     expect(snippet.split('\n').length).toBeLessThanOrEqual(62);
   });

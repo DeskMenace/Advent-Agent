@@ -290,6 +290,8 @@ async function cmdDev(): Promise<void> {
 
 export async function main(argv = process.argv.slice(2)): Promise<number> {
   const p = parseArgs(argv);
+  // Developer-only: pretend a date (same as ADVENT_PRETEND_DATE). Deliberately absent from `help` and the UI.
+  if (typeof p.flags['pretend-date'] === 'string') process.env.ADVENT_PRETEND_DATE = p.flags['pretend-date'];
   const cmd = p.command ?? 'start';
   try {
     switch (cmd) {

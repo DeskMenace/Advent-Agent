@@ -192,13 +192,26 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 - [x] Q6 Finale may start from December 20 in launched mode; still unlocks on the 24th (`season-shape.test.ts`)
 - [x] Q7 Missed doors stack; catch-up flagged in the brief (`season-shape.test.ts`)
 - [x] Q8 `.ics` reminder: 24 events at the unlock hour in the season timezone (`test/unit/reminder.test.ts`)
-- [x] Q9 Share capture via installed Chrome/Edge: 1080×1350 still, 3–10 s loop, standalone file, privacy blur, share mark with GitHub link (`test/integration/share.test.ts`, `share-season.spec.ts`)
+- [x] Q9 Share capture via installed Chrome/Edge: 1080×1350 still, 3–10 s loop, privacy blur (share mark and standalone page replaced by D26) (`test/integration/share.test.ts`, `share-season.spec.ts`)
 - [x] Q10 Share panel: Web Share with files where supported, downloads, print services, caption, privacy preview (`share-season.spec.ts`)
 - [x] Q11 Collections shelf shows completed sets together (`share-season.spec.ts`)
 - [x] Q12 Kit priority blocks 1–10 and vendored three.js, matter.js, canvas-confetti; kit index covers every block the ideas name (`test/unit/kit-v2.test.ts`)
 - [x] Q13 Skills, templates and `AGENT_GUIDE.md` updated to gift@2 (`test/unit/workshop.test.ts`)
 - [x] Q14 README and FAQ copy on gift size and sharing
 - [ ] Q15 Gift lab: score each `day1` and `finale` idea plus a sample across personas, models and tiers; rework ideas under 3.5 — Noémie (internal test plan)
+
+## 6b. Onboarding, redesign, reveal, sharing (HANDOFF_ONBOARDING_AND_DESIGN + round 2, D25, D26)
+- [x] H1 2-step onboarding modal (Delivery, Budget); defaults on dismiss; Day 1 starts after it; Scheduled disabled where it can't run (`calendar.spec.ts`, `season-shape.test.ts`)
+- [x] H2 Mockup look: tokens, bundled Fraunces + Instrument Sans, board with our red bow, home copy and steps, GitHub footer mark, no Archive (`calendar.spec.ts`)
+- [x] H3 Four wordless envelope states with full aria-labels, greyscale-safe, reduced motion (`calendar.spec.ts`, `layout-a11y.spec.ts`)
+- [x] H4 Reveal pop-up: flap → wrapped present → unwrap → gift; saved on reveal; closing during preparation is safe; events for Gary (`calendar.spec.ts`, `portable.spec.ts`)
+- [x] H5 Your Gifts grid and `/gifts/:day` page (`shelf.spec.ts`, `renderers.spec.ts`)
+- [x] H6 Share sheet: privacy preview, X, Facebook, Instagram, TikTok, Copy image, native share; fixed caption; deskmenace.com; no mark (`share-season.spec.ts`, `share.test.ts`)
+- [x] H7 Save = the gift itself in its natural format; `save` in gift.json (`renderers.spec.ts`, `share.test.ts`, `package-parse.test.ts`)
+- [x] H8 Agent-only notes in a terminal panel, optional `signature`; no invented notes (`renderers.spec.ts`, `package-parse.test.ts`)
+- [x] H9 No gift-type hints before opening (UI, setup, README/FAQ, portable request); nothing from us inside a gift (`calendar.spec.ts`, `share-season.spec.ts`, `renderers.spec.ts`)
+- [x] H10 Developer-only pretend date: `ADVENT_PRETEND_DATE` / `--pretend-date` (`door-state.test.ts`)
+- [x] H11 Mobile down to 360 px (`layout-a11y.spec.ts`)
 
 ## 7. Release checklist — TEST_PLAN §7
 - [ ] REL1 Every item above ticked or in `docs/KNOWN_LIMITATIONS.md`

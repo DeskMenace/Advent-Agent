@@ -1,26 +1,16 @@
 /**
- * Share capture (D20, D21): open a revealed gift in the user's installed Chrome or Edge (headless, puppeteer-core,
- * no browser download), call window.adventCapture.prepare(kind), apply the privacy blur and the share mark, then
- * take a 1080×1350 still or record a 1080×1920 loop. Fallbacks are the agent's share.png / share.webm.
+ * Share capture (D20, D26): open a revealed gift in the user's installed Chrome or Edge (headless, puppeteer-core,
+ * no browser download), call window.adventCapture.prepare(kind), apply the privacy blur, then take a 1080×1350 still,
+ * record a 1080×1920 loop, or print a PDF. Exports carry no mark: they are the gift only (D26).
+ * Fallbacks are the agent's share.png / share.webm.
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-export const SHARE_MARK_TEXT = 'Made by my Advent Agent · more gifts at deskmenace.com';
-export const SHARE_MARK_URL = 'https://deskmenace.com/advent?ref=aa-share';
-export const REPO_URL = 'https://github.com/suchipizza/Advent-Agent';
 export const STILL_SIZE = { width: 1080, height: 1350 };
 export const LOOP_SIZE = { width: 1080, height: 1920 };
-
-const GITHUB_SVG = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>';
-
-/** HTML for the mark (bottom-right, small, quiet). Used in captures and standalone exports. */
-export function shareMarkHtml(scale = 1): string {
-  const fs = Math.round(12 * scale);
-  return `<div data-advent-mark style="position:fixed;right:${Math.round(12 * scale)}px;bottom:${Math.round(12 * scale)}px;z-index:2147483647;display:flex;align-items:center;gap:${Math.round(8 * scale)}px;font:600 ${fs}px/1.2 -apple-system,Segoe UI,Arial,sans-serif;color:#3b4a43;background:rgba(255,250,240,.88);border:1px solid rgba(36,58,50,.18);border-radius:${Math.round(14 * scale)}px;padding:${Math.round(5 * scale)}px ${Math.round(10 * scale)}px;box-shadow:0 2px 8px rgba(0,0,0,.08);pointer-events:auto"><a href="${SHARE_MARK_URL}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none">${SHARE_MARK_TEXT}</a><a href="${REPO_URL}" target="_blank" rel="noopener noreferrer" aria-label="Advent Agent on GitHub" style="color:inherit;display:inline-flex">${GITHUB_SVG.replace('width="14" height="14"', `width="${fs + 2}" height="${fs + 2}"`)}</a></div>`;
-}
 
 /**
  * In-page script (as a string so it can be injected into standalone files too): blurs elements marked
@@ -68,7 +58,6 @@ export interface CaptureOptions {
   html?: string;
   blur: boolean;
   privateText: string[];
-  mark: boolean;
   /** Extra origins the page may reach (consented network). Everything else is blocked. */
   allowedOrigins?: string[];
 }
@@ -98,7 +87,6 @@ async function withPage<T>(size: { width: number; height: number }, opts: Captur
       if (w.adventCapture?.prepare) await Promise.race([Promise.resolve(w.adventCapture.prepare(k)), new Promise((r) => setTimeout(r, 8000))]);
     }, kind);
     if (opts.blur) await page.evaluate(blurScript(opts.privateText));
-    if (opts.mark) await page.evaluate((html: string) => { const d = document.createElement('div'); d.innerHTML = html; document.body.appendChild(d.firstElementChild!); }, shareMarkHtml(size.width / 860));
     await new Promise((r) => setTimeout(r, 350));
     return await fn(page);
   } finally {
@@ -190,18 +178,7 @@ async function encodeWebmInBrowser(page: Page, seq: string[], fps: number): Prom
   return Buffer.from(b64, 'base64');
 }
 
-/** Stamp the mark onto an existing image (the agent's share.png) in the headless browser. */
-export async function stampImage(png: Buffer, mime: string): Promise<Buffer> {
-  const executablePath = findInstalledChrome();
-  if (!executablePath) throw new CaptureUnavailable('No installed Chrome or Edge was found.');
-  const puppeteer = (await import('puppeteer-core')).default;
-  const browser = await puppeteer.launch({ executablePath, headless: true, args: ['--no-first-run', '--mute-audio'], defaultViewport: { ...STILL_SIZE, deviceScaleFactor: 1 } });
-  try {
-    const page = await browser.newPage();
-    const dataUrl = `data:${mime};base64,${png.toString('base64')}`;
-    await page.setContent(`<!doctype html><html><body style="margin:0;background:#f7f2e9"><img src="${dataUrl}" style="display:block;width:${STILL_SIZE.width}px;height:${STILL_SIZE.height}px;object-fit:contain">${shareMarkHtml(STILL_SIZE.width / 860)}</body></html>`, { waitUntil: 'load' });
-    return Buffer.from(await page.screenshot({ type: 'png' }));
-  } finally {
-    await browser.close().catch(() => undefined);
-  }
+/** Print a page (a styled text gift) to PDF, A4, backgrounds kept. */
+export async function capturePdf(opts: { url?: string; html?: string; allowedOrigins?: string[] }): Promise<Buffer> {
+  return withPage({ width: 900, height: 1200 }, { ...opts, blur: false, privateText: [] }, 'still', async (page) => Buffer.from(await page.pdf({ format: 'A4', printBackground: true, margin: { top: '12mm', bottom: '12mm', left: '12mm', right: '12mm' } })));
 }

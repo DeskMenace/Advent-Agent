@@ -2,7 +2,7 @@
 
 **Your AI agent is your Secret Santa.**
 
-A local-first advent calendar: twenty-four paper envelopes on a wooden board, and behind each one a gift your *own* AI agent makes for you. A tiny game, a song, a card, a letter, a real thing it found and priced, a plan for a winter walk. The calendar keeps the surprise; the agent does the rest.
+A local-first advent calendar: twenty-four paper envelopes on a wooden board, and behind each one a gift your *own* AI agent makes for you. What it makes is the surprise. The calendar keeps it wrapped; the agent does the rest.
 
 Made by [Desk Menace](https://deskmenace.com/?ref=aa-readme), the people behind Gary.
 
@@ -20,9 +20,9 @@ That is the whole install. The companion starts on your computer, your browser o
 - **Your agent makes the gift.** On demand when you open a door, or on a schedule the night before. Progress is shown as spoiler-free phases: thinking, making, testing, wrapping.
 - **A season with a shape.** Day 1 is made while you set up, so door 1 opens instantly; December 24 is the big one; missed doors wait for you.
 - **A quality gate seals every gift.** Manifest, files, media decode, a secret scan, and an optional headless test drive, before anything reaches your eyes.
-- **Gifts render in a sandbox.** Interactive gifts run in an isolated iframe on a separate origin with a strict policy. Ten renderer kinds ship (interactive HTML, image, audio, video, document, card, song, real-world proposal, link, download) and new ones register without touching the calendar.
-- **Your agent never buys or books anything.** Real-world gifts arrive as a purchase-ready proposal: exact item, vendor, price with the date it was checked, link, and what is left for you to do. An optional "I bought it" mark is yours alone and stays on your computer.
-- **Sharing means exporting.** A picture, a short video or the gift itself as a file, with a privacy preview and a small "Made by my Advent Agent" mark. Nothing is uploaded.
+- **Gifts render in a sandbox.** Gifts run in an isolated iframe on a separate origin with a strict policy. Renderers register without touching the calendar.
+- **Your agent never buys or books anything.** If it suggests something to buy or book, you decide.
+- **Sharing means exporting.** A picture or a short video of the gift, with a privacy preview first. Save gives you the gift itself in its own format. Nothing is uploaded, and exports carry no mark.
 - **Everything stays local.** `~/.advent-agent` holds your seasons and gifts. Exports never contain tokens, keys or agent logs.
 
 ## Which agents work?
@@ -64,21 +64,21 @@ advent-agent lab …            gift lab for trying ideas with real agents
 
 ## FAQ
 
-**Does my agent buy things?** No. Advent Agent never makes purchases or bookings. When a gift is a real object or experience, your agent prepares it (exact item, vendor, price checked on a date, link) and you decide whether to buy.
+**Does my agent buy things?** No. Advent Agent never makes purchases or bookings. If your agent suggests something to buy or book, you decide.
 
 **Do I need API keys or paid services?** No. Optional advanced settings let you add your own providers, stored in your OS keychain, used only through narrow adapters with a spend cap.
 
-**Is my data sent anywhere?** The calendar runs on your computer and sends nothing to us. Your agent works as it normally does, including with its own model provider.
+**Is my data sent anywhere?** It runs entirely on your computer. Nothing is sent to us. Your agent works as it normally does, including with its own model provider.
 
 **Can I peek?** Locks prevent accidental spoilers. They are not a vault: changing your computer's clock unlocks doors.
 
-**How elaborate are the gifts?** It depends on your agent and how generous you let it be. A Secret Santa on a small budget or a smaller model makes smaller gifts: a lovely card, a jelly fruit, a song. With more room and a strong coding agent it can build games, little worlds and characters that react to you. Change "How generous is your Secret Santa?" in Settings at any time.
+**How elaborate are the gifts?** It depends on your agent and the budget you give it. A bigger budget and a stronger agent make bigger gifts. You can change the budget in Settings at any time.
 
-**Can I share my gifts?** Yes. Every gift has a Share button that exports an image, a short video or the gift itself as a file you can send. You see a preview first and can blur anything private.
+**Can I share my gifts?** Yes. Share exports a picture or a short video and hands you off to the network you pick. You see a preview first and can blur anything private. Save downloads the gift itself.
 
 **What does it cost in tokens?** It uses your agent's normal plan or billing. Light, Standard and Generous aim for roughly 30,000, 100,000 and 300,000 tokens a gift; Day 1 and December 24 get three times that. Claude Code can enforce a dollar cap; for other agents the figures are advisory and labelled as such.
 
-**Do I need to come back every day?** No. Missed doors wait for you and pile up, nothing expires. Setup offers an optional calendar file (.ics) with a daily reminder; it stays on your computer.
+**Do I need to come back every day?** No. Missed doors wait for you and pile up, nothing expires. Settings offers an optional calendar file (.ics) with a daily reminder; it stays on your computer.
 
 **Is it free?** Yes, MIT-licensed.
 

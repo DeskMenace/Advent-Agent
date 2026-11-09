@@ -13,7 +13,7 @@ export function LabReviewPage() {
   if (!sheet) return <div class="shell"><Header current="lab" /><p class="empty">Opening the lab notebook…</p></div>;
   return (
     <div class="shell">
-      <Header current="lab" season={sheet.season ?? undefined} demo />
+      <Header current="lab" />
       <main style="padding-top:40px;max-width:900px;margin:0 auto">
         <div class="eyebrow">Gift lab</div>
         <h1 class="page-title">Review sheet.</h1>

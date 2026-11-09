@@ -32,8 +32,31 @@
     },
     "note": {
       "type": "string",
-      "minLength": 1,
       "maxLength": 8000
+    },
+    "signature": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40
+    },
+    "save": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      },
+      "required": [
+        "file",
+        "type"
+      ]
     },
     "primary": {
       "type": "string",
@@ -170,8 +193,7 @@
             }
           },
           "required": [
-            "items",
-            "whatsLeft"
+            "items"
           ]
         },
         {
@@ -538,7 +560,6 @@
   "required": [
     "schema",
     "day",
-    "title",
-    "note"
+    "title"
   ]
 }

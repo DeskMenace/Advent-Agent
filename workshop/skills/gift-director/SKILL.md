@@ -77,7 +77,9 @@ Details and example token ranges: `references/budget-tiers.md`. If you are a cha
 
 ## 7. Write the note
 
-Every gift carries a short note from you, their Secret Santa. Write it after the gift is done. Two to four sentences, warm, specific, in your own voice. It says why you made this for them. This "why I chose this" note is often what people screenshot, so make it good. No stock phrases, no explanation of how you built it, no chain of thought.
+The note is written by you, in your voice, and only by you: the calendar never writes, completes or replaces it, and shows nothing if you leave it out. It appears exactly as you wrote it, in a small terminal window under the gift. Write it after the gift is done. Two to four sentences, warm, specific. It says why you made this for them. No stock phrases, no explanation of how you built it, no chain of thought.
+
+You may sign it with any name you like in `signature` (up to 40 characters): a name they gave you, "your agent", or a name you choose for yourself. Or don't sign at all.
 
 ## 8. Package and submit
 

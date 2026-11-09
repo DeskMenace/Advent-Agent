@@ -70,7 +70,7 @@ Any third-party code, art, font or sound you adapted goes into `credits[]` as `{
 - `prefers-reduced-motion` respected; no autoplay audio; mute wherever there is sound; restart wherever there is a game; no flashing.
 - Fits 360 px wide and 1280 px wide. The single HTML works when opened from disk on its own.
 - No file paths, keys, tokens; nothing from the person's folders copied verbatim; nothing from their avoid list.
-- None of the purchase words in any text you write, not even in a negation ("nothing was …"). Say what is left for them to do instead.
+- None of the purchase words in any text you write, not even in a negation ("nothing was …"). Say what you did instead ("I found", "I picked out").
 - `note` is warm, specific, two to four sentences, says why you made this; no stock phrases, no process talk.
 - `incomplete` lists everything that does not work. Empty only if everything works.
 - `day` equals the brief's day. `tierUsed` is the tier you actually built in.
@@ -82,7 +82,7 @@ Any third-party code, art, font or sound you adapted goes into `credits[]` as `{
 **Documents / text**: first line `# Title` for text gifts; print CSS for printables; PDF opens. Still give it one thing to touch.
 **Song**: karaoke player (lyrics highlighted in time with `score.json`), mute, `song.score` valid, `song.wav` decodes, `song.renderSheet` present and naming no provider.
 **Printables**: print-ready files at real sizes with bleed in `downloads`; when research is allowed, 2–3 real print services in `print` with price, currency, `checkedAt` and `shipsTo`.
-**Real-world**: every item has `name`, `vendor`, https `url`, `checkedAt` today, price + currency; `whatsLeft` says what is left for them, e.g. "The choice is yours: open the link to buy it."; ceiling respected.
+**Real-world**: every item has `name`, `vendor`, https `url`, `checkedAt` today, price + currency; ceiling respected. `whatsLeft` is optional; say what's left in your note if useful.
 
 ## Run the gate
 

@@ -1,6 +1,6 @@
 ---
 name: concierge
-description: Real-world finds as purchase-ready proposals (products, books, experiences, hut nights, tickets) and real print services for printable gifts. How to verify something exists and ships to the person's country, record price, currency and the date checked, give real https links and constraints, write what is left for them to do, and never buy, book or imply it (D1). Still an emotion, an interaction and a share frame.
+description: Real-world finds as purchase-ready proposals (products, books, experiences, hut nights, tickets) and real print services for printable gifts. How to verify something exists and ships to the person's country, record price, currency and the date checked, give real https links and constraints, and never buy, book or imply it (D1). Still an emotion, an interaction and a share frame.
 license: MIT
 ---
 
@@ -31,7 +31,7 @@ Never write "bought", "ordered", "booked", "purchased", "reserved for you" or "p
 3. **Record** vendor name, exact product or experience name, https URL to the exact page (no affiliate parameters, no tracking query strings, no credentials), price as a number with its 3-letter currency, and `checkedAt` as today's date (`YYYY-MM-DD`).
 4. **Respect the ceiling**: `budgets.priceCeilingPerGift` and `priceCeilingSeason`. If unset, keep it modest (think "a nice book", not "a weekend"). Say the price plainly.
 5. **Constraints**: delivery time, December cutoff dates, sizes, opening hours, booking window, cancellation terms, what to bring. One line each.
-6. **What's left for you**: the exact steps, e.g. "Open the link, choose 'M', pay by card. Delivery 3–5 days. The choice is yours." Include a fallback if it sells out.
+6. **What's left for them** (optional): not a required section any more. The calendar shows only your details (item, vendor, price, link) and your note. If the steps help ("choose size M", a fallback if it sells out), say so in your own note, in your voice.
 7. **Why this**: two or three sentences linking the pick to what you know about them. No invented facts.
 
 ## Print services (`print[]`)
@@ -47,7 +47,7 @@ For a printable gift, find **2–3 real print services that ship to the person's
 
 - The `file` exists in the package and matches what the service asks for (size, bleed, format, colour profile). Say in the page which file goes with which service.
 - Prefer services with a clear price for one item, no minimum order, and shipping to the country you see in `locale`. Mention delivery time if the page shows it.
-- Never create an account, upload the file or start a checkout. The page says: "Prepared for you. Printing is yours to decide."
+- Never create an account, upload the file or start a checkout.
 
 ## Output for a proposal
 
@@ -76,4 +76,4 @@ The share frame shows the thing and why it suits them, never the price or anythi
 
 ## Self-check
 
-Open each URL once more before packaging. Price and currency match the page; `checkedAt` is today; every print service ships to their country; none of the forbidden words appear anywhere, including negations; the ceiling holds; the page says what is left for them to do; the note does not say or hint that anything is on its way.
+Open each URL once more before packaging. Price and currency match the page; `checkedAt` is today; every print service ships to their country; none of the forbidden words appear anywhere, including negations; the ceiling holds; the note does not say or hint that anything is on its way.

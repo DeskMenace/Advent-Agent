@@ -5,7 +5,7 @@ test.describe('gift sandbox (E3)', () => {
   test('a gift cannot reach the parent document, storage, the app API, the network, or navigate the top window', async ({ page }) => {
     await setDemoDay(24);
     await api('POST', '/api/doors/11/reveal').catch(() => undefined);
-    await login(page, `/gift/2026/11`);
+    await login(page, '/gifts/11');
     const frame = page.frameLocator('iframe.gift-frame');
     await frame.getByRole('button', { name: 'Try the doors' }).click();
     await expect(frame.locator('li[data-probe="done"]')).toBeVisible({ timeout: 15_000 });
@@ -16,12 +16,13 @@ test.describe('gift sandbox (E3)', () => {
     expect(results['app-origin-fetch']).toBe('locked');
     expect(results['remote-image']).toBe('locked');
     expect(results['top-navigation']).toBe('locked');
-    await expect(page).toHaveURL(/\/gift\/2026\/11$/);
+    await expect(page).toHaveURL(/\/gifts\/11$/);
     await setDemoDay(8);
   });
 
   test('gift files carry a strict CSP, CORP and no cookies; the app origin never frames itself', async ({ page }) => {
-    await login(page, '/gift/2026/5');
+    await api('POST', '/api/doors/5/reveal').catch(() => undefined);
+    await login(page, '/gifts/5');
     const src = await page.locator('iframe.gift-frame').getAttribute('src');
     const r = await fetch(src!);
     const csp = r.headers.get('content-security-policy') ?? '';
@@ -35,7 +36,7 @@ test.describe('gift sandbox (E3)', () => {
 });
 
 test.describe('agent text sanitisation (U4.7)', () => {
-  test('HTML in a title, subtitle or note is shown as text, never executed or injected', async ({ page }) => {
+  test('HTML in a title or note is shown as text, never executed or injected', async ({ page }) => {
     await setDemoDay(24);
     const { writeFileSync } = await import('node:fs');
     const { join } = await import('node:path');
@@ -46,11 +47,12 @@ test.describe('agent text sanitisation (U4.7)', () => {
     const r = await api<{ ok: boolean; problems: unknown[] }>('POST', '/api/agent/submit?day=17', { files: [{ name: 'gift.json', text: JSON.stringify(manifest) }, { name: 'letter.md', text: `# Letter\n\n${hostile}\n\nplain` }] });
     expect(r.ok, JSON.stringify(r.problems)).toBe(true);
     await api('POST', '/api/doors/17/reveal');
-    await login(page, '/gift/2026/17');
-    await expect(page.locator('h1.gift-title')).toContainText('<img src=x onerror=');
-    await expect(page.locator('.note strong')).toHaveText('friend');
-    await expect(page.locator('.note')).toContainText('<script>');
-    expect(await page.locator('.note a').evaluateAll((as) => as.map((a) => a.getAttribute('href')))).toEqual(['https://example.com']);
+    await login(page, '/gifts/17');
+    await expect(page.locator('#gift-title')).toContainText('<img src=x onerror=');
+    // The note is plain text in the terminal: markup shows literally, links are not made clickable.
+    await expect(page.locator('.agent-note .term-text')).toContainText('<script>', { timeout: 10_000 });
+    await expect(page.locator('.agent-note .term-text')).toContainText('**friend**');
+    expect(await page.locator('.agent-note a').count()).toBe(0);
     expect(await page.locator('main img[src="x"], main script, main b[onclick]').count()).toBe(0);
     await page.waitForTimeout(300);
     expect(await page.evaluate(() => (window as unknown as { __pwned?: number }).__pwned)).toBeUndefined();

@@ -76,7 +76,8 @@ export function libraryCount(): number {
 /** Profile fields the user allows, non-empty only. */
 export function sharedProfile(profile: Profile): Record<string, unknown> | undefined {
   const out: Record<string, unknown> = {};
-  for (const field of profile.share) {
+  const fields = new Set([...profile.share, ...(profile.name ? (['name'] as const) : [])]);
+  for (const field of fields) {
     const v = profile[field];
     if (Array.isArray(v) ? v.length > 0 : typeof v === 'string' && v.trim().length > 0) out[field] = v;
   }

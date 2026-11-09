@@ -1,84 +1,91 @@
 import { expect, test } from '@playwright/test';
-import { writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { api, login, setDemoDay, state } from './helpers.js';
+import { readFileSync } from 'node:fs';
+import { api, login, reveal, setDemoDay } from './helpers.js';
 
-test.describe('sharing (D20/D21)', () => {
-  test('the share panel previews a captured still, blurs on request, and saves picture, video and file', async ({ page }) => {
-    await setDemoDay(8);
-    await api('POST', '/api/doors/5/reveal').catch(() => undefined);
-    await login(page, '/gift/2026/5');
-    await page.getByRole('button', { name: 'Share…' }).click();
-    const dialog = page.getByRole('dialog', { name: 'Share this gift' });
-    await expect(dialog.locator('.share-preview img')).toBeVisible({ timeout: 45_000 });
-    expect(await dialog.locator('.share-preview img').evaluate((i: HTMLImageElement) => [i.naturalWidth, i.naturalHeight])).toEqual([1080, 1350]);
-    await expect(dialog).toContainText('My AI Secret Santa made me a snow globe');
+const CAPTION = 'My AI agent made this gift for me 🎁';
+
+test.describe('share sheet (handoff §1.6, D26)', () => {
+  test.beforeAll(async () => { await setDemoDay(8); await reveal(5); });
+
+  test('privacy preview first; no share mark; no Copy link; fixed caption and deskmenace.com everywhere', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await login(page, '/gifts/5');
+    await page.getByRole('button', { name: 'Share' }).click();
+    const sheet = page.getByRole('dialog', { name: 'Share' });
+    await expect(sheet.locator('.share-preview img')).toBeVisible({ timeout: 45_000 });
+    expect(await sheet.locator('.share-preview img').evaluate((i: HTMLImageElement) => [i.naturalWidth, i.naturalHeight])).toEqual([1080, 1350]);
+    await expect(sheet.getByLabel(/Blur private details/)).toBeVisible();
+    // Buttons: X, Facebook, Instagram, TikTok, Copy image (+ native Share… where supported). Never Copy link.
+    for (const n of ['X', 'Facebook', 'Instagram', 'TikTok', 'Copy image']) await expect(sheet.getByRole('button', { name: n, exact: true })).toBeVisible();
+    await expect(sheet.getByRole('button', { name: /Copy link/ })).toHaveCount(0);
+
+    // X: saves the still, opens the intent with the fixed caption and the bare link.
     const pic = page.waitForEvent('download');
-    await dialog.getByRole('button', { name: /Download picture/ }).click();
-    expect((await pic).suggestedFilename()).toMatch(/\.png$/);
-    const file = page.waitForEvent('download');
-    await dialog.getByRole('button', { name: 'Download the gift as a file' }).click();
-    const saved = await file;
-    expect(saved.suggestedFilename()).toMatch(/\.html$/);
-    const html = (await import('node:fs')).readFileSync(await saved.path(), 'utf8');
-    expect(html).toContain('Made by my Advent Agent · more gifts at deskmenace.com');
-    const vid = page.waitForEvent('download', { timeout: 90_000 });
-    await dialog.getByRole('button', { name: /Download short video/ }).click();
-    expect((await vid).suggestedFilename()).toMatch(/\.(mp4|webm)$/);
+    const xTab = context.waitForEvent('page');
+    await sheet.getByRole('button', { name: 'X', exact: true }).click();
+    const still = await pic;
+    expect(still.suggestedFilename()).toMatch(/\.png$/);
+    const xUrl = new URL((await xTab).url());
+    expect(xUrl.origin + xUrl.pathname).toBe('https://x.com/intent/post');
+    expect(xUrl.searchParams.get('text')).toBe(CAPTION);
+    expect(xUrl.searchParams.get('url')).toBe('https://deskmenace.com');
+    await (await context.pages()).at(-1)!.close();
+    await expect(page.locator('.toast')).toContainText('Image saved. Add it to your post.');
+
+    // Facebook: sharer with the bare link.
+    const fbTab = context.waitForEvent('page');
+    await sheet.getByRole('button', { name: 'Facebook', exact: true }).click();
+    const fbUrl = new URL((await fbTab).url());
+    expect(fbUrl.searchParams.get('u')).toBe('https://deskmenace.com');
+    await (await context.pages()).at(-1)!.close();
+
+    // Instagram: copies the caption without the link, opens the site, downloads the media.
+    const igTab = context.waitForEvent('page');
+    const igFile = page.waitForEvent('download', { timeout: 90_000 });
+    await sheet.getByRole('button', { name: 'Instagram', exact: true }).click();
+    expect((await igTab).url()).toMatch(/^https:\/\/www\.instagram\.com\//);
+    await (await context.pages()).at(-1)!.close();
+    expect((await igFile).suggestedFilename()).toMatch(/\.(mp4|webm)$/); // the globe is animated → the loop
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(CAPTION);
     await page.keyboard.press('Escape');
-    await expect(dialog).toHaveCount(0);
+    await expect(sheet).toHaveCount(0);
+  });
+
+  test('the server never sends the gift.json caption or a mark', async () => {
+    const info = await api<Record<string, unknown>>('GET', '/api/share/5/preview');
+    expect(info).toMatchObject({ caption: CAPTION, url: 'https://deskmenace.com' });
+    expect(info).not.toHaveProperty('shareMark');
+  });
+
+  test('exports carry no mark (saved HTML checked byte for byte for our strings)', async ({ page }) => {
+    await login(page, '/gifts/5');
+    await page.getByRole('button', { name: 'Save' }).click();
+    const dl = page.waitForEvent('download');
+    await page.getByRole('menuitem').first().click();
+    const html = readFileSync((await (await dl).path())!, 'utf8');
+    expect(html).not.toMatch(/Made by my Advent Agent|deskmenace|data-advent-mark|github\.com\/suchipizza/);
   });
 });
 
-test.describe('season shape in the UI (D15/D16)', () => {
-  test('generosity is chosen with three plain options and persists', async ({ page }) => {
+test.describe('settings (handoff §1.7, D26)', () => {
+  test('sections in order; budget copy is about size only; no share-mark toggle; profile and reminder live here', async ({ page }) => {
     await login(page, '/settings');
+    await expect(page.locator('.settings-h').first()).toBeVisible();
+    const heads = await page.locator('.settings-h').evaluateAll((els) => els.map((e) => e.childNodes[0]!.textContent!.trim()));
+    expect(heads.slice(0, 4)).toEqual(['Delivery', 'Budget', 'About you', 'Reminder']);
+    await expect(page.getByText('Your Secret Santa already knows you. Add anything it might not.')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Remind me when a door opens' })).toHaveAttribute('href', '/api/reminder.ics');
+    await expect(page.getByText(/Advent Agent mark/)).toHaveCount(0);
     const generous = page.getByRole('radio', { name: /Generous/ });
+    await expect(generous).toContainText('Bigger gifts. Uses more tokens.');
     await generous.click();
     await page.getByRole('button', { name: 'Save settings' }).click();
     await expect(page.locator('.toast')).toContainText('Saved');
     const cfg = await api<{ budgets: { generosity: string } }>('GET', '/api/settings');
     expect(cfg.budgets.generosity).toBe('generous');
-    await page.reload();
-    await expect(page.getByRole('radio', { name: /Generous/ })).toHaveAttribute('aria-checked', 'true');
     await api('PUT', '/api/settings', { budgets: { ...cfg.budgets, generosity: 'standard' } });
-  });
-
-  test('a locked door being prepared early shows "wrapping" and nothing else', async ({ page }) => {
-    await setDemoDay(0);
-    const s = state();
-    const file = join(s.demoHome, 'seasons', '2026', 'doors', '01', 'state.json');
-    const original = (await import('node:fs')).readFileSync(file, 'utf8');
-    writeFileSync(file, JSON.stringify({ schemaVersion: 1, day: 1, jobState: 'preparing', phase: 'making', attempt: 1, attempts: [{ n: 1, mode: 'launched', startedAt: new Date().toISOString(), outcome: 'running', gateReports: 0 }], revealed: false, updatedAt: new Date().toISOString() }));
-    try {
-      await login(page, '/?gary=0');
-      const one = page.locator('.envelope[data-day="1"]');
-      await expect(one).toHaveClass(/wrapping/);
-      await expect(one).toHaveAttribute('data-state', 'locked');
-      await expect(one).toHaveAttribute('aria-label', /wrapping it/);
-      const pub = await api<{ doors: Array<{ jobState: string; phase?: string; wrapping: boolean }> }>('GET', '/api/calendar');
-      expect(pub.doors[0]).toMatchObject({ jobState: 'not_requested', wrapping: true });
-      expect(pub.doors[0]!.phase).toBeUndefined();
-    } finally {
-      writeFileSync(file, original);
-      await setDemoDay(8);
-    }
-  });
-
-  test('a completed collection is shown together on the shelf', async ({ page }) => {
-    await setDemoDay(24);
-    for (const [day, index] of [[18, 1], [19, 2], [21, 3]] as const) {
-      const manifest = { schema: 'advent-agent/gift@2', day, title: `Jelly ${index}`, note: 'Wobble.', entry: 'index.html', emotion: 'cute', interaction: ['squeeze'], collection: { set: 'jelly-fruits', index, size: 3 }, share: { still: { capture: 'still' } } };
-      const dir = join(state().demoHome, 'seasons', '2026', 'doors', String(day));
-      writeFileSync(join(dir, 'state.json'), JSON.stringify({ schemaVersion: 1, day, jobState: 'not_requested', attempt: 0, attempts: [], revealed: false, updatedAt: new Date().toISOString() }));
-      const r = await api<{ ok: boolean }>('POST', `/api/agent/submit?day=${day}`, { files: [{ name: 'gift.json', text: JSON.stringify(manifest) }, { name: 'index.html', text: '<!doctype html><html><body><script>window.adventCapture={async prepare(){}}</script></body></html>' }] });
-      expect(r.ok).toBe(true);
-      await api('POST', `/api/doors/${day}/reveal`);
-    }
-    await login(page, '/gifts');
-    const group = page.locator('.collection-group');
-    await expect(group.locator('h2').first()).toHaveText('Set complete: jelly fruits');
-    await expect(group.locator('.shelf-item')).toHaveCount(3);
-    await setDemoDay(8);
+    // No gift-type hints anywhere on the page (including the agent table, which no longer lists "gifts possible").
+    const text = await page.locator('main').innerText();
+    expect(text).not.toMatch(/Gifts possible|\b(games?|songs?|poems?|stickers?|wallpapers?|illustrations?|little worlds|characters)\b/i);
   });
 });

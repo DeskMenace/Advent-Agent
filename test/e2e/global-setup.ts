@@ -31,5 +31,7 @@ export default async function globalSetup(): Promise<void> {
   }
   if (!existsSync(join(demoHome, 'api.token'))) throw new Error(`demo companion did not start:\n${log}`);
   const token = readFileSync(join(demoHome, 'api.token'), 'utf8').trim();
+  // The 2-step onboarding is covered by its own test; everything else starts with it done.
+  await fetch(`http://127.0.0.1:${E2E_APP_PORT}/api/settings`, { method: 'PUT', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify({ onboardingDone: true }) });
   writeFileSync(STATE_FILE, JSON.stringify({ home, demoHome, token, pid: child.pid, appPort: E2E_APP_PORT, giftPort: E2E_GIFT_PORT }));
 }

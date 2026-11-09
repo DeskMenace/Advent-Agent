@@ -1,6 +1,7 @@
 /**
  * Time source. Real by default. Demo and lab homes may simulate a December day; tests may pin "now"
  * through ADVENT_AGENT_FAKE_NOW, honoured only for a non-default home (never for ~/.advent-agent).
+ * Developers can pretend a date on any home with ADVENT_PRETEND_DATE (or `--pretend-date`), never from the UI.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -49,7 +50,23 @@ export function makeClock(opts: { homeRoot: string; seasonYear: number; timeZone
       },
     };
   }
-  return { now: () => fakeNow(opts.homeRoot) ?? new Date() };
+  return { now: () => pretendNow(opts.timeZone) ?? fakeNow(opts.homeRoot) ?? new Date() };
+}
+
+/**
+ * Developer-only date pretending (handoff §Principles). `2026-12-08` keeps the real time of day in the season's
+ * timezone, so the clock still moves; a full ISO timestamp (`2026-12-08T07:30:00Z`) pins an exact instant.
+ */
+export function pretendNow(timeZone: string, value = process.env.ADVENT_PRETEND_DATE, real = new Date()): Date | undefined {
+  if (!value) return undefined;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (m) {
+    const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone, hour: 'numeric', minute: 'numeric', second: 'numeric', hourCycle: 'h23' }).formatToParts(real).map((p) => [p.type, p.value]));
+    const at = zonedTimeToUtc(timeZone, Number(m[1]), Number(m[2]), Number(m[3]), Number(parts.hour), Number(parts.minute), Number(parts.second));
+    return new Date(at.getTime() + real.getMilliseconds());
+  }
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? undefined : d;
 }
 
 function fakeNow(homeRoot: string): Date | undefined {

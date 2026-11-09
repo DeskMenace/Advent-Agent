@@ -23,8 +23,11 @@ describe('budget tiers (D16)', () => {
 describe('season shape', () => {
   it('Day 1 is prepared during setup in November; the locked door shows only "wrapping", and opens instantly on Dec 1', async () => {
     t = await testCompanion({ now: '2026-11-08T12:00:00Z', scenario: 'auto-submit', config: { setupComplete: false } });
-    const done = await t.api('POST', '/api/setup/complete', { generosity: 'light' } as never);
+    const done = await t.api('POST', '/api/setup/complete', {} as never);
     expect(done.status).toBe(200);
+    expect(t.companion.service.store.doors(2026).read(1).jobState).toBe('not_requested'); // waits for onboarding
+    const onboarded = await t.api('POST', '/api/onboarding/complete', { generosity: 'light' } as never);
+    expect(onboarded.status).toBe(200);
     const first = (await t.api<CalendarResponse>('GET', '/api/calendar')).data.doors[0]!;
     expect(first.envelope).toBe('locked');
     expect(first.jobState).toBe('not_requested'); // nothing about the job leaks for a locked door…

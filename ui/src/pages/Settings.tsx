@@ -3,9 +3,10 @@ import { useEffect, useState } from 'preact/hooks';
 import type { CalendarResponse } from '../../../src/shared/api.js';
 import type { Config, Profile } from '../../../src/shared/config.js';
 import { api, saveBlob } from '../api.js';
-import { Header } from '../components/Header.js';
+import { Footer, Header } from '../components/Header.js';
+import { BudgetChoice, DeliveryChoice } from '../components/Onboarding.js';
 import { toast } from '../lib/ui.js';
-import { BudgetSection, ConnectionSection, DeliverySection, ExtrasSection, ProfileSection, TimeSection, type Detect } from './SettingsSections.js';
+import { AboutYouSection, BudgetSection, ConnectionSection, ExtrasSection, InspirationSection, ServiceNotice, TimeSection, type Detect } from './SettingsSections.js';
 
 export function SettingsPage() {
   const [cfg, setCfg] = useState<Config | null>(null);
@@ -31,16 +32,34 @@ export function SettingsPage() {
   const frozen = cal.eligibleThrough > 0 && cal.season.kind === 'live';
   return (
     <div class="shell">
-      <Header current="settings" season={cal.season.year} demo={cal.season.kind !== 'live'} />
+      <Header current="settings" />
       <main style="padding-top:40px;max-width:860px;margin:0 auto">
-        <div class="eyebrow">Settings</div>
+        <p class="home-eyebrow" style="justify-content:flex-start">Settings</p>
         <h1 class="page-title">Your calendar, your rules.</h1>
-        <p class="page-sub">Everything is stored on this computer in <code class="inline">~/.advent-agent</code>. Season {cal.season.year} · {cal.season.timeZone} · {cal.season.mode} mode.</p>
-        <div class="paper"><ConnectionSection cfg={cfg} onChange={patch} detect={detect} /></div>
+        <div class="paper settings-block">
+          <h2 class="settings-h">Delivery</h2>
+          <p class="settings-q">When does your Secret Santa work?</p>
+          <DeliveryChoice mode={cfg.connection.mode} delivery={cfg.deliveryMode} scheduleTime={cfg.scheduleTime} unlockHour={cfg.unlockHour} frozenUnlock={frozen}
+            onChange={(p) => patch({ ...(p.delivery ? { deliveryMode: p.delivery } : {}), ...(p.scheduleTime ? { scheduleTime: p.scheduleTime } : {}), ...(p.unlockHour !== undefined ? { unlockHour: p.unlockHour } : {}) })} />
+          {cfg.deliveryMode === 'scheduled' && cfg.connection.mode === 'launched' && <ServiceNotice />}
+        </div>
+        <div class="paper settings-block">
+          <h2 class="settings-h">Budget</h2>
+          <p class="settings-q">How generous is your Secret Santa?</p>
+          <BudgetChoice value={cfg.budgets.generosity} onChange={(g) => patch({ budgets: { ...cfg.budgets, generosity: g } })} />
+        </div>
+        <div class="paper settings-block"><AboutYouSection profile={profile} onProfile={(p) => { setProfile(p); setDirty(true); }} /></div>
+        <div class="paper settings-block">
+          <h2 class="settings-h">Reminder</h2>
+          <p class="page-sub" style="margin-bottom:14px">One event a day in your own calendar app, when a door opens. A local file: no account, no tracking.</p>
+          <a class="secondary-button" href="/api/reminder.ics" download="advent-agent-doors.ics">Remind me when a door opens</a>
+        </div>
+        <div class="paper settings-block"><ConnectionSection cfg={cfg} onChange={patch} detect={detect} /></div>
+        <details class="advanced settings-more">
+          <summary>More settings</summary>
         <div class="paper" style="margin-top:20px"><TimeSection cfg={cfg} onChange={patch} deviceTimeZone={detect.deviceTimeZone} frozen={frozen} /></div>
-        <div class="paper" style="margin-top:20px"><DeliverySection cfg={cfg} onChange={patch} /></div>
-        <div class="paper" style="margin-top:20px"><ProfileSection cfg={cfg} onChange={patch} profile={profile} onProfile={(p) => { setProfile(p); setDirty(true); }} /></div>
         <div class="paper" style="margin-top:20px"><BudgetSection cfg={cfg} onChange={patch} /></div>
+        <div class="paper" style="margin-top:20px"><InspirationSection cfg={cfg} onChange={patch} /></div>
         <div class="paper" style="margin-top:20px"><ExtrasSection cfg={cfg} onChange={patch} /></div>
         <div class="paper" style="margin-top:20px">
           <section class="section" style="margin-top:0">
@@ -72,12 +91,13 @@ export function SettingsPage() {
             <div class="field" style="margin-top:14px"><label for="timeout">Preparation timeout (minutes)</label><input id="timeout" type="number" min={1} max={240} value={cfg.timeoutMinutes} onChange={(e) => patch({ timeoutMinutes: Number((e.target as HTMLInputElement).value) || 20 })} /></div>
           </section>
         </div>
+        </details>
         <div class="wizard-nav" style="position:sticky;bottom:12px;background:var(--cream);padding:12px 0">
           <span style="font-size:12px;color:var(--muted-strong);align-self:center">{dirty ? 'Unsaved changes' : 'All saved'}</span>
           <button class="primary-button" disabled={!dirty} onClick={save}>Save settings</button>
         </div>
       </main>
-      <footer class="footer-credit"><a href="https://deskmenace.com/advent?ref=aa-app" target="_blank" rel="noopener noreferrer">Advent Agent · made by Desk Menace</a></footer>
+      <Footer />
     </div>
   );
 }

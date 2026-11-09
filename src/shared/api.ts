@@ -24,6 +24,7 @@ export const CalendarResponseSchema = z.object({
   doors: z.array(PublicDoorSchema).length(24),
   gary: z.object({ show: z.boolean() }),
   setupComplete: z.boolean(),
+  onboardingDone: z.boolean(),
   demo: z.object({ simulatedDay: z.number().int().min(0).max(24).optional() }).optional(),
 });
 export type CalendarResponse = z.infer<typeof CalendarResponseSchema>;
@@ -41,7 +42,6 @@ export const RevealedGiftSchema = z.object({
     .optional(),
   bought: z.object({ at: z.string(), note: z.string().optional() }).optional(),
   feedback: z.object({ reaction: z.string().optional(), note: z.string().optional() }).optional(),
-  shareMark: z.boolean(),
 });
 export type RevealedGift = z.infer<typeof RevealedGiftSchema>;
 

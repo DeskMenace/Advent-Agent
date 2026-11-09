@@ -73,12 +73,9 @@ function Interactive(props: RendererProps) {
         referrerPolicy="no-referrer"
         allow="fullscreen"
       />
-      <div class="frame-bar">
-        <span>✦ Interactive · runs in a sandbox</span>
-        <span>
-          <button type="button" onClick={() => { if (ref.current) ref.current.src = props.url(primary); }}>Reset</button>{' '}
-          <button type="button" onClick={() => ref.current?.parentElement?.parentElement?.requestFullscreen?.()}>Full screen</button>
-        </span>
+      <div class="frame-tools">
+        <button type="button" aria-label="Start again" title="Start again" onClick={() => { if (ref.current) ref.current.src = props.url(primary); }}>↺</button>
+        <button type="button" aria-label="Full screen" title="Full screen" onClick={() => ref.current?.parentElement?.parentElement?.requestFullscreen?.()}>⤢</button>
       </div>
     </div>
   );
@@ -104,8 +101,6 @@ function AudioView(props: RendererProps) {
   return (
     <div class="media-inner">
       <div class="player">
-        <h3>{props.gift.gift.manifest.title}</h3>
-        <div class="caption">{(props.gift.gift.manifest.category ?? 'Original audio').toUpperCase()}</div>
         <audio controls preload="metadata" src={props.url(primary)}>Your browser cannot play this audio. Use the download below.</audio>
       </div>
     </div>
@@ -125,7 +120,6 @@ function VideoView(props: RendererProps) {
         {captions.map((c) => <track key={c.path} kind="captions" src={props.url(c.path)} label={c.title ?? 'Captions'} default />)}
         Your browser cannot play this video. Use the download below.
       </video>
-      <div class="video-label">✦ {(props.gift.gift.manifest.category ?? 'A little film').toUpperCase()} · plays inline</div>
     </div>
   );
 }
@@ -243,8 +237,8 @@ function SongView(props: RendererProps) {
   return (
     <div class="song-box">
       <div class="player" role="group" aria-label="Song player">
-        <h3>{score?.title ?? props.gift.gift.manifest.title}</h3>
-        <div class="caption">{score ? `${score.tempo} BPM${score.key ? ` · ${score.key}` : ''} · ${score.tracks.map((t) => t.voice ?? 'music box').join(', ')}` : err ? 'The score could not be read' : 'Loading the score…'}</div>
+        {score?.title && <h3>{score.title}</h3>}
+        {err && <div class="caption">The score could not be read.</div>}
         <div class="controls">
           <button type="button" onClick={playing ? stop : play} disabled={!score} aria-pressed={playing}>{playing ? '■ Stop' : '▶ Play'}</button>
           {lyrics.length > 0 && <button type="button" aria-pressed={sing} onClick={() => setSing(!sing)} title="A robot voice reads the lyrics in time. Clearly a robot.">{sing ? '🤖 Singing on' : '🤖 Robot singing'}</button>}
@@ -254,7 +248,6 @@ function SongView(props: RendererProps) {
       </div>
       {sheet !== null && sheet && (
         <div class="sheet">
-          <div class="control-label">Render it yourself</div>
           <RenderSheet text={sheet} />
         </div>
       )}
@@ -266,7 +259,7 @@ function RenderSheet(props: { text: string }) {
   const blocks = [...props.text.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((m) => m[1]!.trim());
   return (
     <div>
-      <div class="copy-row"><span style="font-size:12px;color:var(--muted-strong)">Lyrics, style tags and a ready-to-paste prompt for the music generator of your choice.</span><button class="secondary-button" onClick={async () => toast((await copyText(props.text)) ? 'Sheet copied.' : 'Could not copy.')}>Copy the whole sheet</button></div>
+      <div class="copy-row"><span /><button class="ghost-button" onClick={async () => toast((await copyText(props.text)) ? 'Copied.' : 'Could not copy.')}>Copy</button></div>
       <Markdown text={props.text} />
       {blocks.length > 0 && (
         <div class="button-row" style="margin-top:10px">
@@ -302,14 +295,12 @@ function RealWorldView(props: RendererProps) {
       {rw.items.map((item, i) => (
         <article class="rw-item" key={i}>
           <h3>{item.name}</h3>
-          <div class="rw-meta"><span>{item.vendor}</span><span>Price checked on {item.checkedAt}</span></div>
+          <div class="rw-meta"><span>{item.vendor}</span></div>
           {item.price !== undefined && <div class="rw-price">{item.price.toFixed(2)} {item.currency}</div>}
           {item.notes && <p style="margin:0;font-size:13px;color:var(--muted-strong)">{item.notes}</p>}
-          <a class="secondary-button" href={item.url} target="_blank" rel="noopener noreferrer" style="justify-self:start">Open at {new URL(item.url).hostname} ↗</a>
+          <a class="rw-link" href={item.url} target="_blank" rel="noopener noreferrer">{new URL(item.url).hostname} ↗</a>
         </article>
       ))}
-      <div class="rw-whatsleft"><strong>What’s left for you:</strong> {rw.whatsLeft}</div>
-      <p class="rw-honest">Your agent prepared this proposal. Buying or booking is yours to decide.</p>
     </div>
   );
 }
@@ -332,7 +323,6 @@ function DownloadView(props: RendererProps) {
   const files = props.gift.gift.files.filter((f) => !f.path.startsWith('.advent/'));
   return (
     <div class="media-inner">
-      <p class="detail-intro" style="text-align:center">This gift comes as files to save. The calendar does not run them.</p>
       <ul class="files-list">
         {files.map((f) => (
           <li key={f.path}>

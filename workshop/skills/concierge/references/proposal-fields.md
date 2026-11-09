@@ -12,7 +12,7 @@
 | `checkedAt` | yes | `YYYY-MM-DD` | Today, the day you verified |
 | `notes` | recommended | text ≤ 1000 | Shipping, cutoff, sizes, availability, cancellation |
 
-`realWorld.whatsLeft` (required, ≤ 2000): the steps for the person, ending with who decides, e.g. "The choice is yours: open the link to buy it."
+`realWorld.whatsLeft` (optional, ≤ 2000): no longer shown on the gift page. If the steps matter, put them in your note.
 
 ## `print[]`
 

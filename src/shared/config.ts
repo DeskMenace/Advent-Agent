@@ -51,6 +51,8 @@ export const ConfigSchema = z.object({
   schemaVersion: z.literal(1).default(1),
   setupComplete: z.boolean().default(false),
   firstRunShown: z.boolean().default(false),
+  /** The 2-step first-launch onboarding (Delivery, Budget) was completed or dismissed. */
+  onboardingDone: z.boolean().default(false),
   locale: z.string().default('en'),
   language: z.string().default('en'),
   timeZone: z.string().default('UTC'),
@@ -113,6 +115,7 @@ export const SeasonSchema = z.object({
 export type Season = z.infer<typeof SeasonSchema>;
 
 export const PROFILE_FIELDS = [
+  'name',
   'hobbies',
   'humour',
   'dislikes',
@@ -127,6 +130,8 @@ export type ProfileField = (typeof PROFILE_FIELDS)[number];
 
 export const ProfileSchema = z.object({
   schemaVersion: z.literal(1).default(1),
+  /** What to call the recipient. */
+  name: z.string().max(80).default(''),
   hobbies: z.array(z.string().max(120)).default([]),
   humour: z.string().max(300).default(''),
   dislikes: z.array(z.string().max(120)).default([]),

@@ -24,3 +24,6 @@ The UI is built with Preact (MIT) and Vite (MIT) and ships as static files. Font
 ## Fixture gifts
 
 The demo gifts in `fixtures/gifts/` were made for this project and are MIT like the rest of the repository. They contain no real personal content.
+
+## Fonts
+- **Fraunces** (Undercase Type) and **Instrument Sans** (Instrument), SIL Open Font License 1.1, bundled through `@fontsource/fraunces` and `@fontsource/instrument-sans`. Latin subset only; no remote font loading.

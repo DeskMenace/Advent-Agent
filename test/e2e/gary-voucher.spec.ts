@@ -38,7 +38,8 @@ test.describe('Gary (E6)', () => {
     });
     expect(credit).toMatchObject({ text: expect.stringMatching(/Hire Gary/), href: 'https://deskmenace.com/?ref=aa-gary' });
     // Not on other pages.
-    for (const path of ['/gifts', '/settings', '/door/8', '/gift/2026/8']) {
+    for (const path of ['/gifts', '/settings', '/gifts/8']) {
+      await api('POST', '/api/doors/8/reveal').catch(() => undefined);
       await page.goto(path);
       await page.waitForTimeout(500);
       const hostOnPage = await page.evaluate(() => Array.from(document.documentElement.children).some((el) => el.shadowRoot !== null && !['BODY', 'HEAD'].includes(el.tagName)));
@@ -74,44 +75,18 @@ test.describe('Gary (E6)', () => {
   });
 });
 
-test.describe('voucher (E7)', () => {
-  const promoFile = join(process.cwd(), 'src', 'promo', 'promo.json');
-  test('E7.1–E7.3 the slip appears on the configured door after reveal, never before, never elsewhere', async ({ page }) => {
+test.describe('voucher (E7, D26)', () => {
+  test('nothing from the makers appears inside a gift: the slip is not shown on any gift page', async ({ page }) => {
     await setDemoDay(8);
-    // Door 6 is the configured day; the slip only shows when the shipped promo.json has a real code.
-    const promo = JSON.parse(readFileSync(promoFile, 'utf8')) as { code: string; day: number };
-    const hasCode = promo.code && !promo.code.includes('<SET AT RELEASE>');
+    const promoFile = join(process.cwd(), 'src', 'promo', 'promo.json');
+    const promo = JSON.parse(readFileSync(promoFile, 'utf8')) as { day: number };
     await resetDoor(promo.day);
     const unrevealed = await api<{ promo?: unknown }>('GET', `/api/doors/${promo.day}/gift`);
     expect(JSON.stringify(unrevealed)).not.toContain('"promo"');
-    await login(page, `/door/${promo.day}`);
-    await page.waitForURL(new RegExp(`/gift/2026/${promo.day}$`));
-    if (hasCode) {
-      await expect(page.locator('.slip')).toBeVisible();
-      await expect(page.locator('.slip .code')).toHaveText(promo.code);
-      await expect(page.locator('.slip a')).toHaveAttribute('href', /ref=aa-voucher/);
-    } else {
-      await expect(page.locator('.slip')).toHaveCount(0);
-    }
-    await login(page, '/gift/2026/5');
+    await api('POST', `/api/doors/${promo.day}/reveal`);
+    await login(page, `/gifts/${promo.day}`);
+    await expect(page.locator('#gift-title')).toBeVisible();
     await expect(page.locator('.slip')).toHaveCount(0);
-    await login(page, '/gift/2026/7');
-    await expect(page.locator('.slip')).toHaveCount(0);
-  });
-
-  test('the slip is driven by promo.json (code set → shown after reveal; expired → hidden)', async ({ page }) => {
-    // Exercise the UI with a live decision by temporarily writing the promo module input used by the running companion.
-    // The companion caches promo.json at first read, so this test asserts the UI contract through the API payload instead.
-    const s = state();
-    const file = join(s.demoHome, 'seasons', '2026', 'doors', '06', 'state.json');
-    const st = JSON.parse(readFileSync(file, 'utf8'));
-    expect(st.day).toBe(6);
-    writeFileSync(file, JSON.stringify(st));
-    const g = await api<{ promo?: { code: string } }>('GET', '/api/doors/6/gift');
-    const promo = JSON.parse(readFileSync(promoFile, 'utf8')) as { code: string };
-    if (promo.code.includes('<SET AT RELEASE>')) expect(g.promo).toBeUndefined();
-    else expect(g.promo?.code).toBe(promo.code);
-    await login(page, '/gift/2026/6');
-    await expect(page.locator('h1.gift-title')).toBeVisible();
+    void state; void writeFileSync;
   });
 });

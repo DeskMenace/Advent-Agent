@@ -37,7 +37,7 @@ If a kit block named here is missing, build the effect yourself (CSS 3D transfor
 
 ## The share frame
 
-Design it while you write. A card: opened, the pop-up standing, the best line legible on a phone. A deadpan award: the certificate stamped, title and seal readable. A letter: the envelope half-open with the first line showing. Expose `window.adventCapture.prepare(kind)` that puts the page in that state with the buttons hidden, and declare `"share": { "still": { "capture": "still" }, "caption": "…" }`. Keep the bottom-right 160×48 px clear.
+Design it while you write. A card: opened, the pop-up standing, the best line legible on a phone. A deadpan award: the certificate stamped, title and seal readable. A letter: the envelope half-open with the first line showing. Expose `window.adventCapture.prepare(kind)` that puts the page in that state with the buttons hidden, and declare `"share": { "still": { "capture": "still" } }`.
 
 Salutations, names, addresses and places go in elements with `data-advent-private` (and in `share.privateText`) so the privacy preview can blur them. Anything sensitive stays out of the share frame entirely.
 

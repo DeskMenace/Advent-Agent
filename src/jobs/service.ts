@@ -17,7 +17,7 @@ import { APP_PORT, GIFT_PORT } from '../core/paths.js';
 import { readSealedGift, reportForAgent, runGate, sealGift, type GateInput, type GateResult } from '../intake/gate.js';
 import type { AgentContext, CalendarResponse, GateReport, RevealedGift, ShelfItem } from '../shared/api.js';
 import type { Config, HistoryRecord, Profile, Season } from '../shared/config.js';
-import type { ConnectionMode, DoorState } from '../shared/door.js';
+import type { ConnectionMode, DoorState, PublicDoor } from '../shared/door.js';
 import type { ProgressPhase } from '../shared/gift.js';
 import { AgentRun, DEFAULT_PROMPT } from './runner.js';
 import { runProvider, ProviderRefused, type GenerateImageParams } from '../providers/index.js';
@@ -141,11 +141,12 @@ export class CalendarService {
         doors: Array.from({ length: 24 }, (_, i) => toPublicDoor({ day: i + 1, jobState: 'not_requested', attempt: 0, attempts: [], revealed: false, updatedAt: now.toISOString(), schemaVersion: 1 }, false, false)),
         gary: { show: cfg.gary.show },
         setupComplete: cfg.setupComplete,
+        onboardingDone: cfg.onboardingDone,
       };
     }
     const now = this.clock(season).now();
     const elig = computeEligibility(now, season);
-    const doors = this.store.doors(season.year).readAll().map((d) => toPublicDoor(d, d.day <= elig.eligibleThrough, d.day === elig.todayDay));
+    const doors = this.store.doors(season.year).readAll().map((d) => this.decorate(season, d, toPublicDoor(d, d.day <= elig.eligibleThrough, d.day === elig.todayDay)));
     const opened = doors.filter((d) => d.revealed).length;
     return {
       season: { year: season.year, timeZone: season.timeZone, unlockHour: season.unlockHour, deliveryMode: season.deliveryMode, mode: season.connection.mode, adapter: season.connection.adapter, kind: season.kind },
@@ -159,6 +160,7 @@ export class CalendarService {
       doors,
       gary: { show: cfg.gary.show },
       setupComplete: cfg.setupComplete,
+      onboardingDone: cfg.onboardingDone,
       demo: season.kind !== 'live' ? { simulatedDay: readDemoState(this.store.home.root).simulatedDay } : undefined,
     };
   }
@@ -211,7 +213,14 @@ export class CalendarService {
 
   private publish(season: Season, state: DoorState): void {
     const elig = computeEligibility(this.clock(season).now(), season);
-    this.events.emitSse({ type: 'door', door: toPublicDoor(state, state.day <= elig.eligibleThrough, state.day === elig.todayDay) });
+    this.events.emitSse({ type: 'door', door: this.decorate(season, state, toPublicDoor(state, state.day <= elig.eligibleThrough, state.day === elig.todayDay)) });
+  }
+
+  /** Opened doors carry their title and thumbnail (already revealed, so never a spoiler). */
+  private decorate(season: Season, state: DoorState, door: PublicDoor): PublicDoor {
+    if (!state.revealed || !state.gift) return door;
+    const thumb = state.gift.thumbnail;
+    return { ...door, title: state.gift.manifest.title, thumbnailUrl: thumb ? `http://127.0.0.1:${this.giftPort}/g/${this.giftToken(season.year, state.day)}/${thumb}` : undefined };
   }
 
   private save(season: Season, state: DoorState): DoorState {
@@ -223,7 +232,8 @@ export class CalendarService {
   publicDoor(day: number) {
     const season = this.requireSeason();
     const elig = computeEligibility(this.clock(season).now(), season);
-    return toPublicDoor(this.doorsOf(season).read(day), day <= elig.eligibleThrough, day === elig.todayDay);
+    const state = this.doorsOf(season).read(day);
+    return this.decorate(season, state, toPublicDoor(state, day <= elig.eligibleThrough, day === elig.todayDay));
   }
 
   // ---- opening, retry, cancel ---------------------------------------------------------------
@@ -508,7 +518,6 @@ export class CalendarService {
       promo: promoFor(loadPromo(), state.day, state.revealed, today),
       bought: state.bought,
       feedback: state.feedback ? { reaction: state.feedback.reaction, note: state.feedback.note } : undefined,
-      shareMark: cfg.share.mark,
     };
   }
 

@@ -1,29 +1,28 @@
 /**
- * Share panel (D20, D21): privacy preview first, then Share (Web Share API with files where supported),
- * Download still / loop / standalone file, print files. Nothing is uploaded by the calendar.
- * When the companion could not stamp a file (no Chrome/Edge on this machine), the mark is added here.
+ * Share sheet (handoff §1.6, D20, D26) and Save menu. Gifts live on this computer, so every share exports the gift
+ * (no mark, D26) and then hands the user off to the network. The privacy preview always comes first.
+ * Never loads a network's SDK or scripts; nothing is uploaded by the calendar.
  */
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { saveBlob } from '../api.js';
 import { copyText, toast } from '../lib/ui.js';
+import { CopyIcon, Facebook, Instagram, ShareIcon, TikTok, XLogo } from './Icons.js';
 
-const MARK_TEXT = 'Made by my Advent Agent · more gifts at deskmenace.com';
-
-interface ShareInfo {
+export interface ShareInfo {
   title: string;
-  note: string;
+  /** Fixed caption and link (D26), from the companion so there is one source of truth. */
   caption: string;
+  url: string;
   privateText: string[];
   kind: string;
-  shareMark: boolean;
   browser: boolean;
   ffmpeg: boolean;
   still: 'capture' | 'file' | 'unavailable';
   loop: 'capture' | 'file' | 'none';
   loopDurationMs?: number;
-  downloads: Array<{ label: string; file: string }>;
-  print: Array<{ service: string; url: string; product?: string; price?: number; currency?: string; checkedAt?: string; shipsTo?: string; file?: string }>;
 }
+
+type Media = { blob: Blob; name: string };
 
 async function get(path: string): Promise<Response> {
   const r = await fetch(path, { credentials: 'same-origin' });
@@ -38,156 +37,201 @@ function fileName(r: Response, fallback: string): string {
   return r.headers.get('content-disposition')?.match(/filename="([^"]+)"/)?.[1] ?? fallback;
 }
 
-/** Client-side mark for images the companion could not stamp. */
-async function stampImageBlob(blob: Blob): Promise<Blob> {
+export function loadShareInfo(day: number): Promise<ShareInfo> {
+  return get(`/api/share/${day}/preview`).then((r) => r.json() as Promise<ShareInfo>);
+}
+
+async function exportStill(day: number, blur: boolean): Promise<Media> {
+  const r = await get(`/api/share/${day}/still?blur=${blur ? 1 : 0}`);
+  return { blob: await r.blob(), name: fileName(r, `advent-day-${day}.png`) };
+}
+
+async function exportLoop(day: number, blur: boolean, info: ShareInfo): Promise<Media> {
+  const r = await get(`/api/share/${day}/loop?blur=${blur ? 1 : 0}${info.ffmpeg ? '&format=mp4' : ''}`);
+  return { blob: await r.blob(), name: fileName(r, `advent-day-${day}.${info.ffmpeg ? 'mp4' : 'webm'}`) };
+}
+
+function canShareFiles(): boolean {
+  try {
+    return Boolean(navigator.canShare?.({ files: [new File([''], 'gift.png', { type: 'image/png' })] }));
+  } catch {
+    return false;
+  }
+}
+
+const canCopyImage = () => typeof window !== 'undefined' && 'ClipboardItem' in window && Boolean(navigator.clipboard?.write);
+
+function openTab(url: string): void {
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+/** Hand-off URLs for each network (D26). Exported for tests. */
+export function intentUrl(network: 'x' | 'facebook' | 'instagram' | 'tiktok', caption: string, link: string): string {
+  switch (network) {
+    case 'x': return `https://x.com/intent/post?text=${encodeURIComponent(caption)}&url=${encodeURIComponent(link)}`;
+    case 'facebook': return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`;
+    case 'instagram': return 'https://www.instagram.com/';
+    case 'tiktok': return 'https://www.tiktok.com/upload';
+  }
+}
+
+async function toPng(blob: Blob): Promise<Blob> {
+  if (blob.type === 'image/png') return blob;
   const url = URL.createObjectURL(blob);
   try {
     const img = await new Promise<HTMLImageElement>((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = url; });
     const c = document.createElement('canvas');
     c.width = img.naturalWidth; c.height = img.naturalHeight;
-    const g = c.getContext('2d')!;
-    g.drawImage(img, 0, 0);
-    drawMark(g, c.width, c.height);
+    c.getContext('2d')!.drawImage(img, 0, 0);
     return await new Promise<Blob>((res) => c.toBlob((b) => res(b!), 'image/png'));
   } finally {
     URL.revokeObjectURL(url);
   }
 }
 
-function drawMark(g: CanvasRenderingContext2D, w: number, h: number): void {
-  const fs = Math.max(11, Math.round(w / 72));
-  g.font = `600 ${fs}px -apple-system, Segoe UI, Arial, sans-serif`;
-  const tw = g.measureText(MARK_TEXT).width;
-  const pad = fs * 0.7;
-  const bw = tw + pad * 2, bh = fs * 2, x = w - bw - fs, y = h - bh - fs;
-  g.fillStyle = 'rgba(255,250,240,.9)';
-  g.beginPath(); g.roundRect(x, y, bw, bh, bh / 2); g.fill();
-  g.fillStyle = '#3b4a43';
-  g.textBaseline = 'middle';
-  g.fillText(MARK_TEXT, x + pad, y + bh / 2);
-}
-
-/** Client-side mark for a loop the agent provided (re-recorded through a canvas). */
-async function stampVideoBlob(blob: Blob): Promise<Blob> {
-  const url = URL.createObjectURL(blob);
-  const v = document.createElement('video');
-  v.src = url; v.muted = true; v.playsInline = true;
-  await new Promise((r) => { v.onloadeddata = r; });
-  const c = document.createElement('canvas');
-  c.width = v.videoWidth; c.height = v.videoHeight;
-  const g = c.getContext('2d')!;
-  const rec = new MediaRecorder(c.captureStream(30), { mimeType: 'video/webm' });
-  const chunks: Blob[] = [];
-  rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
-  const done = new Promise<void>((r) => { rec.onstop = () => r(); });
-  rec.start(200);
-  await v.play();
-  await new Promise<void>((r) => {
-    const tick = () => { g.drawImage(v, 0, 0); drawMark(g, c.width, c.height); if (v.ended) r(); else requestAnimationFrame(tick); };
-    tick();
-  });
-  rec.stop();
-  await done;
-  URL.revokeObjectURL(url);
-  return new Blob(chunks, { type: 'video/webm' });
-}
-
 export function SharePanel(props: { day: number; onClose: () => void }) {
   const { day } = props;
   const [info, setInfo] = useState<ShareInfo | null>(null);
   const [blur, setBlur] = useState(true);
-  const [includeNote, setIncludeNote] = useState(false);
-  const [preview, setPreview] = useState<{ url: string; blob: Blob; name: string } | null>(null);
+  const [still, setStill] = useState<(Media & { url: string }) | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const dialog = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    get(`/api/share/${day}/preview`).then((r) => r.json()).then((i: ShareInfo) => { setInfo(i); if (!i.privateText.length) setBlur(false); }).catch((e) => toast((e as Error).message));
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') props.onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    loadShareInfo(day).then((i) => { setInfo(i); if (!i.privateText.length) setBlur(false); }).catch((e) => toast((e as Error).message));
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); props.onClose(); } };
+    window.addEventListener('keydown', onKey, true);
+    dialog.current?.focus();
+    return () => window.removeEventListener('keydown', onKey, true);
   }, [day]);
-
-  const q = () => `blur=${blur ? 1 : 0}&note=${includeNote ? 1 : 0}`;
-
-  const loadStill = async (): Promise<{ blob: Blob; name: string }> => {
-    const r = await get(`/api/share/${day}/still?${q()}`);
-    let blob = await r.blob();
-    if (r.headers.get('x-advent-stamped') === '0') blob = await stampImageBlob(blob);
-    return { blob, name: fileName(r, `advent-agent-day-${day}.png`) };
-  };
 
   useEffect(() => {
     if (!info || info.still === 'unavailable') return;
     let alive = true;
     setBusy('preview');
-    loadStill().then((s) => {
+    exportStill(day, blur).then((s) => {
       if (!alive) return;
-      setPreview((old) => { if (old) URL.revokeObjectURL(old.url); return { url: URL.createObjectURL(s.blob), blob: s.blob, name: s.name }; });
+      setStill((old) => { if (old) URL.revokeObjectURL(old.url); return { ...s, url: URL.createObjectURL(s.blob) }; });
     }).catch((e) => toast((e as Error).message)).finally(() => alive && setBusy(null));
     return () => { alive = false; };
   }, [info, blur]);
 
-  const run = async (label: string, fn: () => Promise<void>) => {
+  const animated = info ? info.loop !== 'none' : false;
+  const run = async (label: string, fn: () => Promise<void> | void) => {
     setBusy(label);
     try { await fn(); } catch (e) { toast((e as Error).message); } finally { setBusy(null); }
   };
+  const needStill = (): Media => { if (!still) throw new Error('The picture is still being prepared.'); return still; };
 
-  const downloadLoop = () => run('loop', async () => {
-    const r = await get(`/api/share/${day}/loop?${q()}`);
-    let blob = await r.blob();
-    if (r.headers.get('x-advent-stamped') === '0' && blob.type.startsWith('video/')) blob = await stampVideoBlob(blob);
-    saveBlob(blob, fileName(r, `advent-agent-day-${day}-loop.webm`));
+  const native = () => run('native', async () => {
+    // The still keeps the user gesture alive (recording a loop first would make the browser refuse the share sheet).
+    const s = needStill();
+    const file = new File([s.blob], s.name, { type: s.blob.type });
+    await navigator.share({ files: [file], text: `${info!.caption} ${info!.url}` }).catch((e: Error) => { if (e.name !== 'AbortError') throw e; });
   });
-  const downloadStandalone = () => run('file', async () => {
-    const r = await get(`/api/share/${day}/standalone?${q()}`);
-    saveBlob(await r.blob(), fileName(r, `advent-agent-day-${day}.html`));
+  const x = () => run('x', () => {
+    const s = needStill();
+    saveBlob(s.blob, s.name);
+    openTab(intentUrl('x', info!.caption, info!.url));
+    toast('Image saved. Add it to your post.');
   });
-  const nativeShare = () => run('share', async () => {
-    const still: { blob: Blob; name: string } = preview ?? (await loadStill());
-    const file = new File([still.blob], still.name, { type: still.blob.type });
-    const data = { files: [file], text: info?.caption, title: info?.title };
-    if (navigator.canShare?.(data)) {
-      await navigator.share(data).catch((e: Error) => { if (e.name !== 'AbortError') throw e; });
-    } else {
-      saveBlob(still.blob, still.name);
-      const copied = info?.caption ? await copyText(info.caption) : false;
-      toast(copied ? 'Saved the image and copied the caption. Paste it wherever you share.' : 'Saved the image. Share it wherever you like.');
-    }
+  const facebook = () => run('facebook', () => {
+    const s = needStill();
+    saveBlob(s.blob, s.name);
+    openTab(intentUrl('facebook', info!.caption, info!.url));
+    toast('Image saved. Add it to your post.');
+  });
+  // Instagram and TikTok: links aren't clickable there, so only the caption is copied.
+  const instagram = () => run('instagram', async () => {
+    await copyText(info!.caption);
+    openTab(intentUrl('instagram', info!.caption, info!.url));
+    const media = animated ? await exportLoop(day, blur, info!) : needStill();
+    saveBlob(media.blob, media.name);
+    toast('Saved and caption copied. Upload it on Instagram.');
+  });
+  const tiktok = () => run('tiktok', async () => {
+    await copyText(info!.caption);
+    openTab(intentUrl('tiktok', info!.caption, info!.url));
+    const media = animated ? await exportLoop(day, blur, info!) : needStill();
+    saveBlob(media.blob, media.name);
+    toast('Saved and caption copied. Upload it on TikTok.');
+  });
+  const copyImage = () => run('copy-image', async () => {
+    const png = await toPng(needStill().blob);
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': png })]);
+    toast('Image copied.');
   });
 
+  const disabled = Boolean(busy) || !still;
   return (
-    <div class="dialog-backdrop" onClick={(e) => { if (e.target === e.currentTarget) props.onClose(); }}>
-      <div class="dialog share-dialog" role="dialog" aria-modal="true" aria-labelledby="share-title">
-        <h2 id="share-title">Share this gift</h2>
-        <p class="page-sub" style="margin-bottom:12px">The calendar lives on your computer, so sharing means saving a picture, a short video or the gift itself as a file. Nothing is uploaded. Here is what would leave your computer:</p>
-        {!info ? <p class="empty">Preparing the preview…</p> : (
+    <div class="dialog-backdrop share-backdrop" onClick={(e) => { if (e.target === e.currentTarget) props.onClose(); }}>
+      <div class="dialog share-sheet" role="dialog" aria-modal="true" aria-labelledby="share-title" tabIndex={-1} ref={dialog}>
+        <div class="sheet-head">
+          <h2 id="share-title">Share</h2>
+          <button type="button" class="icon-close" aria-label="Close" onClick={props.onClose}>×</button>
+        </div>
+        {!info ? <p class="empty">…</p> : (
           <>
             <div class="share-preview" aria-live="polite">
-              {preview ? <img src={preview.url} alt={`Share image of ${info.title}${blur ? ', private details blurred' : ''}`} /> : <p class="empty">{info.still === 'unavailable' ? 'No picture can be made here: this computer has no Chrome or Edge, and the gift has no share image. You can still save the gift itself.' : busy === 'preview' ? 'Capturing…' : ''}</p>}
+              {still ? <img src={still.url} alt={`What will be shared${blur ? ', private details blurred' : ''}`} />
+                : <p class="empty">{info.still === 'unavailable' ? 'No picture can be made on this computer.' : '…'}</p>}
             </div>
-            {info.privateText.length > 0 || info.still !== 'unavailable' ? (
-              <label class="check"><input type="checkbox" checked={blur} onChange={(e) => setBlur((e.target as HTMLInputElement).checked)} /><span class="check-text">Blur private details<small>{info.privateText.length ? `Blurs ${info.privateText.map((t) => `“${t}”`).join(', ')} and anything your Secret Santa marked as private.` : 'Blurs anything your Secret Santa marked as private.'}</small></span></label>
-            ) : null}
-            <label class="check"><input type="checkbox" checked={includeNote} onChange={(e) => setIncludeNote((e.target as HTMLInputElement).checked)} /><span class="check-text">Include the note in the saved gift file<small>The note is often personal. Pictures and videos never include it.</small></span></label>
-            <div class="copy-row"><span style="font-size:13px"><strong>Caption:</strong> {info.caption}</span><button class="ghost-button" onClick={async () => toast((await copyText(info.caption)) ? 'Caption copied.' : 'Could not copy.')}>Copy</button></div>
-            <div class="gift-actions" style="margin-top:12px">
-              <button class="primary-button" disabled={Boolean(busy) || info.still === 'unavailable'} onClick={nativeShare}>{busy === 'share' ? 'Opening…' : 'Share…'}</button>
-              <button class="secondary-button" disabled={!preview} onClick={() => preview && saveBlob(preview.blob, preview.name)}>Download picture (1080×1350)</button>
-              {info.loop !== 'none' && <button class="secondary-button" disabled={Boolean(busy)} onClick={downloadLoop}>{busy === 'loop' ? 'Recording…' : `Download short video${info.loop === 'capture' ? ` (${Math.round((info.loopDurationMs ?? 6000) / 1000)} s${info.ffmpeg ? ', MP4' : ', WebM'})` : ''}`}</button>}
-              <button class="secondary-button" disabled={Boolean(busy)} onClick={downloadStandalone}>{busy === 'file' ? 'Packing…' : 'Download the gift as a file'}</button>
-              {info.downloads.map((d) => <a key={d.file} class="ghost-button" href={`/api/share/${day}/download?file=${encodeURIComponent(d.file)}`} download>{d.label}</a>)}
+            <label class="toggle-row">
+              <input type="checkbox" checked={blur} onChange={(e) => setBlur((e.target as HTMLInputElement).checked)} />
+              <span>Blur private details{info.privateText.length ? <small> ({info.privateText.length})</small> : null}</span>
+            </label>
+            <div class="share-grid">
+              {canShareFiles() && <button type="button" class="share-btn wide" data-share="native" disabled={disabled} onClick={native}><ShareIcon /> Share…</button>}
+              <button type="button" class="share-btn" data-share="x" disabled={disabled} onClick={x}><XLogo /> X</button>
+              <button type="button" class="share-btn" data-share="facebook" disabled={disabled} onClick={facebook}><Facebook /> Facebook</button>
+              <button type="button" class="share-btn" data-share="instagram" disabled={disabled} onClick={instagram}><Instagram /> {busy === 'instagram' ? 'Recording…' : 'Instagram'}</button>
+              <button type="button" class="share-btn" data-share="tiktok" disabled={disabled} onClick={tiktok}><TikTok /> {busy === 'tiktok' ? 'Recording…' : 'TikTok'}</button>
+              {canCopyImage() && <button type="button" class="share-btn" data-share="copy-image" disabled={disabled} onClick={copyImage}><CopyIcon /> Copy image</button>}
             </div>
-            {info.print.length > 0 && (
-              <div class="feedback">
-                <div class="label">Print it for real (you order, if you want)</div>
-                <ul class="files-list">{info.print.map((p) => <li key={p.url}><span>{p.service}{p.product ? ` · ${p.product}` : ''}{p.price !== undefined ? ` · ${p.price} ${p.currency ?? ''}` : ''}{p.checkedAt ? ` (checked ${p.checkedAt})` : ''}{p.shipsTo ? ` · ships to ${p.shipsTo}` : ''}</span><a class="ghost-button" href={p.url} target="_blank" rel="noopener noreferrer">Open ↗</a></li>)}</ul>
-              </div>
-            )}
-            <p class="hint" style="font-size:12px;color:var(--muted-strong);margin-top:12px">{info.shareMark ? 'Exports carry a small “Made by my Advent Agent” mark in the corner. You can turn it off in Settings.' : 'The Advent Agent mark is off in your Settings.'}</p>
           </>
         )}
-        <div class="button-row" style="justify-content:flex-end;margin-top:8px"><button class="ghost-button" onClick={props.onClose}>Close</button></div>
       </div>
+    </div>
+  );
+}
+
+interface SaveOption { id: string; label: string; format: string }
+
+/** Save menu: the gift itself in its natural format, then the agent's own extra files (D26). */
+export function SaveMenu(props: { day: number }) {
+  const [open, setOpen] = useState(false);
+  const [options, setOptions] = useState<SaveOption[] | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+  const root = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    if (!options) get(`/api/save/${props.day}`).then((r) => r.json()).then((d: { options: SaveOption[] }) => setOptions(d.options)).catch((e) => toast((e as Error).message));
+    const onDoc = (e: MouseEvent) => { if (!root.current?.contains(e.target as Node)) setOpen(false); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); setOpen(false); } };
+    document.addEventListener('mousedown', onDoc);
+    window.addEventListener('keydown', onKey, true);
+    return () => { document.removeEventListener('mousedown', onDoc); window.removeEventListener('keydown', onKey, true); };
+  }, [open]);
+  const save = async (o: SaveOption) => {
+    setBusy(o.id);
+    try {
+      const r = await get(`/api/save/${props.day}/file?id=${encodeURIComponent(o.id)}`);
+      saveBlob(await r.blob(), fileName(r, `advent-day-${props.day}`));
+      setOpen(false);
+    } catch (e) { toast((e as Error).message); } finally { setBusy(null); }
+  };
+  return (
+    <div class="save-menu" ref={root}>
+      <button type="button" class="action-btn" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)}>Save</button>
+      {open && (
+        <div class="menu" role="menu">
+          {!options ? <span class="menu-note">…</span> : options.map((o) => (
+            <button key={o.id} role="menuitem" type="button" data-save={o.id} disabled={Boolean(busy)} onClick={() => save(o)}>
+              {busy === o.id ? '…' : o.label}<small>{o.format}</small>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -104,7 +104,6 @@ export function buildManifest(root: string, files: UnpackedFile[], opts: { day?:
       {
         day: opts.day,
         title: decodeEntities(title).slice(0, 160),
-        note: 'Your Secret Santa dropped this one straight into the envelope, without a card. Open it and see.',
         primary: html.path,
         artifacts: nonDir.map((f) => ({ path: f.path, kind: f === html ? 'interactive-html' : kindForFile(f.path), role: f === html ? 'primary' : 'asset' })),
       },
@@ -131,7 +130,6 @@ export function buildManifest(root: string, files: UnpackedFile[], opts: { day?:
       {
         day: opts.day,
         title: opts.pastedTitle ?? titleFromFilename(primary.path),
-        note: 'Your Secret Santa dropped this one straight into the envelope, without a card. Open it and see.',
         primary: primary.path,
         artifacts: nonDir.map((f) => ({ path: f.path, kind: f.downloadOnly ? 'download' : kindForFile(f.path), role: f === primary ? 'primary' : 'download' })),
       },
@@ -157,8 +155,6 @@ export function manifestFromText(text: string, day: number, path = 'gift.md', fa
   return {
     day,
     title,
-    category: 'A little letter',
-    note: 'Your Secret Santa wrote this one by hand, so to speak. Read it slowly.',
     primary: path,
     artifacts: [{ path, kind: 'document', role: 'primary' }],
   };

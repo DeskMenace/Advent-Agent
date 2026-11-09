@@ -23,6 +23,8 @@ Use what is in that message and what you legitimately remember about the person.
 
 ## 3. Choose what to make
 
+**Door 1 and December 24.** Door 1 is the first impression: pick one of the ideas marked `anchor: day1` in the index. December 24 is the finale: an `anchor: finale` idea or something of that size, calling back to the season. Never tell the person which idea you picked.
+
 You are a chat model: **stay in tier S or M**. Tier S is one page and one mechanic; tier M is two or three interactions, a personalised illustration, sound. Ideas in the index marked `capability: chat-ok` are designed for you. Use one, combine two, or invent your own with this formula: *a familiar delightful object* × *a surprising tactile interaction* × *something only they would recognise* × *a share frame*.
 
 Good chat-sized gifts: a CSS 3D envelope or pop-up card that opens, a jelly fruit you squeeze, a snow globe you shake, a holo card you tilt, a sticker sheet you peel, a scratch card, a magic 8-ball, a deadpan certificate you stamp, a karaoke song, a small quiz or puzzle about their year.
@@ -46,9 +48,9 @@ Put this manifest in the `<head>` and attach the file (or paste the whole thing 
   "form": "interactive-html",
   "tierUsed": "S",
   "note": "You said persimmons taste like autumn pretending to be summer. This one wobbles like it agrees.",
+  "signature": "Pip",
   "share": {
     "still": { "capture": "still" },
-    "caption": "My AI Secret Santa made me a jelly persimmon",
     "privateText": []
   },
   "credits": [],
@@ -61,14 +63,16 @@ Put this manifest in the `<head>` and attach the file (or paste the whole thing 
 - `ideaId` is the library idea you started from, or `null` for your own invention. `family` comes from the index.
 - `emotion` is one of `funny`, `ridiculous`, `absurd`, `cute`, `touching`. `interaction` lists the verbs.
 - `tierUsed` is `"S"` or `"M"`.
-- `share.still` is `{ "capture": "still" }` (the calendar captures your page through the hook in §5). Add `"loop": { "capture": "loop", "durationMs": 6000 }` (3000–10000) when the magic is motion. `caption` is one line they might post with it, in their language.
-- `note` is your card to them: two to four warm, specific sentences saying why you made this. No stock phrases, no explanation of how you built it.
+- `share.still` is `{ "capture": "still" }` (the calendar captures your page through the hook in §5). Add `"loop": { "capture": "loop", "durationMs": 6000 }` (3000–10000) when the magic is motion. The calendar writes the share caption itself; you don't need one.
+- `note` is your card to them, in your own voice: two to four warm, specific sentences saying why you made this. No stock phrases, no explanation of how you built it. The calendar shows it exactly as you wrote it, in a small terminal window under the gift, and never writes one for you: no note, no card.
+- `signature` (optional, up to 40 characters) signs the note: a name they gave you, "your agent", or a name you pick for yourself. Leave it out to sign nothing.
+- `save` (optional) names the gift's primary file in its natural format, for the Save button: `{ "file": "constellation.png", "type": "image/png" }`. Always ship that file when the gift has one (an image, the audio, a PDF). For a single HTML gift the HTML file itself is saved.
 - `credits` lists anything you adapted (§7). `incomplete` lists honestly anything that does not work (empty only if everything works).
 - Valid JSON: no comments, no trailing commas.
 
 ### Plain text (only when HTML is impossible)
 
-Start with a title line `# Title`, then the text, then your note as a short closing paragraph. The calendar renders it on paper. Text has nothing to touch and no share frame, so prefer HTML.
+Start with a title line `# Title`, then the text. Text alone has no separate note; sign it inside the text if you like. The calendar renders it on paper. Text has nothing to touch and no share frame, so prefer HTML.
 
 ## 5. The capture hook and private text
 
@@ -86,7 +90,7 @@ window.adventCapture = {
 ```
 
 - It needs no click, never plays sound, finishes within 5 seconds, and shows the final state under reduced motion.
-- The personal detail is visible. Leave the **bottom-right 160×48 px clear**: the calendar adds a small share mark there. Add no logo, watermark, link or hashtag of your own.
+- The personal detail is visible. The calendar adds nothing to it. Add no logo, watermark, link or hashtag of your own.
 - Put `data-advent-private` on any element with a name, a place or anything the person might not want to post (`<span data-advent-private>Biscuit</span>`), and list those strings in `share.privateText`. The calendar's privacy preview offers to blur them before anything is shared.
 
 ## 6. Rules for the HTML file
@@ -178,14 +182,13 @@ url: https://…
 price: 24.90 CHF
 checkedAt: 2026-12-07
 constraints: <shipping time, last date for Christmas delivery, sizes, opening hours>
-what's left: Open the link, choose the paperback, pay. The choice is yours.
 
 why: <two or three sentences tied to what they shared>
 ```
 
 For printable gifts (stickers, poster, cards), you may add 2–3 real print services that ship to the person's country to the manifest's `print` list: `{ "service", "url", "product", "price", "currency", "checkedAt", "shipsTo" }`.
 
-**Never write "bought", "ordered", "booked", "purchased", "reserved for you" or "paid for"**, not even in a negation such as "nothing has been …": the calendar rejects the word itself. Say what is left for them instead: "The choice is yours: open the link to buy it." or "Prepared for you. Buying or booking is yours to decide."
+**Never write "bought", "ordered", "booked", "purchased", "reserved for you" or "paid for"**, not even in a negation such as "nothing has been …": the calendar rejects the word itself. If it helps, say what is left for them in your own note. The calendar shows only the details you give (item, vendor, price, link) and your note.
 
 ## 10. Quality self-checks before you send
 
