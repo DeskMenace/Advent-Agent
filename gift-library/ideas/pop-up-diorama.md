@@ -14,14 +14,15 @@ forms:
 - interactive-html
 tier: L
 capability: coding-agent
+render: 3d
 summary: A large illustrated pop-up of one moment from their year — a summit, a launch day, a trip — with pull-tabs, wheels and flaps that move parts of the scene.
 suitable_if: You know one meaningful moment well.
 avoid_if: The moment is painful or private.
 share_frame: The diorama fully open, angled.
-exports:
-- share-still
-- share-loop
-- print
+save:
+- png
+- mp4 loop
+- pdf (print-ready)
 print: true
 kit:
 - pop-up-card
@@ -40,10 +41,16 @@ status: candidate
 
 A large illustrated pop-up of one moment from their year — a summit, a launch day, a trip — with pull-tabs, wheels and flaps that move parts of the scene.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - One real moment, rendered in detail.
 - Each tab reveals a small true detail of that day.
+
+## Make it useful (offer in your note)
+
+- A printable paper-craft version to cut and fold
 
 ## Great vs lazy
 

@@ -14,15 +14,16 @@ forms:
 - interactive-html
 tier: XL
 capability: coding-agent
+render: 3d
 summary: An explorable little island or village. Every gift they opened this season lives somewhere in it — the snow globe on a shelf, the jelly fruits at the market, the fish in the harbour — and clicking each one brings back a memory.
 suitable_if: They opened at least 10 gifts.
 avoid_if: They opened fewer than 10 (use game-of-your-year instead).
 share_frame: A wide establishing shot of the world at dusk with lights on.
-exports:
-- share-still
-- share-loop
-- standalone-html
-- wallpaper
+save:
+- png
+- mp4 loop
+- html (plays on its own)
+- wallpaper png (phone + desktop)
 print: false
 kit:
 - three-scene
@@ -42,11 +43,17 @@ status: candidate
 
 An explorable little island or village. Every gift they opened this season lives somewhere in it — the snow globe on a shelf, the jelly fruits at the market, the fish in the harbour — and clicking each one brings back a memory.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - The geography is theirs (mountain, lake, their kind of house).
 - Every opened gift appears as an object in the world, with its date and your note.
 - Their pet wanders around.
+
+## Make it useful (offer in your note)
+
+- A screensaver or wallpaper of the world at night
 
 ## Great vs lazy
 

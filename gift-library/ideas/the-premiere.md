@@ -15,15 +15,16 @@ forms:
 - video
 tier: XL
 capability: coding-agent
+render: 2d
 summary: A cinema. The curtains open on an animated short film about their December and their year, with opening titles, a soundtrack, a blooper reel and end credits listing everyone in their life.
 suitable_if: You know their people and some moments of their year.
 avoid_if: Very little context.
 share_frame: 'The poster ("[Name]: The Year", with tagline and review quotes from their pet). Loop — the curtains opening.'
-exports:
-- share-still
-- share-loop
-- video
-- poster
+save:
+- png
+- mp4 loop
+- mp4
+- pdf poster
 print: true
 kit:
 - film-scenes
@@ -44,10 +45,16 @@ status: candidate
 
 A cinema. The curtains open on an animated short film about their December and their year, with opening titles, a soundtrack, a blooper reel and end credits listing everyone in their life.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - Scenes are real moments; the cast in the credits are the real people and pets ("Biscuit as Herself").
 - The bloopers are the gifts or jokes that didn't land this month.
+
+## Make it useful (offer in your note)
+
+- An mp4 to send to family; the poster printed
 
 ## Great vs lazy
 

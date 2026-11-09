@@ -1,6 +1,6 @@
 ---
 id: karaoke-song
-title: Their Song, Karaoke Edition
+title: A Song About You
 family: sound
 anchor: none
 collection: null
@@ -15,15 +15,16 @@ forms:
 - audio
 tier: M
 capability: chat-ok
-summary: An original song about them, presented as a karaoke screen with a glowing bouncing-ball lyric line, plus the render-it-yourself sheet so they can turn it into a full track.
+render: 2d
+summary: 'An original song about them, in any genre that suits them: rap, power ballad, sea shanty, synth-pop, lullaby, jazz. Presented as a karaoke screen with the lyrics lighting up in time, plus the render-it-yourself sheet to turn it into a full track.'
 suitable_if: Always.
 avoid_if: Never.
 share_frame: The karaoke screen mid-chorus with the best line highlighted.
-exports:
-- share-still
-- share-loop
+save:
+- png
+- mp4 loop
 - wav
-- lyrics-sheet
+- lyrics txt
 print: false
 kit:
 - sound
@@ -37,14 +38,22 @@ minimum_done: Song plays (music box or synth), lyrics highlight in time, render-
 status: candidate
 ---
 
-# Their Song, Karaoke Edition
+# A Song About You
 
-An original song about them, presented as a karaoke screen with a glowing bouncing-ball lyric line, plus the render-it-yourself sheet so they can turn it into a full track.
+An original song about them, in any genre that suits them: rap, power ballad, sea shanty, synth-pop, lullaby, jazz. Presented as a karaoke screen with the lyrics lighting up in time, plus the render-it-yourself sheet to turn it into a full track.
+
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
 
 ## Make it theirs
 
-- Lyrics full of real details; a chorus they'll get stuck in their head.
-- Background visuals in their world.
+- Verses full of real details from their life; a chorus they'll get stuck in their head.
+- The genre fits them or is funny for them (a rap battle against their alarm clock, a ballad for their dog).
+- Background visuals from their world.
+
+## Make it useful (offer in your note)
+
+- A ringtone or alarm sound
+- The render-it-yourself sheet to turn it into a full track
 
 ## Great vs lazy
 

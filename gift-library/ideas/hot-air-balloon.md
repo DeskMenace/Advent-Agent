@@ -14,15 +14,16 @@ forms:
 - interactive-html
 tier: M
 capability: chat-ok
+render: 3d
 summary: A little balloon drifting over an illustrated map of the places in their year. Steer it; at each place a banner unrolls with a memory. Blow into the microphone (optional) to lift it.
 suitable_if: You know places from their year.
 avoid_if: Little context.
 share_frame: The balloon over the map, banner open.
-exports:
-- share-still
-- share-loop
-- standalone-html
-- print
+save:
+- png
+- mp4 loop
+- html (plays on its own)
+- pdf (print-ready)
 print: true
 kit:
 - balloon
@@ -40,10 +41,16 @@ status: candidate
 
 A little balloon drifting over an illustrated map of the places in their year. Steer it; at each place a banner unrolls with a memory. Blow into the microphone (optional) to lift it.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - Real places from their year.
 - The basket carries tiny versions of their companions.
+
+## Make it useful (offer in your note)
+
+- The map as a printable poster
 
 ## Great vs lazy
 

@@ -14,13 +14,14 @@ forms:
 - interactive-html
 tier: M
 capability: chat-ok
+render: 2d
 summary: A glossy corporate annual report about their life, with animated charts of absurd KPIs, a letter from the CEO (their pet), and a "risks and outlook" section.
 suitable_if: Always.
 avoid_if: Never.
 share_frame: The KPI page with the funniest chart.
-exports:
-- share-still
-- print
+save:
+- png
+- pdf (print-ready)
 print: true
 kit:
 - charts
@@ -38,9 +39,15 @@ status: candidate
 
 A glossy corporate annual report about their life, with animated charts of absurd KPIs, a letter from the CEO (their pet), and a "risks and outlook" section.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - Every KPI is a real habit or achievement, quantified.
+
+## Make it useful (offer in your note)
+
+- A pdf to send to family
 
 ## Great vs lazy
 

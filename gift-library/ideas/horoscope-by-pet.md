@@ -13,12 +13,13 @@ forms:
 - interactive-html
 tier: S
 capability: chat-ok
+render: 2d
 summary: A zodiac wheel where every sign is replaced by something from their life. Spin it to land on their month-by-month horoscope, written by their pet.
 suitable_if: They have a pet, or swap the pet for a favourite fictional character's style.
 avoid_if: Never.
 share_frame: The wheel and the pet's prediction for January.
-exports:
-- share-still
+save:
+- png
 print: false
 kit:
 - wheel
@@ -35,9 +36,15 @@ status: candidate
 
 A zodiac wheel where every sign is replaced by something from their life. Spin it to land on their month-by-month horoscope, written by their pet.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - The pet's voice and priorities (food, walks, the vacuum).
+
+## Make it useful (offer in your note)
+
+- A printable 2027 wall calendar with a prediction per month
 
 ## Great vs lazy
 

@@ -9,6 +9,7 @@ import type { GateProblem } from '../shared/api.js';
 import { mimeFor, sniffImage, sniffMedia, wavDuration } from './mime.js';
 import { fileExists, kindForFile, manifestPrimaryKind } from './manifest.js';
 import type { UnpackedFile } from './unpack.js';
+import { isToolGift, toolFiles } from '../shared/tool.js';
 
 const MAX_HTML_BYTES = 8 * 1024 * 1024;
 
@@ -66,7 +67,7 @@ export function checkManifest(root: string, files: UnpackedFile[], manifest: Gif
   else problems.push(p('schema_v1', 'This gift uses the older gift@1 manifest. Use "schema": "advent-agent/gift@2" with emotion, interaction and a share frame (see the gift-director skill).', undefined, 'warning'));
 
   // D1: never claim a purchase or booking.
-  const claimTexts = [manifest.title, manifest.subtitle ?? '', manifest.note ?? '', manifest.realWorld?.whatsLeft ?? '', manifest.signature ?? '', ...(manifest.realWorld?.items.map((i) => i.notes ?? '') ?? []), manifest.share?.caption ?? '', ...manifest.downloads.map((d) => d.label), ...manifest.print.map((x) => x.product ?? '')];
+  const claimTexts = [manifest.title, manifest.subtitle ?? '', manifest.note ?? '', manifest.realWorld?.whatsLeft ?? '', manifest.signature ?? '', manifest.followUp?.offer ?? '', manifest.followUp?.prompt ?? '', ...(manifest.realWorld?.items.map((i) => i.notes ?? '') ?? []), manifest.share?.caption ?? '', ...manifest.downloads.map((d) => d.label), ...manifest.print.map((x) => x.product ?? '')];
   if (v2) {
     // gift@2: the words may not appear at all, not even negated (SPEC_CHANGES "check_gift additionally fails on").
     const all = claimTexts.join('\n').toLowerCase();
@@ -81,9 +82,13 @@ export function checkManifest(root: string, files: UnpackedFile[], manifest: Gif
     }
   }
 
+  // Small tools (D27): their own rules; their files are never run by the calendar.
+  const tool = new Set(toolFiles(manifest, files.map((f) => f.path)));
+  if (isToolGift(manifest)) problems.push(...checkTool(root, manifest, [...tool]));
+
   // Per-file checks.
   for (const file of files) {
-    if (file.downloadOnly) continue;
+    if (file.downloadOnly || tool.has(file.path)) continue;
     const full = join(root, ...file.path.split('/'));
     const fileKind = kindForFile(file.path);
     const mime = mimeFor(file.path);
@@ -161,6 +166,46 @@ export function checkManifest(root: string, files: UnpackedFile[], manifest: Gif
   if (manifest.incomplete.length > 0) problems.push(p('incomplete', `The gift declares unfinished parts: ${manifest.incomplete.join('; ')}`, undefined, 'warning'));
 
   return { problems, media };
+}
+
+const DELETE_CALLS: Array<[RegExp, string]> = [
+  [/\brm\s+-[a-zA-Z]*(?:r[a-zA-Z]*f|f[a-zA-Z]*r)\b/, 'rm -rf'],
+  [/\bshutil\.rmtree\b/, 'shutil.rmtree'],
+  [/\bos\.remove\b/, 'os.remove'],
+  [/\bunlink(?:Sync)?\s*\(|\.unlink\b|\bos\.unlink\b|\bunlink\s+\S/, 'unlink'],
+  [/\b(?:fs\.)?rmSync\s*\(|\bfs\.rm\s*\(/, 'fs.rm'],
+  [/\bRemove-Item\b/i, 'Remove-Item'],
+];
+const DRY_RUN = /dry[\s_-]?run/i;
+const NETWORK_IMPORTS: Array<[RegExp, string]> = [
+  [/^\s*(?:import|from)\s+(?:requests|urllib\.request|urllib3|http\.client|httpx|aiohttp|socket)\b/m, 'a Python network module'],
+  [/\brequire\(\s*['"](?:node:)?(?:https?|net|dgram)['"]\s*\)|\bfrom\s+['"](?:node:)?(?:https?|net|dgram)['"]|\bfetch\s*\(/, 'a network call'],
+  [/(?:^|[\s;|&(])(?:curl|wget)\s/m, 'curl or wget'],
+  [/\bInvoke-WebRequest\b|\bInvoke-RestMethod\b/i, 'Invoke-WebRequest'],
+];
+
+/**
+ * Small tools (gift-director §6): a README, an uninstall path, no deleting without a dry-run guard.
+ * Network use is a warning: tools should work offline, but the calendar never runs them.
+ */
+export function checkTool(root: string, m: GiftManifest, paths: string[]): GateProblem[] {
+  const out: GateProblem[] = [];
+  if (paths.length === 0) return [p('tool_files_missing', 'A tool gift keeps its files in a tool/ folder (the script, README.md, and install and uninstall steps). The folder is missing or empty.')];
+  if (!m.primary) out.push(p('tool_display_missing', 'A tool gift needs something to show: a terminal screenshot you rendered (an image) or an index.html with real output, as "entry".'));
+  const read = (rel: string) => { try { return readFileSync(join(root, ...rel.split('/')), 'utf8'); } catch { return ''; } };
+  const readme = paths.find((x) => /^readme(\.[a-z]+)?$/i.test(posix.basename(x)));
+  if (!readme) out.push(p('tool_readme_missing', 'The tool has no README in tool/. Say what it does, which systems and shells it supports, and how to install and uninstall it in one line each.'));
+  const hasUninstallFile = paths.some((x) => /uninstall/i.test(posix.basename(x)));
+  if (!hasUninstallFile && !(readme && /uninstall/i.test(read(readme)))) out.push(p('tool_uninstall_missing', 'The tool has no uninstall instruction. Add an uninstall script or an "Uninstall" line in the README that restores what was there before.', readme));
+  for (const rel of paths) {
+    if (rel === readme || /\.(md|txt|png|jpe?g|gif|svg|webp)$/i.test(rel)) continue;
+    const code = read(rel);
+    const del = DELETE_CALLS.find(([re]) => re.test(code));
+    if (del && !DRY_RUN.test(code)) out.push(p('tool_deletes', `${rel} calls ${del[1]} with no dry-run guard. Tools never delete: move or copy instead, make a dry run the default, and write an undo log.`, rel));
+    const net = NETWORK_IMPORTS.find(([re]) => re.test(code));
+    if (net) out.push(p('tool_network', `${rel} uses ${net[1]}. Small tools should work offline with the standard library; say clearly in the README if it needs the network.`, rel, 'warning'));
+  }
+  return out;
 }
 
 /** Local references must exist; remote script/style are errors unless the origin is allowed; remote media is a warning. */

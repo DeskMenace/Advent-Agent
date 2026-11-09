@@ -58,6 +58,25 @@
         "type"
       ]
     },
+    "followUp": {
+      "type": "object",
+      "properties": {
+        "offer": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      },
+      "required": [
+        "offer",
+        "prompt"
+      ]
+    },
     "primary": {
       "type": "string",
       "minLength": 1,

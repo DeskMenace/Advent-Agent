@@ -14,6 +14,7 @@ export const IDEA_FAMILY_NAMES: Record<IdeaFamily, string> = {
   printables: 'Stickers, wallpapers, zines, with print files',
   heart: 'The touching ones',
   'real-world': 'Purchase-ready proposals; the agent never buys (D1)',
+  'small-tools': 'Scripts and terminal things that are useful and funny or cute',
   finale: 'December 24 only',
 };
 
@@ -26,6 +27,10 @@ export const REFERENCE_IDS = [
   'react-bits-holo-card', 'react-bits-sticker-peel', 'rive-marketplace', 'snowglobe-willeastcott', 'christmas-popup-card-dammafra',
 ] as const;
 
+export const IDEA_FORMS = ['interactive-html', 'video', 'audio', 'image', 'print', 'tool'] as const;
+export const IDEA_RENDERS = ['2d', '3d', 'either', 'terminal'] as const;
+export type IdeaRender = (typeof IDEA_RENDERS)[number];
+
 const list = z.array(z.string().min(1)).default([]);
 
 export const IdeaFrontmatterSchema = z.object({
@@ -36,14 +41,17 @@ export const IdeaFrontmatterSchema = z.object({
   collection: z.string().regex(/^[a-z0-9-]+$/).nullable().default(null),
   emotion: z.array(z.enum(EMOTIONS)).min(1),
   interaction: z.array(z.string().min(1)).min(1),
-  forms: z.array(z.enum(['interactive-html', 'video', 'audio', 'image', 'print'])).min(1),
+  forms: z.array(z.enum(IDEA_FORMS)).min(1),
   tier: z.enum(TIERS),
   capability: z.enum(['chat-ok', 'coding-agent']),
+  /** How it's drawn; `either` = the agent's choice by budget. */
+  render: z.enum(IDEA_RENDERS),
   summary: z.string().min(1).max(600),
   suitable_if: z.string().min(1).max(600),
   avoid_if: z.string().min(1).max(600),
   share_frame: z.string().min(1).max(600),
-  exports: list,
+  /** What the user can save, in natural formats (replaces `exports`). */
+  save: list,
   print: z.boolean().default(false),
   kit: list,
   references: z.array(z.enum(REFERENCE_IDS)).default([]),
@@ -63,6 +71,7 @@ export interface IdeaIndexEntry {
   interaction: string[];
   tier: (typeof TIERS)[number];
   capability: 'chat-ok' | 'coding-agent';
+  render: IdeaRender;
   summary: string;
   suitable_if: string;
   status: 'candidate' | 'approved';

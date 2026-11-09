@@ -135,7 +135,7 @@ export async function runGate(input: GateInput, opts: GateOptions = {}): Promise
     const fileHits = isText ? scanText(buf.toString('utf8'), extra) : scanBinary(buf, extra);
     for (const h of fileHits) hits.push({ ...h, preview: `${f.path}:${h.line} ${h.preview}` });
   }
-  for (const h of scanText([manifest.title, manifest.subtitle ?? '', manifest.note ?? '', manifest.signature ?? ''].join('\n'), extra)) hits.push({ ...h, preview: `manifest ${h.preview}` });
+  for (const h of scanText([manifest.title, manifest.subtitle ?? '', manifest.note ?? '', manifest.signature ?? '', manifest.followUp?.offer ?? '', manifest.followUp?.prompt ?? ''].join('\n'), extra)) hits.push({ ...h, preview: `manifest ${h.preview}` });
   for (const h of hits) problems.push({ code: `secret_${h.kind}`, message: `Possible secret or private path (${h.kind}) in ${h.preview}. Remove it and resubmit.`, severity: 'error' });
 
   const kind = manifestPrimaryKind(manifest);

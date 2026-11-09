@@ -14,15 +14,16 @@ forms:
 - interactive-html
 tier: M
 capability: chat-ok
+render: 3d
 summary: A closed card on the table. Open it and a paper diorama of their world unfolds in 3D, layer by layer, with your first letter as their Secret Santa tucked inside.
 suitable_if: Always.
 avoid_if: Never.
 share_frame: The card fully open at a three-quarter angle, diorama standing. Loop — the opening (5 s).
-exports:
-- share-still
-- share-loop
-- standalone-html
-- print
+save:
+- png
+- mp4 loop
+- html (plays on its own)
+- pdf (print-ready)
 print: true
 kit:
 - pop-up-card
@@ -41,11 +42,17 @@ status: candidate
 
 A closed card on the table. Open it and a paper diorama of their world unfolds in 3D, layer by layer, with your first letter as their Secret Santa tucked inside.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - The diorama shows their world in 3–4 paper layers (home, their place outdoors, the things they do).
 - Small paper tabs pull out to reveal details only they would recognise.
 - The cover is designed for them, not a stock Christmas cover.
+
+## Make it useful (offer in your note)
+
+- A printable cut-and-fold version of the pop-up to make for real
 
 ## Great vs lazy
 

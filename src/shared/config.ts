@@ -169,6 +169,8 @@ export const HistoryRecordSchema = z.object({
   collection: z.object({ set: z.string(), index: z.number().int(), size: z.number().int() }).optional(),
   motifs: z.array(z.string()).default([]),
   thread: z.string().optional(),
+  /** The second life the agent offered in its note, if any (D27). */
+  followUp: z.object({ offer: z.string(), prompt: z.string() }).optional(),
   revealedAt: z.string(),
   feedback: z.enum(['loved_it', 'not_my_thing', 'too_personal']).optional(),
 });

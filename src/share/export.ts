@@ -8,6 +8,8 @@ import { join, posix } from 'node:path';
 import type { CalendarService } from '../jobs/service.js';
 import { mimeFor } from '../intake/mime.js';
 import { scanText } from '../intake/secrets.js';
+import { TOOL_DIR, toolFiles } from '../shared/tool.js';
+import yazl from 'yazl';
 import { captureLoop, capturePdf, captureStill, CaptureUnavailable, ffmpegPath, findInstalledChrome } from './capture.js';
 
 /** Fixed caption for every network (D26). `share.caption` from gift.json is ignored. */
@@ -160,7 +162,9 @@ export function saveOptions(service: CalendarService, day: number): SaveOption[]
   const out: SaveOption[] = [];
   const p = m.primary;
   const pMime = p ? mimeFor(p) : '';
-  if (m.save && hasFile(revealed, m.save.file)) out.push({ id: 'gift', label: labelFor(m.save.type), format: extOf(m.save.file) });
+  const tool = toolFiles(m, revealed.gift.files.map((f) => f.path));
+  if (tool.length > 0) out.push({ id: 'gift', label: 'The tool', format: 'ZIP' });
+  else if (m.save && hasFile(revealed, m.save.file)) out.push({ id: 'gift', label: labelFor(m.save.type), format: extOf(m.save.file) });
   else if (entry && (kind === 'interactive-html' || kind === 'card')) out.push({ id: 'gift', label: 'The gift', format: 'HTML' });
   else if (kind === 'document' && p && /html?$/i.test(p)) out.push({ id: 'gift', label: 'PDF', format: findInstalledChrome() ? 'PDF' : 'HTML' });
   else if ((kind === 'document' || kind === 'card') && p && (pMime === 'text/plain' || pMime === 'text/markdown')) out.push({ id: 'gift', label: 'Text', format: 'TXT' });
@@ -174,8 +178,10 @@ export function saveOptions(service: CalendarService, day: number): SaveOption[]
     out.push({ id: 'video', label: 'Video', format: typeof m.share.loop === 'string' ? extOf(m.share.loop) : mp4 ? 'MP4' : 'WEBM' });
     if (mp4 && typeof m.share.loop !== 'string') out.push({ id: 'gif', label: 'GIF', format: 'GIF' });
   }
-  const seen = new Set([m.save?.file, p, m.song?.wav].filter((x): x is string => Boolean(x)));
+  const seen = new Set([...(tool.length ? tool : [m.save?.file, p]), m.song?.wav].filter((x): x is string => Boolean(x)));
   const extra = (label: string, file: string) => { if (!seen.has(file) && hasFile(revealed, file)) { seen.add(file); out.push({ id: `file:${file}`, label, format: extOf(file) }); } };
+  // A tool's screenshot (or its own save file) comes after the zip.
+  if (tool.length) { if (m.save) extra(labelFor(m.save.type), m.save.file); if (p && /^image\//.test(pMime)) extra(labelFor(pMime), p); }
   for (const d of m.downloads) extra(d.label, d.file);
   for (const pr of m.print) if (pr.file) extra(pr.product ?? pr.service, pr.file);
   for (const a of m.artifacts) if (a.role === 'download' || a.role === 'print') extra(a.title ?? posix.basename(a.path), a.path);
@@ -196,6 +202,8 @@ export async function saveFile(service: CalendarService, day: number, id: string
   // id === 'gift'
   const kind = revealed.gift.kind;
   const p = m.primary;
+  const tool = toolFiles(m, revealed.gift.files.map((f) => f.path));
+  if (tool.length > 0) return { data: await zipTool(dir, tool, slugOf(m.title)), mime: 'application/zip', filename: `${slug}.zip` };
   if (m.save && hasFile(revealed, m.save.file)) return raw(m.save.file);
   if (entry && (kind === 'interactive-html' || kind === 'card')) {
     const html = inlineAssets(dir, entry, revealed.gift.files.map((f) => f.path));
@@ -214,6 +222,21 @@ export async function saveFile(service: CalendarService, day: number, id: string
   if (kind === 'link' && m.links?.length) return { data: Buffer.from(plainPage(m.title, `<ul style="font:18px/1.8 Georgia,serif">${m.links.map((l) => `<li><a href="${esc(l.url)}">${esc(l.label)}</a></li>`).join('')}</ul>`), 'utf8'), mime: 'text/html; charset=utf-8', filename: `${slug}.html` };
   if (p) return raw(p);
   throw new ShareError('no_such_save', 'This gift has no file to save.');
+}
+
+/** The tool's files in one folder, scripts kept executable. Nothing from the calendar is added. */
+function zipTool(dir: string, paths: string[], folder: string): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const zip = new yazl.ZipFile();
+    for (const rel of paths) {
+      const name = `${folder || 'tool'}/${rel.slice(TOOL_DIR.length)}`;
+      const exec = /\.(sh|bash|zsh|command|py|rb|pl)$/i.test(rel) || /^(install|uninstall)$/i.test(posix.basename(rel));
+      zip.addBuffer(readFileSync(join(dir, ...rel.split('/'))), name, { mode: exec ? 0o100755 : 0o100644, mtime: new Date('2020-01-01T00:00:00Z') });
+    }
+    const chunks: Buffer[] = [];
+    zip.outputStream.on('data', (c: Buffer) => chunks.push(c)).on('end', () => resolve(Buffer.concat(chunks))).on('error', reject);
+    zip.end();
+  });
 }
 
 /** A bare page: the agent's title as the document title, the agent's content, no calendar text. */

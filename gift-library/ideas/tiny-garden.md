@@ -14,13 +14,14 @@ forms:
 - interactive-html
 tier: M
 capability: chat-ok
+render: 2d
 summary: A small pot with seeds. Water them and they grow over real minutes during the day. Come back tonight and it's in full flower.
 suitable_if: Always.
 avoid_if: Never.
 share_frame: The grown garden, evening light.
-exports:
-- share-still
-- standalone-html
+save:
+- png
+- html (plays on its own)
 print: false
 kit:
 - bloom
@@ -37,10 +38,16 @@ status: candidate
 
 A small pot with seeds. Water them and they grow over real minutes during the day. Come back tonight and it's in full flower.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - Plants they love or that grow where they live.
 - A small sign in the pot with their name.
+
+## Make it useful (offer in your note)
+
+- A browser new-tab page where the garden keeps growing through December
 
 ## Great vs lazy
 

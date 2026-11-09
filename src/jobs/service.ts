@@ -719,7 +719,7 @@ export function historyRecordFor(day: number, gift: NonNullable<DoorState['gift'
   return {
     day, title: m.title, kind: gift.kind, category: m.category, ideaId: m.ideaId ?? undefined, family: m.family, emotion: m.emotion, interaction,
     collection: m.collection ? { set: m.collection.set, index: m.collection.index, size: m.collection.size } : undefined,
-    motifs: m.continuity?.motifs ?? [], thread: m.continuity?.thread, revealedAt,
+    motifs: m.continuity?.motifs ?? [], thread: m.continuity?.thread, followUp: m.followUp, revealedAt,
   };
 }
 

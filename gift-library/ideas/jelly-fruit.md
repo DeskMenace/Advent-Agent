@@ -14,15 +14,16 @@ forms:
 - interactive-html
 tier: M
 capability: chat-ok
+render: either
 summary: A translucent jelly version of a fruit they love, on a little plate. Pull it and it stretches and springs back; tap it and it wobbles; a secret gesture cuts it.
 suitable_if: You know a fruit or flavour they love, or a place known for one.
 avoid_if: Never.
 share_frame: The fruit mid-stretch. Loop — pull and release (5 s).
-exports:
-- share-still
-- share-loop
-- standalone-html
-- wallpaper
+save:
+- png
+- mp4 loop
+- html (plays on its own)
+- wallpaper png (phone + desktop)
 print: false
 kit:
 - jelly
@@ -40,11 +41,18 @@ status: candidate
 
 A translucent jelly version of a fruit they love, on a little plate. Pull it and it stretches and springs back; tap it and it wobbles; a secret gesture cuts it.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - Their favourite fruit (or one tied to a place they love). Each fruit in the collection is different.
 - The plate, the label and the background match their taste.
-- Third fruit completes the set — all three jiggle together on one plate.
+- As a collection: each later gift adds a new fruit to the same plate, so the third gift is all three wobbling together.
+
+## Make it useful (offer in your note)
+
+- A desktop jelly that sits on screen and can be squished between meetings
+- A wallpaper
 
 ## Great vs lazy
 

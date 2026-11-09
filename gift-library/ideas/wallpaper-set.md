@@ -14,13 +14,14 @@ forms:
 - image
 tier: S
 capability: chat-ok
+render: 2d
 summary: A generative art piece built from their themes. Click to regenerate until they find the one they like, then download it at their real phone and desktop sizes.
 suitable_if: Always.
 avoid_if: Never.
 share_frame: The wallpaper on a phone mockup.
-exports:
-- share-still
-- wallpaper
+save:
+- png
+- wallpaper png (phone + desktop)
 print: false
 kit:
 - generative
@@ -38,9 +39,15 @@ status: candidate
 
 A generative art piece built from their themes. Click to regenerate until they find the one they like, then download it at their real phone and desktop sizes.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - Palette and motifs are theirs (contour lines of their mountain, their pet's spots).
+
+## Make it useful (offer in your note)
+
+- Lock screen, home screen and desktop sizes
 
 ## Great vs lazy
 

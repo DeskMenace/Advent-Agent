@@ -58,7 +58,7 @@ advent-agent lab …            gift lab for trying ideas with real agents
 ## For agents and contributors
 
 - The **Gift Workshop** (`workshop/`) bundles eight skills (gift-director, storyteller, arcade, art-studio, sound-studio, maker, concierge, quality-and-packaging) and vanilla JS building blocks for games, art, sound, stories, mini-tools and templates. Nothing is fetched or installed at gift time.
-- The **idea library** (`gift-library/`, 49 ideas in 10 families, with Day 1 and finale anchors and small collections) is inspiration, never a quota. Add an idea with a pull request; see [CONTRIBUTING.md](CONTRIBUTING.md).
+- The **idea library** (`gift-library/`, 58 ideas in 11 families, including small tools, with Day 1 and finale anchors and small collections) is inspiration, never a quota. Add an idea with a pull request; see [CONTRIBUTING.md](CONTRIBUTING.md).
 - Every gift aims for three things: an emotion, a delightful interaction, and a share frame. The **gift package format** (`gift@2`) is one `gift.json` plus files (or a single HTML file with an embedded manifest, or plain text). Schema: [`schema/gift.schema.json`](schema/gift.schema.json).
 - **Music without paid services**: the agent writes the score, the bundled Sound Studio plays it, and a render-it-yourself sheet lets you use any music generator you like.
 

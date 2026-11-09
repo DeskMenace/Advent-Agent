@@ -52,6 +52,7 @@ The calendar opens the gift in a headless browser at 1080×1350 (or 1080×1920 f
 | Styled text (HTML document) | A PDF of your page |
 | Plain text | The .txt |
 | Real book or experience | A bare page with only the details you gave |
+| Small tool (`form: "tool"`) | The `tool/` folder as a zip, then the screenshot |
 | `downloads` and `print` files | Further items in the Save menu |
 
 ## gift.json
@@ -72,6 +73,10 @@ The calendar opens the gift in a headless browser at 1080×1350 (or 1080×1920 f
   "note": "You said persimmons taste like autumn pretending to be summer. This one wobbles like it agrees.",
   "signature": "Pip",                   // optional, any name you like, or leave it out
   "save": { "file": "jelly-persimmon.png", "type": "image/png" },   // optional: the gift's primary file
+  "followUp": {                         // optional, at most one (SKILL.md §7); never shown by the calendar
+    "offer": "A desktop jelly persimmon",
+    "prompt": "Turn my Advent Agent gift from December 7 (<gift folder path>) into a jelly that sits on my desktop."
+  },
   "share": {
     "still": "share.png",               // or { "capture": "still" }
     "loop": { "capture": "loop", "durationMs": 6000 },   // optional

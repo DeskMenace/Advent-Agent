@@ -14,13 +14,14 @@ forms:
 - interactive-html
 tier: M
 capability: chat-ok
+render: either
 summary: A grand museum exhibit dedicated to one mundane object they own (their water bottle, their old hiking boots), with a pedestal, a wall label, an audio guide, a "conservation history" and a gift shop.
 suitable_if: You know an object they use a lot.
 avoid_if: Never.
 share_frame: The object on its pedestal with the wall label.
-exports:
-- share-still
-- standalone-html
+save:
+- png
+- html (plays on its own)
 print: false
 kit:
 - gallery
@@ -38,9 +39,15 @@ status: candidate
 
 A grand museum exhibit dedicated to one mundane object they own (their water bottle, their old hiking boots), with a pedestal, a wall label, an audio guide, a "conservation history" and a gift shop.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - The object is real and recognisable; the history is their real use of it, told with museum gravity.
+
+## Make it useful (offer in your note)
+
+- A printable wall label to stick next to the real object
 
 ## Great vs lazy
 

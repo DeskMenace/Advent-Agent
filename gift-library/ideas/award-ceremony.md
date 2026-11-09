@@ -14,14 +14,15 @@ forms:
 - interactive-html
 tier: M
 capability: chat-ok
+render: either
 summary: A stage, a spotlight, an envelope. "And the award for Most Consistent Use of 'Quick Question' goes to…" Their name, a trophy, an applause button and an acceptance speech they can read aloud.
 suitable_if: Always.
 avoid_if: Never.
 share_frame: The trophy and engraved plaque under the spotlight, and a certificate.
-exports:
-- share-still
-- share-loop
-- certificate
+save:
+- png
+- mp4 loop
+- pdf certificate
 print: true
 kit:
 - stage
@@ -40,10 +41,16 @@ status: candidate
 
 A stage, a spotlight, an envelope. "And the award for Most Consistent Use of 'Quick Question' goes to…" Their name, a trophy, an applause button and an acceptance speech they can read aloud.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - The category is absurdly specific and true.
 - The acceptance speech thanks real people and pets.
+
+## Make it useful (offer in your note)
+
+- A printable certificate to frame; a paper-craft trophy
 
 ## Great vs lazy
 

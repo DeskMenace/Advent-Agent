@@ -1,6 +1,6 @@
 ---
 name: maker
-description: Useful mini-tools as gifts that are also funny or touching - generators, planners, dashboards over data the person gave, cheat sheets, converters, trackers, deadpan annual reports. Emotion, interaction and a share frame even for a utility, kit/maker (shell, storage, clipboard, cheatsheet), offline only. Never touches the person's real files; any change to their work is proposed as a diff, never applied.
+description: Useful mini-tools as gifts that are also funny or touching - generators, planners, dashboards over data the person gave, cheat sheets, converters, trackers, deadpan annual reports, and small tools that run on their computer (scripts, terminal themes, form tool). Emotion, interaction and a share frame even for a utility, kit/maker (shell, storage, clipboard, cheatsheet, terminal-frame), offline only. Never runs or installs anything on their machine; tools dry-run by default, never delete, keep an undo log and uninstall in one line.
 license: MIT
 ---
 
@@ -45,6 +45,34 @@ Read `gift-director` first. A useful tool is still a gift, so it still hits the 
 3. Testing: happy path, empty input, absurd input, reload (state persists or clearly does not), keyboard only, narrow screen, print if printable.
 4. Wrapping: `gift@2` manifest with `form: "interactive-html"`, `emotion`, `interaction`, `tierUsed`, `share`, `downloads`; the page says that nothing leaves the device; the `note` says why you noticed this pain.
 
+## Small tools on their computer (`form: "tool"`)
+
+Scripts, terminal themes and little utilities from the `small-tools` family run on their real computer, so the rules from `gift-director` §6 apply in full:
+
+- **You deliver files and instructions. You never run or install anything on their machine yourself.** Test on sample files in your own workspace.
+- **Dry run by default.** Anything that touches files shows the plan and changes nothing until they pass a flag such as `--apply`.
+- **Never delete.** Move or copy instead, and write an undo log that the uninstall step can replay.
+- **No network, no admin rights** (no `sudo`). Standard library only, or one clearly named dependency.
+- **One-line install and one-line uninstall** that restores what was there before (back up a config file before changing it).
+- **Say which operating systems and shells it supports**, in the README.
+- It is still a gift: funny, cute or touching, not just useful.
+
+Package it like this:
+
+```
+gift.json            form: "tool", family: "small-tools", entry: the display
+screenshot.png       or index.html: a terminal with real output (kit/maker/terminal-frame.js)
+tool/
+  dig.sh             the tool itself
+  README.md          what it does, supported systems, install and uninstall in one line each
+  install.sh
+  uninstall.sh
+```
+
+The calendar shows the display and your note, and Save gives the `tool/` folder as a zip. `check_gift` fails a tool with no README, no uninstall instruction (a script or a line in the README), or a delete call (`rm -rf`, `shutil.rmtree`, `os.remove`, `unlink`) without a dry-run guard. It warns about network use.
+
+If the gift could become a tool later (a desktop snow globe, a terminal command), don't build it unasked: offer it in your note and add `followUp` (`gift-director` §7).
+
 ## Packaging
 
-Single HTML file under 2 MB. If the gift includes a proposal for the person's own project, add it as a `document` artifact (`proposal.md` or `.patch`) and say in the note: "This is a suggestion, nothing has been changed."
+Single HTML file under 2 MB (browser tools); small tools as above. If the gift includes a proposal for the person's own project, add it as a `document` artifact (`proposal.md` or `.patch`) and say in the note: "This is a suggestion, nothing has been changed."

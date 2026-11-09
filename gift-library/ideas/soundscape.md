@@ -13,14 +13,15 @@ forms:
 - audio
 tier: S
 capability: chat-ok
+render: 2d
 summary: A window onto a place they love — a mountain hut at night, their city in the rain. Sliders mix the sounds (wind, fire, rain, a dog snoring) to make their perfect background.
 suitable_if: Always.
 avoid_if: Never.
 share_frame: The illustrated window scene.
-exports:
-- share-still
+save:
+- png
 - wav
-- wallpaper
+- wallpaper png (phone + desktop)
 print: false
 kit:
 - soundscape
@@ -37,9 +38,15 @@ status: candidate
 
 A window onto a place they love — a mountain hut at night, their city in the rain. Sliders mix the sounds (wind, fire, rain, a dog snoring) to make their perfect background.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - The place is theirs, and one sound is personal (their dog snoring).
+
+## Make it useful (offer in your note)
+
+- A long focus loop to play while working
 
 ## Great vs lazy
 

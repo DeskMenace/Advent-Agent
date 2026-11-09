@@ -10,11 +10,12 @@ The canonical description of what each field is for lives in `gift-director/refe
 | `note` | string ≤ 8000 | no (recommended) | your card to the recipient, in your voice: 2–4 sentences, why you made this. Shown exactly as written; nothing is shown without it |
 | `signature` | string ≤ 40 | no | signs your note: any name you like |
 | `save` | `{ file, type }` | no | the gift's primary file in its natural format, for Save; must be in the package |
+| `followUp` | `{ offer, prompt }` | no | a second life you offered in your note (gift-director §7): `offer` ≤ 200, `prompt` ≤ 2000, ready to paste. Never shown by the calendar |
 | `ideaId` | string or `null` | expected | library idea id, or `null` for your own invention |
 | `family` | string | expected | `paper-and-pop-ups`, `tactile-toys`, `living-things`, `sound`, `games`, `deadpan-documents`, `printables`, `heart`, `real-world`, `finale` |
 | `emotion` | enum | yes (`emotion_missing`) | `funny`, `ridiculous`, `absurd`, `cute`, `touching`: one, on purpose |
 | `interaction` | string or 1–8 strings | yes (`interaction_missing`) | verbs: `open`, `shake`, `squeeze`, `peel`, `scratch`, `drag`, `blow`, `tilt`, `type`, `wait`, `play`… |
-| `form` | string | expected | `interactive-html`, `video`, `audio`, `image`, `print`, `document`, `song`, `real-world` |
+| `form` | string | expected | `interactive-html`, `video`, `audio`, `image`, `print`, `document`, `song`, `real-world`, `tool` (files in `tool/`, see the maker skill) |
 | `tierUsed` | `S` `M` `L` `XL` | expected | the tier you actually built in (`tier_too_small` warns if the idea's minimum is higher) |
 | `collection` | `{ set, index, size }` or `null` | no | `index` 1–3, `size` 2–3 (default 3); at most 2 sets per season |
 | `entry` | relative path | folder gifts | the page to open first (alias of the older `primary`) |

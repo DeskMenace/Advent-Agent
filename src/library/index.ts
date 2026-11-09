@@ -7,6 +7,9 @@ import { parseFrontmatter } from './frontmatter.js';
 
 export const INDEX_SCHEMA = 'advent-agent/library@2';
 
+/** Body sections every idea has (gift-library/README.md). */
+export const IDEA_BODY_SECTIONS = ['## Make it theirs', '## Make it useful (offer in your note)', '## Great vs lazy'] as const;
+
 export interface LoadedIdea {
   file: string;
   frontmatter: IdeaFrontmatter;
@@ -33,6 +36,8 @@ export function loadIdeaFile(path: string, file: string): LoadedIdea {
   }
   const expectedId = basename(file, '.md');
   if (result.data.id !== expectedId) throw new Error(`${file}: id "${result.data.id}" does not match the file name "${expectedId}"`);
+  const missing = IDEA_BODY_SECTIONS.filter((h) => !new RegExp(`^${h.replace(/[()]/g, '\\$&')}\\s*$`, 'm').test(parsed.body));
+  if (missing.length > 0) throw new Error(`${file}: body is missing ${missing.map((h) => `"${h}"`).join(', ')}`);
   return { file, frontmatter: result.data, body: parsed.body };
 }
 
@@ -56,7 +61,7 @@ const compare = (a: string, b: string): number => a.localeCompare(b, 'en');
 export function buildIndex(ideas: LoadedIdea[]): IdeaIndex {
   const entries: IdeaIndexEntry[] = ideas.map(({ file, frontmatter: f }) => ({
     id: f.id, title: f.title, family: f.family, anchor: f.anchor, collection: f.collection, emotion: f.emotion, interaction: f.interaction,
-    tier: f.tier, capability: f.capability, summary: f.summary, suitable_if: f.suitable_if, status: f.status, file,
+    tier: f.tier, capability: f.capability, render: f.render, summary: f.summary, suitable_if: f.suitable_if, status: f.status, file,
   }));
   entries.sort((a, b) =>
     IDEA_FAMILIES.indexOf(a.family) - IDEA_FAMILIES.indexOf(b.family)
@@ -78,16 +83,16 @@ export function renderIndexMarkdown(index: IdeaIndex): string {
     '',
     'Generated from `ideas/*.md` by `npm run library:index`. Do not edit by hand.',
     '',
-    `**${index.count} ideas.** Tier = minimum budget tier. Anchor = Day 1 or finale only. Collection = max 3 items per set. Ideas are inspiration, never a quota.`,
+    `**${index.count} ideas.** Tier = minimum budget tier. Anchor = Day 1 or finale only. Collection = max 3 items per set. Families are directions, not menus: agents may build something new inside a family.`,
     '',
   ];
   for (const family of IDEA_FAMILIES) {
     const rows = index.ideas.filter((i) => i.family === family);
     if (rows.length === 0) continue;
-    out.push(`## ${family}`, '', '| Idea | Emotion | Interaction | Tier | Who can make it | Anchor / collection |', '|---|---|---|---|---|---|');
+    out.push(`## ${family}`, '', '| Idea | Emotion | Interaction | 2D/3D | Tier | Who can make it | Anchor / collection |', '|---|---|---|---|---|---|---|');
     for (const r of rows) {
       const anchor = r.anchor !== 'none' ? r.anchor : r.collection ? `set: ${r.collection}` : '';
-      out.push(`| [${cell(r.title)}](${r.file}) | ${r.emotion.join(', ')} | ${r.interaction.join(', ')} | ${r.tier} | ${r.capability === 'chat-ok' ? 'any agent' : 'coding agent'} | ${anchor} |`);
+      out.push(`| [${cell(r.title)}](${r.file}) | ${r.emotion.join(', ')} | ${r.interaction.join(', ')} | ${r.render} | ${r.tier} | ${r.capability === 'chat-ok' ? 'any agent' : 'coding agent'} | ${anchor} |`);
     }
     out.push('');
   }

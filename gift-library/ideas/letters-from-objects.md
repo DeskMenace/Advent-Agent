@@ -13,13 +13,14 @@ forms:
 - interactive-html
 tier: S
 capability: chat-ok
+render: 2d
 summary: A small stack of envelopes from the objects in their life — their laptop, their boots, the coffee machine, the dog's lead — each thanking them in its own voice.
 suitable_if: Always.
 avoid_if: Never.
 share_frame: The funniest letter open.
-exports:
-- share-still
-- standalone-html
+save:
+- png
+- html (plays on its own)
 print: false
 kit:
 - envelope
@@ -36,9 +37,15 @@ status: candidate
 
 A small stack of envelopes from the objects in their life — their laptop, their boots, the coffee machine, the dog's lead — each thanking them in its own voice.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - Real objects, specific memories.
+
+## Make it useful (offer in your note)
+
+- Printable labels to stick on the real objects
 
 ## Great vs lazy
 

@@ -126,7 +126,7 @@ export function buildAgentContext(input: BriefInput): AgentContext {
     recipient: sharedProfile(profile),
     history: earlier
       .sort((a, b) => a.day - b.day)
-      .map((h) => ({ day: h.day, title: h.title, kind: h.kind, category: h.category, ideaId: h.ideaId, family: h.family, emotion: h.emotion, interaction: h.interaction, collection: h.collection, motifs: h.motifs, thread: h.thread, feedback: h.feedback, opened: h.opened })),
+      .map((h) => ({ day: h.day, title: h.title, kind: h.kind, category: h.category, ideaId: h.ideaId, family: h.family, emotion: h.emotion, interaction: h.interaction, collection: h.collection, motifs: h.motifs, thread: h.thread, followUp: h.followUp, feedback: h.feedback, opened: h.opened })),
     collections: [...sets.values()].map((c) => ({ ...c, days: c.days.sort((a, b) => a - b), complete: c.days.length >= c.size })),
     anchorIdeas: anchor ? anchorIdeas(anchor) : undefined,
     budget: { tier: tier.tier, tokens: tier.tokens, note: tier.note },
@@ -210,7 +210,7 @@ export function renderBriefMarkdown(ctx: AgentContext): string {
   if (ctx.history.length === 0) lines.push('- None yet. This is the first door you prepare.');
   for (const h of ctx.history) {
     const bits = [h.kind, h.family, h.emotion, h.interaction?.join('/'), h.collection ? `set ${h.collection.set} ${h.collection.index}/${h.collection.size}` : undefined].filter(Boolean).join(', ');
-    lines.push(`- Door ${h.day}: "${h.title}" (${bits})${h.feedback ? ' feedback: ' + h.feedback.replace('_', ' ') : ''}${h.opened === false ? ' (not opened yet)' : ''}`);
+    lines.push(`- Door ${h.day}: "${h.title}" (${bits})${h.feedback ? ' feedback: ' + h.feedback.replace('_', ' ') : ''}${h.opened === false ? ' (not opened yet)' : ''}${h.followUp ? ` · you offered: ${h.followUp.offer} (if they ask: "${h.followUp.prompt}")` : ''}`);
   }
   if (ctx.collections.length) {
     lines.push('');

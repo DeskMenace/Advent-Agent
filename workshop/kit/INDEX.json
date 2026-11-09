@@ -290,6 +290,13 @@
       ],
       "note": "Cards, letters, booklets, comics, interactive fiction, type stacks."
     },
+    "terminal-frame": {
+      "status": "built",
+      "files": [
+        "maker/terminal-frame.js"
+      ],
+      "note": "A terminal window drawn in HTML for a small tool's share frame: real commands and output, three themes, optional typing. Text only, never HTML."
+    },
     "three-scene": {
       "status": "built",
       "files": [

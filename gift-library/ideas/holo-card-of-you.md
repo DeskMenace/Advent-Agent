@@ -14,15 +14,16 @@ forms:
 - interactive-html
 tier: S
 capability: chat-ok
+render: 3d
 summary: A rare holographic trading card of them. Tilt it and the foil shimmers; flip it for absurdly precise stats, special moves and a rarity rating.
 suitable_if: You know at least four real traits or habits.
 avoid_if: You know nothing specific (the stats would be fake).
 share_frame: Front of the card, mid-shimmer. Loop — tilt and flip (5 s).
-exports:
-- share-still
-- share-loop
-- standalone-html
-- print
+save:
+- png
+- mp4 loop
+- html (plays on its own)
+- pdf (print-ready)
 print: true
 kit:
 - holo-card
@@ -41,11 +42,17 @@ status: candidate
 
 A rare holographic trading card of them. Tilt it and the foil shimmers; flip it for absurdly precise stats, special moves and a rarity rating.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - Illustrated portrait in their element (with their pet if they have one).
 - Stats and special moves drawn from real habits ("Summit before lunch — 95", "Says 'one more feature' — 100").
 - Card number "001/001", rarity "Mythic".
+
+## Make it useful (offer in your note)
+
+- Print it as a real card; a matching set for friends or family
 
 ## Great vs lazy
 

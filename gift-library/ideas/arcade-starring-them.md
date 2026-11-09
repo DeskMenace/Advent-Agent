@@ -12,15 +12,16 @@ forms:
 - interactive-html
 tier: M
 capability: coding-agent
+render: either
 summary: A small arcade game where they (or their pet) are the hero and their real nemeses are the enemies. Ends on a shareable high-score card.
 suitable_if: Always.
 avoid_if: Too close to the finale game; don't use both in the same week.
 share_frame: The high-score card with a funny rank title.
-exports:
-- share-still
-- share-loop
-- standalone-html
-- score-card
+save:
+- png
+- mp4 loop
+- html (plays on its own)
+- png score card
 print: false
 kit:
 - arcade
@@ -30,7 +31,7 @@ references:
 skills:
 - arcade
 - art-studio
-minimum_done: One tight mechanic, scoring, restart, keyboard and touch.
+minimum_done: 'Fully playable from start to end, tested by you: one tight mechanic, scoring, restart, keyboard and touch.'
 status: candidate
 ---
 
@@ -38,9 +39,15 @@ status: candidate
 
 A small arcade game where they (or their pet) are the hero and their real nemeses are the enemies. Ends on a shareable high-score card.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - Hero, enemies, power-ups and level names from their life.
+
+## Make it useful (offer in your note)
+
+- A standalone file to send to friends
 
 ## Great vs lazy
 

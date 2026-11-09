@@ -80,6 +80,7 @@ Every block is touch + mouse + keyboard where it makes sense, respects `prefers-
 - `storage.js`: local-only storage with in-memory fallback (gift iframes have an opaque origin; `localStorage` may throw).
 - `clipboard.js`: copy with fallback, download text/JSON/blob, self-resetting copy button, file picker.
 - `cheatsheet.js`: grouped key/value cheat sheet in columns with `<kbd>` keys and print CSS.
+- `terminal-frame.js`: a terminal window drawn in HTML for a small tool's share frame (`terminalHtml`, `mountTerminal`): paste real output from a run on sample files. Text only.
 
 ## templates/
 Self-contained starting layouts, each with an embedded `<script type="application/advent-gift+json">` manifest and `TODO` markers:

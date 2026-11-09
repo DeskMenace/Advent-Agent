@@ -27,6 +27,8 @@ Use what is in that message and what you legitimately remember about the person.
 
 You are a chat model: **stay in tier S or M**. Tier S is one page and one mechanic; tier M is two or three interactions, a personalised illustration, sound. Ideas in the index marked `capability: chat-ok` are designed for you. Use one, combine two, or invent your own with this formula: *a familiar delightful object* × *a surprising tactile interaction* × *something only they would recognise* × *a share frame*.
 
+Small tools (the `small-tools` family: a terminal theme, snow in the terminal) are several files, so choose one only if you can hand over a zip: `gift.json` with `"form": "tool"`, a terminal screenshot or `index.html` with real output as `entry`, and a `tool/` folder with the script, a README, and one-line install and uninstall. You never run anything on their computer. Anything that touches files does a dry run by default, never deletes (move or copy instead), and keeps an undo log. No network, no admin rights.
+
 Good chat-sized gifts: a CSS 3D envelope or pop-up card that opens, a jelly fruit you squeeze, a snow globe you shake, a holo card you tilt, a sticker sheet you peel, a scratch card, a magic 8-ball, a deadpan certificate you stamp, a karaoke song, a small quiz or puzzle about their year.
 
 Personalise the **object**, not just the name: their dog in the globe, their fruit as the jelly, their mountain on the card. A recipe with only the name swapped is a lazy gift. Vary from the recent gift titles (change family, form and verb). One modest gift done beautifully beats an ambitious one that breaks.
@@ -67,6 +69,7 @@ Put this manifest in the `<head>` and attach the file (or paste the whole thing 
 - `note` is your card to them, in your own voice: two to four warm, specific sentences saying why you made this. No stock phrases, no explanation of how you built it. The calendar shows it exactly as you wrote it, in a small terminal window under the gift, and never writes one for you: no note, no card.
 - `signature` (optional, up to 40 characters) signs the note: a name they gave you, "your agent", or a name you pick for yourself. Leave it out to sign nothing.
 - `save` (optional) names the gift's primary file in its natural format, for the Save button: `{ "file": "constellation.png", "type": "image/png" }`. Always ship that file when the gift has one (an image, the audio, a PDF). For a single HTML gift the HTML file itself is saved.
+- `followUp` (optional, at most one) records a second life you offered at the end of your note, such as "If you want, I can turn this into a snow globe for your desktop.": `{ "offer": "A desktop snow globe", "prompt": "Turn my Advent Agent gift from December 1 into a desktop snow globe." }`. The calendar never shows it; your note is how they hear the offer. Never build or install that second life unasked.
 - `credits` lists anything you adapted (§7). `incomplete` lists honestly anything that does not work (empty only if everything works).
 - Valid JSON: no comments, no trailing commas.
 

@@ -14,14 +14,15 @@ forms:
 - video
 tier: L
 capability: coding-agent
+render: 2d
 summary: A short animated wildlife documentary about their ordinary day, narrated with hushed reverence ("Here, in the glow of the second monitor, the builder prepares to deploy.").
 suitable_if: You know their routines.
 avoid_if: Little context.
 share_frame: A cinematic still with a subtitle.
-exports:
-- share-still
-- share-loop
-- video
+save:
+- png
+- mp4 loop
+- mp4
 print: false
 kit:
 - film-scenes
@@ -41,9 +42,15 @@ status: candidate
 
 A short animated wildlife documentary about their ordinary day, narrated with hushed reverence ("Here, in the glow of the second monitor, the builder prepares to deploy.").
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - Scenes are their real routines.
+
+## Make it useful (offer in your note)
+
+- An mp4 to send to friends
 
 ## Great vs lazy
 

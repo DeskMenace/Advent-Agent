@@ -13,13 +13,14 @@ forms:
 - interactive-html
 tier: S
 capability: chat-ok
+render: 2d
 summary: A sheet of bubble wrap. Every pop releases a tiny absurd worry from their life and resolves it ("The tests passed. Even the flaky one.").
 suitable_if: Always.
 avoid_if: Never, but keep worries small.
 share_frame: Half-popped sheet with a few messages floating.
-exports:
-- share-still
-- standalone-html
+save:
+- png
+- html (plays on its own)
 print: false
 kit:
 - pop
@@ -37,10 +38,16 @@ status: candidate
 
 A sheet of bubble wrap. Every pop releases a tiny absurd worry from their life and resolves it ("The tests passed. Even the flaky one.").
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - Worries are their real small annoyances, resolved kindly.
 - One rare golden bubble hides something lovely.
+
+## Make it useful (offer in your note)
+
+- A pop-anytime tab or tiny desktop app for stressful days
 
 ## Great vs lazy
 

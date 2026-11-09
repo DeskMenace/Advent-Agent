@@ -13,13 +13,14 @@ forms:
 - print
 tier: S
 capability: chat-ok
+render: 2d
 summary: A patent document, with technical drawings, for a habit or invention of theirs ("Method and apparatus for eating chocolate on a summit").
 suitable_if: You know a habit.
 avoid_if: Never.
 share_frame: The first page with the drawing.
-exports:
-- share-still
-- print
+save:
+- png
+- pdf (print-ready)
 print: true
 kit:
 - document
@@ -36,9 +37,15 @@ status: candidate
 
 A patent document, with technical drawings, for a habit or invention of theirs ("Method and apparatus for eating chocolate on a summit").
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - The habit is real; the claims are precise and ridiculous.
+
+## Make it useful (offer in your note)
+
+- A printable certificate to frame
 
 ## Great vs lazy
 

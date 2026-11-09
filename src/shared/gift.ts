@@ -84,7 +84,7 @@ export const EMOTIONS = ['funny', 'ridiculous', 'absurd', 'cute', 'touching'] as
 export const EmotionSchema = z.enum(EMOTIONS);
 export const TIERS = ['S', 'M', 'L', 'XL'] as const;
 export const TierSchema = z.enum(TIERS);
-export const FAMILIES = ['paper-and-pop-ups', 'tactile-toys', 'living-things', 'sound', 'games', 'deadpan-documents', 'printables', 'heart', 'real-world', 'finale'] as const;
+export const FAMILIES = ['paper-and-pop-ups', 'tactile-toys', 'living-things', 'sound', 'games', 'deadpan-documents', 'printables', 'heart', 'real-world', 'small-tools', 'finale'] as const;
 
 /** Licences whose code/art may be copied into a gift (inspiration-sources.md). Compared case-insensitively. */
 export const ALLOWED_CREDIT_LICENSES = ['MIT', 'BSD', 'BSD-2-Clause', 'BSD-3-Clause', 'ISC', 'Apache-2.0', 'CC0', 'CC0-1.0', 'Unlicense', 'CC BY', 'CC-BY', 'CC BY 3.0', 'CC BY 4.0', 'CC-BY-3.0', 'CC-BY-4.0', 'OFL', 'OFL-1.1', 'SIL OFL 1.1', 'Public domain'];
@@ -146,6 +146,8 @@ export const GiftManifestSchema = z.object({
   signature: z.string().min(1).max(40).optional(),
   /** The gift's primary file in its natural format, for Save. */
   save: z.object({ file: RelativePathSchema, type: z.string().min(1).max(100) }).optional(),
+  /** A second life the agent offered in its note (D27). For the agent only: the calendar never shows it. */
+  followUp: z.object({ offer: z.string().min(1).max(200), prompt: z.string().min(1).max(2000) }).optional(),
   primary: RelativePathSchema.optional(),
   artifacts: z.array(ArtifactSchema).max(200).default([]),
   song: SongSchema.optional(),
@@ -165,6 +167,7 @@ export const GiftManifestSchema = z.object({
   family: z.string().max(60).optional(),
   emotion: EmotionSchema.optional(),
   interaction: z.union([z.string().min(1).max(40), z.array(z.string().min(1).max(40)).min(1).max(8)]).optional(),
+  /** e.g. interactive-html, audio, video, image, print, tool (small tools keep their files in tool/). */
   form: z.string().max(40).optional(),
   tierUsed: TierSchema.optional(),
   collection: CollectionRefSchema.nullable().optional(),

@@ -115,6 +115,7 @@ export const AgentContextSchema = z.object({
       collection: z.object({ set: z.string(), index: z.number().int(), size: z.number().int() }).optional(),
       motifs: z.array(z.string()),
       thread: z.string().optional(),
+      followUp: z.object({ offer: z.string(), prompt: z.string() }).optional(),
       feedback: z.string().optional(),
       opened: z.boolean().optional(),
     }),

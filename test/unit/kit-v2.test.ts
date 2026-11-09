@@ -16,6 +16,7 @@ const NEW_JS = [
   'sound/karaoke.js', 'sound/cassette.js',
   'characters/character-rig.js',
   'document/layouts.js',
+  'maker/terminal-frame.js',
 ];
 const VENDOR = [
   ['three.module.min.js', 'three.LICENSE', /MIT License/],

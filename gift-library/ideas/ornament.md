@@ -14,14 +14,15 @@ forms:
 - interactive-html
 tier: M
 capability: chat-ok
+render: 3d
 summary: A hand-blown glass ornament with a tiny scene inside. Turn it to look inside; tap to make it ring. Three ornaments complete a little tree.
 suitable_if: Always.
 avoid_if: Never.
 share_frame: The ornament catching light, scene visible inside.
-exports:
-- share-still
-- share-loop
-- wallpaper
+save:
+- png
+- mp4 loop
+- wallpaper png (phone + desktop)
 print: false
 kit:
 - glass
@@ -38,10 +39,16 @@ status: candidate
 
 A hand-blown glass ornament with a tiny scene inside. Turn it to look inside; tap to make it ring. Three ornaments complete a little tree.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - Each ornament holds a scene from their life.
-- The third ornament hangs all three on a small tree.
+- As a collection: each later ornament is delivered on the same little tree with the earlier ones; the third completes it.
+
+## Make it useful (offer in your note)
+
+- A printable paper ornament to hang on a real tree
 
 ## Great vs lazy
 

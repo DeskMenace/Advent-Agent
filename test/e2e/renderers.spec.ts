@@ -161,6 +161,30 @@ test.describe('the note is the agent\'s alone (D26)', () => {
     await expect(page.locator('.agent-note')).toHaveCount(0);
   });
 
+  test('a tool gift shows its terminal page and note; followUp never appears; Save gives the tool zip (D27)', async ({ page }) => {
+    const manifest = {
+      schema: 'advent-agent/gift@2', day: 21, title: 'Snow in your terminal', family: 'small-tools', form: 'tool', emotion: 'cute', interaction: ['run'],
+      entry: 'index.html', share: { still: { capture: 'still' } }, note: 'It snows harder on Fridays. If you want, I can make it start with every new tab.',
+      followUp: { offer: 'Snow on every new tab', prompt: 'Turn my Advent Agent gift from December 21 (<gift folder path>) into snow on every new terminal tab.' },
+    };
+    const terminal = '<!doctype html><html><body style="background:#16181d;color:#e8e6df;font-family:monospace"><pre id="out">$ snow\n  *   .  *\n .  *    .</pre><script>window.adventCapture={async prepare(){}}</script></body></html>';
+    await submitGift(21, [
+      { name: 'gift.json', text: JSON.stringify(manifest) }, { name: 'index.html', text: terminal },
+      { name: 'tool/snow.py', text: 'import sys, time, random\n# quits cleanly on Ctrl+C\n' }, { name: 'tool/README.md', text: '# Snow\n\nRun: python3 snow.py\n\nUninstall: delete the alias line from ~/.zshrc.\n' },
+    ], { reveal: true });
+    await login(page, '/gifts/21');
+    await expect(page.frameLocator('iframe.gift-frame').locator('#out')).toContainText('$ snow');
+    await expect(page.locator('.term-text')).toHaveText(manifest.note, { timeout: 8000 });
+    const text = await page.locator('main').innerText();
+    expect(text).not.toContain('Snow on every new tab');
+    expect(text).not.toContain('snow.py');
+    const items = await saveItems(page);
+    expect(items[0]).toBe('The tool ZIP');
+    const saved = await saveFirst(page);
+    expect(saved.name).toBe('advent-day-21-snow-in-your-terminal.zip');
+    expect(saved.body.subarray(0, 2).toString('latin1')).toBe('PK');
+  });
+
   test('reduced motion shows the whole note at once', async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await ctx.newPage();

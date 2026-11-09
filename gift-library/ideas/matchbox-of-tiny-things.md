@@ -14,13 +14,14 @@ forms:
 - interactive-html
 tier: S
 capability: chat-ok
+render: 3d
 summary: A matchbox with a hand-drawn label. Slide the drawer to find five miniature objects, each with a tiny museum label explaining its absurd significance in their life.
 suitable_if: You know at least five concrete things about them.
 avoid_if: Very little context.
 share_frame: Drawer half open, objects visible with labels.
-exports:
-- share-still
-- standalone-html
+save:
+- png
+- html (plays on its own)
 print: false
 kit:
 - css-3d-box
@@ -38,10 +39,16 @@ status: candidate
 
 A matchbox with a hand-drawn label. Slide the drawer to find five miniature objects, each with a tiny museum label explaining its absurd significance in their life.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - The five objects are real things from their life, tiny.
 - The matchbox label is designed around them.
+
+## Make it useful (offer in your note)
+
+- A printable matchbox to fold, with the labels
 
 ## Great vs lazy
 

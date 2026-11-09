@@ -13,14 +13,15 @@ forms:
 - interactive-html
 tier: S
 capability: chat-ok
+render: 3d
 summary: A magic 8-ball whose answers come from their world — in the voice of their pet, their favourite show, their mountain guide.
 suitable_if: You know a voice they'd recognise.
 avoid_if: Never.
 share_frame: The answer window with a great answer.
-exports:
-- share-still
-- share-loop
-- standalone-html
+save:
+- png
+- mp4 loop
+- html (plays on its own)
 print: false
 kit:
 - shake
@@ -38,10 +39,16 @@ status: candidate
 
 A magic 8-ball whose answers come from their world — in the voice of their pet, their favourite show, their mountain guide.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - Twenty answers written in a voice they know.
 - The die inside floats up through dark liquid.
+
+## Make it useful (offer in your note)
+
+- A terminal command (`ask`) that answers in the same voice
 
 ## Great vs lazy
 

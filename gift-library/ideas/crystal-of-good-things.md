@@ -12,14 +12,15 @@ forms:
 - interactive-html
 tier: S
 capability: chat-ok
+render: 3d
 summary: A slowly turning crystal. Each facet holds one good thing from their year; rotate it to catch the light on each one.
 suitable_if: You know several good moments.
 avoid_if: The year was hard and they haven't said they'd welcome reflection.
 share_frame: The crystal catching light, one facet legible.
-exports:
-- share-still
-- share-loop
-- wallpaper
+save:
+- png
+- mp4 loop
+- wallpaper png (phone + desktop)
 print: false
 kit:
 - crystal
@@ -37,10 +38,16 @@ status: candidate
 
 A slowly turning crystal. Each facet holds one good thing from their year; rotate it to catch the light on each one.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - Every facet is a real good thing from their year.
 - The crystal's colour suits them.
+
+## Make it useful (offer in your note)
+
+- A screensaver or wallpaper
 
 ## Great vs lazy
 

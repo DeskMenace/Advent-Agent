@@ -12,14 +12,15 @@ forms:
 - interactive-html
 tier: M
 capability: coding-agent
+render: 2d
 summary: 'A slick product-launch page for their pet, with scroll animations, specs ("Shedding: industrial-grade"), colours, accessories and a "pre-order" button that does something silly.'
 suitable_if: They have a pet.
 avoid_if: No pet.
 share_frame: The hero section with the tagline.
-exports:
-- share-still
-- share-loop
-- standalone-html
+save:
+- png
+- mp4 loop
+- html (plays on its own)
 print: false
 kit:
 - scroll-scenes
@@ -37,9 +38,15 @@ status: candidate
 
 A slick product-launch page for their pet, with scroll animations, specs ("Shedding: industrial-grade"), colours, accessories and a "pre-order" button that does something silly.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - Specs are the pet's real traits.
+
+## Make it useful (offer in your note)
+
+- A printable poster
 
 ## Great vs lazy
 

@@ -1,6 +1,6 @@
 # Gift library
 
-49 ideas for Advent Agent gifts. **They are inspiration, not templates.** Agents may use an idea as it is, combine two, or ignore the library and invent their own gift. How agents choose and build is in `workshop/skills/gift-director/SKILL.md`.
+58 ideas for Advent Agent gifts. **They are inspiration, not templates.** Agents may use an idea as it is, combine two, or ignore the library and invent their own gift. How agents choose and build is in `workshop/skills/gift-director/SKILL.md`.
 
 Every idea is designed around the three creative criteria:
 
@@ -15,13 +15,16 @@ Every idea is designed around the three creative criteria:
 | `paper-and-pop-ups` | Cards, envelopes, tickets and boxes that open in 3D | 7 |
 | `tactile-toys` | Desk objects you shake, squeeze, tap or steer | 7 |
 | `living-things` | Characters, flowers, gardens, ornaments | 4 |
-| `sound` | Songs, mixtapes, music boxes, soundscapes | 4 |
+| `sound` | Songs (about them, about their project, any genre incl. rap), mixtapes, music boxes, soundscapes | 5 |
 | `games` | Small games and puzzles | 5 |
 | `deadpan-documents` | Awards, museums, reports, patents, newspapers, trailers played completely straight | 9 |
 | `printables` | Stickers, wallpapers, zines, with print files | 3 |
 | `heart` | The touching ones | 4 |
 | `real-world` | Purchase-ready proposals; the agent never buys (D1) | 2 |
+| `small-tools` | Scripts and terminal things that are useful *and* funny or cute: Downloads tidier, terminal theme, snow in the terminal | 8 |
 | `finale` | December 24 only | 4 |
+
+**Families are directions, not menus.** An agent can pick a family and build something that isn't listed in it. Everything inside an idea ("their city", "their dog") is an example, never a requirement.
 
 Anchors: 4 ideas are marked `anchor: day1` (chosen during setup) and 4 `anchor: finale` (December 24). Agents choose Day 1 only from the `day1` set and should pick December 24 from the `finale` set or invent something of that size.
 
@@ -39,13 +42,14 @@ One Markdown file per idea in `ideas/<id>.md`. Frontmatter:
 | `collection` | set name or `null` | Part of a 3-item set |
 | `emotion` | `funny` `ridiculous` `absurd` `cute` `touching` | The intended feeling, first one dominant |
 | `interaction` | verbs | The delight: shake, squeeze, peel, open, scratch… Used for rotation |
-| `forms` | `interactive-html` `video` `audio` `image` `print` | Output forms |
+| `forms` | `interactive-html` `video` `audio` `image` `print` `tool` | Output forms |
+| `render` | `2d` `3d` `either` `terminal` | How it's drawn; `either` = agent's choice by budget |
 | `tier` | `S` `M` `L` `XL` | **Minimum** budget tier to make it well (see `budget-tiers.md`) |
 | `capability` | `chat-ok` · `coding-agent` | `chat-ok` = a chat LLM can make it as one self-contained HTML file using kit blocks |
 | `summary` | | What it is, in two sentences |
 | `suitable_if` / `avoid_if` | | Conditions on what the agent knows and the user's settings |
 | `share_frame` | | What the share image and loop should show |
-| `exports` | | `share-still` `share-loop` `standalone-html` `wallpaper` `print` `wav` `video` … |
+| `save` | | What the user can save, in natural formats: png, mp4, html that plays on its own, wallpaper, pdf, wav, script… |
 | `print` | bool | Comes with print-ready files (and real print services if research is allowed) |
 | `kit` | kit block names | Building blocks in `workshop/kit/` that help; the agent builds from scratch if a block is missing |
 | `references` | ids below | Inspiration and implementation references |
@@ -53,7 +57,7 @@ One Markdown file per idea in `ideas/<id>.md`. Frontmatter:
 | `minimum_done` | | The bar for "finished" |
 | `status` | `candidate` · `approved` | Maintainer review in the gift lab. Agents may use either |
 
-The body has two sections: **Make it theirs** (how to personalise beyond the name) and **Great vs lazy** (calibration, not a template).
+The body has three sections: **Make it theirs** (examples of personalising beyond the name), **Make it useful** (a second life the agent can include or offer in its note, e.g. a desktop snow globe, a terminal snowfall, a printable) and **Great vs lazy** (calibration, not a template).
 
 ## Reference ids
 

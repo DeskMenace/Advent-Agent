@@ -15,13 +15,14 @@ forms:
 - print
 tier: M
 capability: chat-ok
+render: 2d
 summary: An 8-page fold-and-staple zine about them, to read on screen (pages flip) or print on one sheet and fold. Includes a how-to-fold diagram.
 suitable_if: Always.
 avoid_if: Little context.
 share_frame: The cover and a spread.
-exports:
-- share-still
-- print
+save:
+- png
+- pdf (print-ready)
 print: true
 kit:
 - zine
@@ -38,9 +39,15 @@ status: candidate
 
 An 8-page fold-and-staple zine about them, to read on screen (pages flip) or print on one sheet and fold. Includes a how-to-fold diagram.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - Comics, lists and collages from their life.
+
+## Make it useful (offer in your note)
+
+- Print and fold it
 
 ## Great vs lazy
 

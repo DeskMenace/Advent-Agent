@@ -14,15 +14,16 @@ forms:
 - video
 tier: M
 capability: coding-agent
+render: 2d
 summary: An epic movie trailer for an ordinary week of theirs — title cards, a booming "In a world…" and a release date.
 suitable_if: Always.
 avoid_if: Never.
 share_frame: The movie poster.
-exports:
-- share-still
-- share-loop
-- video
-- poster
+save:
+- png
+- mp4 loop
+- mp4
+- pdf poster
 print: true
 kit:
 - film-scenes
@@ -41,9 +42,15 @@ status: candidate
 
 An epic movie trailer for an ordinary week of theirs — title cards, a booming "In a world…" and a release date.
 
+*Everything below is examples to spark ideas, not requirements. Stay in this idea, bend it, or build something new in the same family.*
+
 ## Make it theirs
 
 - Scenes are real moments; review quotes come from their pet and colleagues.
+
+## Make it useful (offer in your note)
+
+- The poster printed
 
 ## Great vs lazy
 
