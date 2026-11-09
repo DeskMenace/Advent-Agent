@@ -25,7 +25,6 @@
     "calendar",
     "ai",
     "agent",
-    "mcp",
     "claude",
     "codex",
     "gemini",
@@ -39,7 +38,6 @@
     "schema/",
     "workshop/",
     "gift-library/",
-    "AGENT_GUIDE.md",
     "README.md",
     "THIRD_PARTY.md",
     "LICENSE"
@@ -59,11 +57,11 @@
     "test:agents": "vitest run test/agents --config vitest.agents.config.ts",
     "test:packaging": "vitest run test/packaging --config vitest.packaging.config.ts",
     "e2e": "playwright test",
-    "ci": "npm run typecheck && npm run library:index -- --check && npm test && npm run build && npm run e2e"
+    "ci": "npm run typecheck && npm run library:index -- --check && npm test && npm run build && npm run e2e",
+    "lab": "tsx scripts/lab/cli.ts"
   },
   "dependencies": {
     "@hono/node-server": "^2.1.6",
-    "@modelcontextprotocol/sdk": "^1.32.2",
     "gary.js": "^0.2.0",
     "hono": "^4.13.17",
     "open": "^11.0.4",

@@ -44,7 +44,7 @@ export function SetupPage() {
               <h1 class="page-title">Your AI agent is your <em style="color:var(--burgundy)">Secret Santa.</em></h1>
               <p class="page-sub">Twenty-four doors, December 1 to 24. Behind each one, something your own agent made just for you. Everything stays on this computer: no account, no API keys, no tracking.</p>
               <p class="page-sub"><strong>Your agent never buys or books anything.</strong> When a gift is a real object or experience, it prepares a proposal and you decide.</p>
-              {installed.length === 0 && <div class="notice">No terminal agent was found on this computer. That is fine: you can connect a desktop app through MCP, or paste a request into any chat assistant and drop the result in.</div>}
+              {installed.length === 0 && <div class="notice">No terminal agent was found on this computer. Install one (Claude Code, Codex, Gemini CLI, …), then come back to this page. You can also use a custom command.</div>}
             </>
           ) : <ConnectionSection cfg={cfg} onChange={patch} detect={detect} />}
           <div class="wizard-nav">

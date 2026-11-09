@@ -1,5 +1,4 @@
 /** Budget tiers (D16, workshop/skills/gift-director/references/budget-tiers.md). Token figures are advisory. */
-import type { ConnectionMode } from '../shared/door.js';
 
 export type Tier = 'S' | 'M' | 'L' | 'XL';
 export type Generosity = 'light' | 'standard' | 'generous';
@@ -25,15 +24,10 @@ export interface TierDecision {
 
 /**
  * Day 1 and December 24 get XL: 3× the daily budget, at least L.
- * Portable mode (chat LLMs without tools) is capped at M: those agents can't test or iterate (D23).
  */
-export function tierFor(day: number, generosity: Generosity, mode: ConnectionMode): TierDecision {
+export function tierFor(day: number, generosity: Generosity): TierDecision {
   const daily = GENEROSITY_TIER[generosity];
   const dailyTokens = TIER_TOKENS[daily];
-  if (mode === 'portable') {
-    const tier = ORDER.indexOf(daily) > ORDER.indexOf('M') ? 'M' : daily;
-    return { tier, tokens: TIER_TOKENS[tier], capMultiplier: 1, note: 'Chat assistants stay in tier S or M forms: one self-contained page, made flawless.' };
-  }
   if (anchorFor(day)) return { tier: 'XL', tokens: Math.max(3 * dailyTokens, TIER_TOKENS.L), capMultiplier: 3 };
   return { tier: daily, tokens: dailyTokens, capMultiplier: 1 };
 }

@@ -53,7 +53,7 @@ function unzip(buf: Buffer): Promise<Array<{ name: string; mode: number; text: s
 }
 
 beforeAll(async () => {
-  t = await testCompanion({ config: { connection: { mode: 'connected', permissive: false } } });
+  t = await testCompanion({ config: { connection: { mode: 'submit', permissive: false } } });
 }, 60_000);
 afterAll(async () => { await t?.close(); });
 
@@ -89,7 +89,7 @@ describe('small-tool gifts (D27)', () => {
   });
 
   it('displays the screenshot, Save gives the tool as a zip (scripts executable, nothing added), followUp stays out of the gift view and reaches the next brief', async () => {
-    const s = await t.api<Result>('POST', '/api/agent/submit?day=3&mode=connected', { files: toolFiles(3) });
+    const s = await t.api<Result>('POST', '/api/agent/submit?day=3&mode=submit', { files: toolFiles(3) });
     expect(s.data.ok, JSON.stringify(s.data.problems)).toBe(true);
     await t.api('POST', '/api/doors/3/reveal');
     const g = (await t.api<{ gift: { kind: string } }>('GET', '/api/doors/3/gift')).data;
@@ -107,7 +107,7 @@ describe('small-tool gifts (D27)', () => {
     expect(entries.find((e) => e.name.endsWith('README.md'))!.mode).toBe(0o644);
     for (const e of entries) expect(e.text).not.toMatch(/Advent Agent|deskmenace/);
 
-    const ctx = (await t.api<{ history: Array<{ day: number; followUp?: { offer: string } }> }>('GET', '/api/agent/context?day=4&mode=connected')).data;
+    const ctx = (await t.api<{ history: Array<{ day: number; followUp?: { offer: string } }> }>('GET', '/api/agent/context?day=4&mode=submit')).data;
     expect(ctx.history.find((h) => h.day === 3)?.followUp?.offer).toBe('A weekly reminder in your terminal');
   });
 

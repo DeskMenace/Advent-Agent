@@ -1,104 +1,177 @@
 /** Sections shared by the setup wizard and the settings page. */
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Config, Profile } from '../../../src/shared/config.js';
+import type { List, Persona, PersonaCandidate } from '../../../src/shared/list.js';
 import { api } from '../api.js';
 import { toast } from '../lib/ui.js';
 
 export type Detect = Awaited<ReturnType<typeof api.detect>>;
 
-const MODE_TABLE = [
-  { mode: 'launched', title: 'Launched', who: 'Terminal agents installed here (Claude Code, Codex, Gemini CLI, …)', starts: 'The calendar, when you open a door or on a schedule', scheduled: 'Yes', surprise: 'Fully kept: output hidden, only spoiler-free phases shown' },
-  { mode: 'connected', title: 'Connected', who: 'Desktop apps that speak MCP (Claude Desktop, Codex desktop, Cursor, …)', starts: 'You: “Open door 7 of my Advent Agent calendar.”', scheduled: 'No', surprise: 'Partly: the chat shows tool calls' },
-  { mode: 'portable', title: 'Portable', who: 'Any chat assistant or cloud agent (claude.ai, ChatGPT, Gemini, …)', starts: 'You paste a request, then drop the result in', scheduled: 'No', surprise: 'Partly: ask it to send the file without a preview' },
-  { mode: 'submit', title: 'Command line', who: 'Your own scripts and automations', starts: 'Whoever calls advent-agent submit', scheduled: 'If your script is', surprise: 'Up to you' },
-] as const;
+const HOW_IT_WORKS = 'The calendar starts your agent when you open a door, or ahead of time on a schedule. It works out of sight: you only see spoiler-free progress.';
 
-export function ConnectionSection(props: { cfg: Config; onChange: (p: Partial<Config>) => void; detect: Detect }) {
+export function ConnectionSection(props: { cfg: Config; onChange: (p: Partial<Config>) => void; detect: Detect; withPersona?: boolean }) {
   const { cfg, detect } = props;
   const conn = cfg.connection;
   const set = (p: Partial<Config['connection']>) => props.onChange({ connection: { ...conn, ...p } });
-  const [mcp, setMcp] = useState<Awaited<ReturnType<typeof api.mcpConfig>> | null>(null);
-  const [mcpHost, setMcpHost] = useState<string>(conn.mcpHost ?? 'claude-desktop');
-  const [diff, setDiff] = useState<Awaited<ReturnType<typeof api.mcpInstall>> | null>(null);
-  useEffect(() => { if (conn.mode === 'connected' && !mcp) api.mcpConfig().then(setMcp).catch(() => undefined); }, [conn.mode]);
   const installed = detect.adapters.filter((a) => a.detection.installed && a.capabilities.headless);
   return (
     <section class="section" style="margin-top:0">
       <div class="eyebrow">Your agent</div>
-      <h1 class="page-title">Who is your Secret Santa?</h1>
-      <p class="page-sub">Four ways to connect. Here is how each one works.</p>
+      <h1 class="page-title">Which agent?</h1>
+      <p class="page-sub">{HOW_IT_WORKS}</p>
+      {installed.length === 0 && <div class="notice warn">No supported terminal agent was found on your PATH. Install one (Claude Code, Codex, Gemini CLI, …) and reopen this page, or use a custom command below.</div>}
       <div class="card-grid">
-        {MODE_TABLE.map((m) => (
-          <button key={m.mode} type="button" class="choice-card" aria-pressed={conn.mode === m.mode} onClick={() => set({ mode: m.mode })}>
-            <span class="tag">{m.scheduled === 'Yes' ? 'Can be scheduled' : 'You start the work'}</span>
-            <strong class="choice-title">{m.title}</strong>
-            <p>{m.who}</p>
+        {detect.adapters.map((a) => (
+          <button key={a.id} type="button" class="choice-card" aria-pressed={conn.adapter === a.id} disabled={!a.detection.installed && a.id !== 'custom'} onClick={() => set({ mode: 'launched', adapter: a.id as Config['connection']['adapter'] })}>
+            <span class="tag">{a.detection.installed ? `found${a.detection.version ? ` · ${a.detection.version}` : ''}` : 'not found'}{!a.capabilities.verified ? ' · flags unverified' : ''}</span>
+            <strong class="choice-title">{a.label}</strong>
+            <p>{a.detection.note ?? a.capabilities.notes[0] ?? ''}</p>
           </button>
         ))}
+        <button type="button" class="choice-card" aria-pressed={conn.adapter === 'custom'} onClick={() => set({ mode: 'launched', adapter: 'custom' })}>
+          <span class="tag">escape hatch</span><strong class="choice-title">Custom command</strong><p>Any other agent that can be started with a command.</p>
+        </button>
       </div>
-      <table class="honest-table">
-        <thead><tr><th>Mode</th><th>Who starts the work</th><th>Scheduled?</th><th>Surprise kept?</th></tr></thead>
-        <tbody>{MODE_TABLE.map((m) => <tr key={m.mode} style={conn.mode === m.mode ? 'background:#fbf7ee' : ''}><td><strong>{m.title}</strong></td><td>{m.starts}</td><td>{m.scheduled}</td><td>{m.surprise}</td></tr>)}</tbody>
-      </table>
+      {conn.adapter === 'custom' && (
+        <div class="field" style="margin-top:14px">
+          <label for="custom-cmd">Command template</label>
+          <input id="custom-cmd" type="text" value={conn.customCommand ?? ''} onInput={(e) => set({ customCommand: (e.target as HTMLInputElement).value })} placeholder='my-agent run --prompt-file {prompt_file} --cwd {workspace}' />
+          <span class="hint">Placeholders: <code class="inline">{'{prompt}'}</code> <code class="inline">{'{prompt_file}'}</code> <code class="inline">{'{workspace}'}</code> <code class="inline">{'{door}'}</code> <code class="inline">{'{workshop}'}</code> <code class="inline">{'{day}'}</code>. You are responsible for what this command does and which permissions it grants.</span>
+        </div>
+      )}
+      {conn.adapter && conn.adapter !== 'custom' && (
+        <label class="check">
+          <input type="checkbox" checked={conn.permissive} onChange={(e) => set({ permissive: (e.target as HTMLInputElement).checked })} />
+          <span class="check-text">Let the agent skip its own permission prompts<small>Off by default. The calendar never uses “skip all permissions” flags unless you turn this on. With it on, the agent can run any command on your computer while making a gift.</small></span>
+        </label>
+      )}
+      {conn.permissive && <div class="notice warn">Permissive mode is on. Your agent runs without its usual guard rails during gift preparation.</div>}
+      {conn.adapter && props.withPersona !== false && <PersonaPicker persona={cfg.persona} onPersona={(persona) => props.onChange({ persona })} />}
+    </section>
+  );
+}
 
-      {conn.mode === 'launched' && (
-        <>
-          <h2 class="minor">Which terminal agent?</h2>
-          {installed.length === 0 && <div class="notice warn">No supported terminal agent was found on your PATH. Install one, or pick another mode. You can also use a custom command below.</div>}
-          <div class="card-grid">
-            {detect.adapters.map((a) => (
-              <button key={a.id} type="button" class="choice-card" aria-pressed={conn.adapter === a.id} disabled={!a.detection.installed && a.id !== 'custom'} onClick={() => set({ adapter: a.id as Config['connection']['adapter'] })}>
-                <span class="tag">{a.detection.installed ? `found${a.detection.version ? ` · ${a.detection.version}` : ''}` : 'not found'}{!a.capabilities.verified ? ' · flags unverified' : ''}</span>
-                <strong class="choice-title">{a.label}</strong>
-                <p>{a.detection.note ?? a.capabilities.notes[0] ?? ''}</p>
-              </button>
-            ))}
-            <button type="button" class="choice-card" aria-pressed={conn.adapter === 'custom'} onClick={() => set({ adapter: 'custom' })}>
-              <span class="tag">escape hatch</span><strong class="choice-title">Custom command</strong><p>Any other agent that can be started with a command.</p>
-            </button>
-          </div>
-          {conn.adapter === 'custom' && (
-            <div class="field" style="margin-top:14px">
-              <label for="custom-cmd">Command template</label>
-              <input id="custom-cmd" type="text" value={conn.customCommand ?? ''} onInput={(e) => set({ customCommand: (e.target as HTMLInputElement).value })} placeholder='my-agent run --prompt-file {prompt_file} --cwd {workspace}' />
-              <span class="hint">Placeholders: <code class="inline">{'{prompt}'}</code> <code class="inline">{'{prompt_file}'}</code> <code class="inline">{'{workspace}'}</code> <code class="inline">{'{workshop}'}</code> <code class="inline">{'{day}'}</code>. You are responsible for what this command does and which permissions it grants.</span>
+const KIND_LABEL: Record<PersonaCandidate['kind'], string> = { 'claude-agent': 'custom agent', 'claude-output-style': 'output style', 'claude-md': 'CLAUDE.md', 'codex-agents': 'AGENTS.md' };
+const folderName = (p?: string) => (p ? p.split(/[\\/]/).filter(Boolean).pop() ?? p : 'all projects');
+
+/** "Who is your Secret Santa?": the agent itself (default), or one of the user's personas found by a file scan. */
+export function PersonaPicker(props: { persona?: Persona; onPersona: (p: Persona | undefined) => void; changeOnly?: boolean }) {
+  const [choice, setChoice] = useState<'agent' | 'persona'>(props.persona ? 'persona' : 'agent');
+  const [candidates, setCandidates] = useState<PersonaCandidate[] | null>(null);
+  const [busy, setBusy] = useState(false);
+  const file = useRef<HTMLInputElement>(null);
+  useEffect(() => { if (choice === 'persona' && !candidates) api.personaCandidates().then((r) => setCandidates(r.candidates)).catch((e) => { toast((e as Error).message); setCandidates([]); }); }, [choice]);
+  const pick = async (body: Parameters<typeof api.setPersona>[0]) => {
+    setBusy(true);
+    try { props.onPersona((await api.setPersona(body)).persona ?? undefined); } catch (e) { toast((e as Error).message); } finally { setBusy(false); }
+  };
+  return (
+    <div class="persona-picker" style="margin-top:28px">
+      <h2 class="minor">Who is your Secret Santa?</h2>
+      <div class="choices two" role="radiogroup" aria-label="Who is your Secret Santa?">
+        <button type="button" role="radio" class="choice" aria-checked={choice === 'agent'} onClick={() => { setChoice('agent'); if (props.persona) void pick(null); }}>
+          <span class="choice-name">Just my agent</span>
+        </button>
+        <button type="button" role="radio" class="choice" aria-checked={choice === 'persona'} onClick={() => setChoice('persona')}>
+          <span class="choice-name">One of my personas</span>
+        </button>
+      </div>
+      {choice === 'persona' && (
+        <div class="persona-list" style="margin-top:14px">
+          {candidates === null && <p class="muted-line">Looking through your agent setup…</p>}
+          {candidates?.length === 0 && <p class="muted-line">No personas found. Choose a file instead.</p>}
+          {candidates && candidates.length > 0 && (
+            <div class="choice-stack" role="radiogroup" aria-label="Your personas">
+              {candidates.map((c) => (
+                <button key={c.id} type="button" role="radio" class="choice persona-option" aria-checked={props.persona?.sourcePath === c.sourcePath} disabled={busy} onClick={() => pick({ candidateId: c.id })}>
+                  <span class="choice-name">{c.name}</span>
+                  <span class="choice-copy">{folderName(c.project)} · {KIND_LABEL[c.kind]}</span>
+                  <span class="choice-copy">{c.preview}</span>
+                </button>
+              ))}
             </div>
           )}
-          {conn.adapter && conn.adapter !== 'custom' && (
-            <label class="check">
-              <input type="checkbox" checked={conn.permissive} onChange={(e) => set({ permissive: (e.target as HTMLInputElement).checked })} />
-              <span class="check-text">Let the agent skip its own permission prompts<small>Off by default. The calendar never uses “skip all permissions” flags unless you turn this on. With it on, the agent can run any command on your computer while making a gift.</small></span>
-            </label>
-          )}
-          {conn.permissive && <div class="notice warn">Permissive mode is on. Your agent runs without its usual guard rails during gift preparation.</div>}
-        </>
-      )}
-
-      {conn.mode === 'connected' && mcp && (
-        <>
-          <h2 class="minor">Connect your app</h2>
-          <p class="page-sub">Add the Advent Agent MCP server to your app, then open a door and tell the app: “Open door 7 of my Advent Agent calendar.” You might glimpse the wrapping paper in the chat.</p>
-          <div class="chips" style="margin-bottom:12px">
-            {Object.entries(mcp.snippets).map(([id, s]) => <button key={id} type="button" class="chip" aria-pressed={mcpHost === id} onClick={() => { setMcpHost(id); set({ mcpHost: id }); setDiff(null); }}>{s.label}</button>)}
+          <div class="button-row" style="margin-top:12px">
+            <button type="button" class="secondary-button" disabled={busy} onClick={() => file.current?.click()}>Choose a file…</button>
+            <input ref={file} type="file" accept=".md,.txt,text/markdown,text/plain" style="display:none" onChange={async (e) => {
+              const f = (e.target as HTMLInputElement).files?.[0];
+              if (f) await pick({ fileName: f.name, text: await f.text() });
+              (e.target as HTMLInputElement).value = '';
+            }} />
           </div>
-          <pre class="snippet">{mcp.snippets[mcpHost]?.snippet}</pre>
-          <p class="hint" style="font-size:12px;color:var(--muted-strong)">{mcp.snippets[mcpHost]?.notes}{mcp.snippets[mcpHost]?.configPath ? ` File: ${mcp.snippets[mcpHost]?.configPath}` : ''}</p>
+          {props.persona && <p class="muted-line small">Your Secret Santa is <strong>{props.persona.name}</strong>. Its notes will be signed with that name.</p>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Settings: the persona that is set, with Change and Refresh. */
+export function PersonaSettings(props: { persona?: Persona; onPersona: (p: Persona | undefined) => void }) {
+  const [changing, setChanging] = useState(false);
+  return (
+    <section>
+      <h2 class="settings-h">Your Secret Santa</h2>
+      {props.persona ? (
+        <>
+          <p class="page-sub" style="margin-bottom:12px"><strong>{props.persona.name}</strong> <span class="muted-line small">· from {props.persona.sourcePath}</span></p>
           <div class="button-row">
-            <button class="secondary-button" onClick={async () => toast((await navigator.clipboard.writeText(mcp.snippets[mcpHost]?.snippet ?? '').then(() => true).catch(() => false)) ? 'Copied.' : 'Select and copy the snippet.')}>Copy</button>
-            {mcp.snippets[mcpHost]?.configPath && <button class="secondary-button" onClick={async () => setDiff(await api.mcpInstall(mcpHost, false))}>Add it for me…</button>}
+            <button type="button" class="secondary-button" onClick={() => setChanging(!changing)}>Change</button>
+            <button type="button" class="ghost-button" onClick={async () => { props.onPersona((await api.refreshPersona()).persona ?? undefined); toast('Refreshed from its source file.'); }}>Refresh</button>
           </div>
-          {diff && !diff.written && (
-            <div class="notice">
-              <strong>{diff.existed ? 'This would change' : 'This would create'} {diff.configPath}:</strong>
-              <pre class="snippet" style="margin-top:8px;max-height:220px">{diff.after}</pre>
-              <div class="button-row"><button class="primary-button" onClick={async () => { const r = await api.mcpInstall(mcpHost, true); setDiff(r); toast(r.message); }}>Write it</button><button class="ghost-button" onClick={() => setDiff(null)}>Cancel</button></div>
-            </div>
-          )}
-          {diff?.written && <div class="notice">{diff.message}</div>}
+        </>
+      ) : (
+        <>
+          <p class="page-sub" style="margin-bottom:12px">Just your agent.</p>
+          <button type="button" class="secondary-button" onClick={() => setChanging(!changing)}>Change</button>
         </>
       )}
-      {conn.mode === 'portable' && <div class="notice">Each door will show a request you can paste into your assistant, plus a drop zone for the file it sends back. Cloud agents cannot reach this computer, so you carry the file across; that is the whole trick.</div>}
-      {conn.mode === 'submit' && <div class="notice">Use <code class="inline">advent-agent submit &lt;path&gt; --day N</code> or POST to the local API with the token in <code class="inline">~/.advent-agent/api.token</code>. <code class="inline">advent-agent context --day N</code> prints the brief.</div>}
+      {changing && <PersonaPicker persona={props.persona} onPersona={props.onPersona} />}
+    </section>
+  );
+}
+
+/** "Your Secret Santa's list": what it found out, editable, plus a paste box for what a chat app knows. Review is optional. */
+export function ListSection(props: { profile: Profile; onProfile: (p: Profile) => void }) {
+  const [list, setList] = useState<(List & { checking: boolean }) | null>(null);
+  const [pasted, setPasted] = useState('');
+  const [draft, setDraft] = useState('');
+  useEffect(() => {
+    let alive = true;
+    const load = () => api.list().then((l) => { if (alive) { setList(l); setPasted((cur) => cur || l.pasted); } }).catch(() => undefined);
+    void load();
+    const t = setInterval(() => { if (list?.checking) void load(); }, 4000);
+    return () => { alive = false; clearInterval(t); };
+  }, [list?.checking]);
+  if (!list) return <section><h2 class="settings-h">Your Secret Santa’s list</h2><p class="muted-line">Opening the list…</p></section>;
+  const save = async (lines: Array<{ id?: string; text: string }>) => setList(await api.saveList({ lines }));
+  const last = list.checks.at(-1);
+  return (
+    <section>
+      <h2 class="settings-h">Your Secret Santa’s list <span class="optional">optional to review</span></h2>
+      <p class="page-sub" style="margin-bottom:14px">What your Secret Santa knows about you. It checks the list before Door 1 and again on December 8 and 15. Everything stays on your computer.</p>
+      {list.checking && <p class="muted-line" role="status">Your Secret Santa is checking its list…</p>}
+      {list.lines.length === 0 && !list.checking && <p class="muted-line">Nothing on the list yet.</p>}
+      <ul class="list-lines" style="list-style:none;padding:0;margin:0 0 12px">
+        {list.lines.map((l) => (
+          <li key={l.id} class="list-line" style="display:flex;gap:8px;align-items:center;margin:6px 0">
+            <input type="text" aria-label="List line" value={l.text} style="flex:1" onChange={(e) => { const text = (e.target as HTMLInputElement).value; void save(list.lines.map((x) => (x.id === l.id ? { id: x.id, text } : { id: x.id, text: x.text }))); }} />
+            {l.source && <span class="muted-line small" style="white-space:nowrap">{l.source}</span>}
+            <button type="button" class="ghost-button" aria-label={`Delete: ${l.text}`} onClick={() => void save(list.lines.filter((x) => x.id !== l.id).map((x) => ({ id: x.id, text: x.text })))}>Delete</button>
+          </li>
+        ))}
+      </ul>
+      <div class="button-row">
+        <input type="text" aria-label="Add a line to the list" placeholder="Add something it should know" value={draft} style="flex:1;min-width:200px" onInput={(e) => setDraft((e.target as HTMLInputElement).value)} onKeyDown={(e) => { if (e.key === 'Enter' && draft.trim()) { e.preventDefault(); void save([...list.lines.map((x) => ({ id: x.id, text: x.text })), { text: draft.trim() }]).then(() => setDraft('')); } }} />
+        <button type="button" class="secondary-button" disabled={!draft.trim()} onClick={() => void save([...list.lines.map((x) => ({ id: x.id, text: x.text })), { text: draft.trim() }]).then(() => setDraft(''))}>Add</button>
+        <button type="button" class="ghost-button" disabled={list.checking} onClick={async () => { await api.checkList(); setList({ ...list, checking: true }); }}>{last ? 'Check it again' : 'Check the list now'}</button>
+      </div>
+      <div class="field" style="margin-top:20px">
+        <label for="list-paste">Paste what your Claude or ChatGPT app knows about you</label>
+        <textarea id="list-paste" value={pasted} onInput={(e) => setPasted((e.target as HTMLTextAreaElement).value)} onBlur={async () => { if (pasted !== list.pasted) setList(await api.saveList({ pasted })); }} placeholder="Ask your app: what do you know about me?" />
+        <span class="hint">Ask your app: “What do you know about me?” and paste the answer. It is merged into the list on the next check.</span>
+      </div>
+      <AboutYouSection profile={props.profile} onProfile={props.onProfile} />
     </section>
   );
 }
@@ -153,8 +226,7 @@ export function AboutYouSection(props: { profile: Profile; onProfile: (p: Profil
   const browserLanguage = (() => { try { return new Intl.DisplayNames([navigator.language], { type: 'language' }).of(navigator.language) ?? navigator.language; } catch { return navigator.language; } })();
   return (
     <section>
-      <h2 class="settings-h">About you <span class="optional">optional</span></h2>
-      <p class="page-sub" style="margin-bottom:18px">Your Secret Santa already knows you. Add anything it might not.</p>
+      <h3 class="minor" style="margin-top:28px">Anything it might not know</h3>
       <div class="field"><label for="p-name">What to call you</label><input id="p-name" type="text" value={profile.name} onChange={(e) => props.onProfile({ ...profile, name: (e.target as HTMLInputElement).value })} /></div>
       <div class="field"><label for="p-loves">Things you love</label><input id="p-loves" type="text" value={list(profile.hobbies)} placeholder="comma-separated" onChange={(e) => props.onProfile({ ...profile, hobbies: parse((e.target as HTMLInputElement).value) })} /></div>
       <div class="field"><label for="p-people">People or pets</label><input id="p-people" type="text" value={list([...profile.people, ...profile.pets])} placeholder="comma-separated" onChange={(e) => props.onProfile({ ...profile, people: parse((e.target as HTMLInputElement).value), pets: [] })} /></div>

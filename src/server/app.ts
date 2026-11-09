@@ -1,6 +1,6 @@
 /**
  * App origin (127.0.0.1:4224): the UI, /api, SSE, gary.js assets. Every route checks Host and Origin;
- * /api requires the session cookie (UI) or a Bearer api.token (CLI, MCP, HTTP submissions).
+ * /api requires the session cookie (UI) or a Bearer api.token (CLI, HTTP submissions).
  */
 import { existsSync, readFileSync, statSync, createWriteStream, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -9,7 +9,7 @@ import { Hono, type Context } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { z } from 'zod';
 import { detectAll, getAdapter } from '../adapters/index.js';
-import { garyPackageDir, packageVersion, UI_DIST_DIR, WORKSHOP_DIR, LIBRARY_DIR, AGENT_GUIDE_FILE } from '../core/package-paths.js';
+import { garyPackageDir, packageVersion, UI_DIST_DIR, WORKSHOP_DIR, LIBRARY_DIR } from '../core/package-paths.js';
 import { deviceTimeZone, isValidTimeZone } from '../core/time.js';
 import { mimeFor } from '../intake/mime.js';
 import { findBrowser, installTestDriveBrowser } from '../intake/render.js';
@@ -20,8 +20,6 @@ import { ConfigSchema, ProfileSchema, type Config } from '../shared/config.js';
 import { InlineFileSchema, ProgressPhaseSchema } from '../shared/gift.js';
 import type { GateInput } from '../intake/gate.js';
 import { Auth } from './auth.js';
-import { mcpConfigSnippets, installMcpConfig, type McpHostId } from '../mcp/hosts.js';
-import { installSkills, uninstallSkills, skillTargets } from '../mcp/skills-install.js';
 import { readIdeaIndex, readIdea, listWorkshop, readWorkshopGuide } from '../core/workshop.js';
 import { setProviderKey, deleteProviderKey, keychainAvailable } from '../providers/keychain.js';
 import { saveFile, saveOptions, shareInfo, shareLoop, shareStill, ShareError } from '../share/export.js';
@@ -117,11 +115,6 @@ export function createApp({ service, auth, onShutdown }: AppDeps): Hono {
     const body = z.object({ origins: z.array(z.string().url()).max(10) }).parse(await c.req.json());
     return c.json({ allowed: service.consentNetwork(DaySchema.parse(c.req.param('day')), body.origins.map((o) => new URL(o).origin)) });
   });
-  api.post('/doors/:day/submit', async (c) => {
-    const day = DaySchema.parse(c.req.param('day'));
-    const input = await gateInputFromRequest(c);
-    return c.json(await service.submit(day, input, 'portable'));
-  });
 
   // --- gifts shelf & archive ------------------------------------------------------------------------
   api.get('/gifts', (c) => c.json({ season: service.season()?.year ?? null, items: service.shelf() }));
@@ -193,23 +186,24 @@ export function createApp({ service, auth, onShutdown }: AppDeps): Hono {
   // --- setup helpers ---------------------------------------------------------------------------------------
   api.get('/setup/detect', async (c) => c.json({ adapters: await detectAll(), deviceTimeZone: deviceTimeZone(), platform: process.platform }));
   api.get('/doctor', async (c) => c.json(await doctor(service)));
-  api.get('/mcp/config', (c) => c.json({ snippets: mcpConfigSnippets(), hosts: Object.keys(mcpConfigSnippets()) }));
-  api.post('/mcp/install', async (c) => {
-    const body = z.object({ host: z.string(), confirm: z.boolean().default(false) }).parse(await c.req.json());
-    return c.json(installMcpConfig(body.host as McpHostId, body.confirm));
+  // --- persona ("Who is your Secret Santa?") and the list (D28) -------------------------------------------
+  api.get('/persona', (c) => c.json({ persona: service.config().persona ?? null }));
+  api.get('/persona/candidates', (c) => c.json({ candidates: service.personaCandidates() }));
+  api.put('/persona', async (c) => {
+    const body = z.object({ candidateId: z.string().optional(), file: z.string().max(2000).optional(), fileName: z.string().max(200).optional(), text: z.string().max(200_000).optional() }).nullable().parse(await c.req.json());
+    return c.json({ persona: service.setPersona(body && (body.candidateId || body.file || body.text) ? body : null) ?? null });
   });
-  api.get('/skills/targets', (c) => c.json({ targets: skillTargets(service.config()) }));
-  api.post('/skills/install', async (c) => {
-    const body = z.object({ host: z.string(), confirm: z.boolean().default(false) }).parse(await c.req.json());
-    const r = installSkills(body.host, body.confirm);
-    if (r.installed) service.store.saveConfig((cur) => ({ ...cur, installedSkills: { ...cur.installedSkills, [body.host]: r.folder } }));
-    return c.json(r);
+  api.post('/persona/refresh', (c) => c.json({ persona: service.refreshPersona() ?? null }));
+  api.get('/list', (c) => c.json({ ...service.list(), checking: service.listChecking() }));
+  api.put('/list', async (c) => {
+    const body = z.object({ lines: z.array(z.object({ id: z.string().optional(), text: z.string().max(400) })).max(60).optional(), pasted: z.string().max(20_000).optional() }).parse(await c.req.json());
+    return c.json({ ...service.saveList(body), checking: service.listChecking() });
   });
-  api.post('/skills/uninstall', async (c) => {
-    const body = z.object({ host: z.string() }).parse(await c.req.json());
-    const r = uninstallSkills(body.host);
-    service.store.saveConfig((cur) => { const next = { ...cur.installedSkills }; delete next[body.host]; return { ...cur, installedSkills: next }; });
-    return c.json(r);
+  /** "Check it again": run the list check now (a refresh). Returns at once; the Settings page follows `checking`. */
+  api.post('/list/check', (c) => {
+    if (service.listChecking()) return c.json({ started: false, checking: true });
+    void service.checkList('refresh').catch((e) => console.error('checking the list:', (e as Error).message));
+    return c.json({ started: true, checking: true });
   });
   api.get('/service', (c) => c.json(serviceStatus({ homeRoot: process.env.ADVENT_AGENT_HOME })));
   api.post('/service/install', (c) => c.json(installService({ homeRoot: process.env.ADVENT_AGENT_HOME })));
@@ -313,7 +307,7 @@ export function createApp({ service, auth, onShutdown }: AppDeps): Hono {
     return c.json({ ok: true });
   });
 
-  // --- workshop / library (also used by MCP) ---------------------------------------------------------
+  // --- workshop / library ---------------------------------------------------------
   api.get('/workshop', (c) => c.json({ skills: listWorkshop() }));
   api.get('/workshop/:skill', (c) => {
     const text = readWorkshopGuide(c.req.param('skill'), c.req.query('file'));
@@ -330,17 +324,13 @@ export function createApp({ service, auth, onShutdown }: AppDeps): Hono {
   // --- agent-facing (bearer or cookie) -------------------------------------------------------------------
   api.get('/agent/context', (c) => {
     const day = c.req.query('day') ? DaySchema.parse(c.req.query('day')) : undefined;
-    const mode = c.req.query('mode') as 'launched' | 'connected' | 'portable' | 'submit' | undefined;
+    const mode = c.req.query('mode') as 'launched' | 'submit' | undefined;
     return c.json(service.agentContext(day, mode));
   });
   api.post('/agent/progress', async (c) => {
     const body = z.object({ day: DaySchema, phase: ProgressPhaseSchema }).parse(await c.req.json());
     service.progress(body.day, body.phase);
     return c.json({ ok: true });
-  });
-  api.post('/agent/start', async (c) => {
-    const body = z.object({ day: DaySchema }).parse(await c.req.json());
-    return c.json(service.startGift(body.day));
   });
   api.post('/agent/check', async (c) => {
     const input = await gateInputFromRequest(c);
@@ -350,7 +340,7 @@ export function createApp({ service, auth, onShutdown }: AppDeps): Hono {
   api.post('/agent/submit', async (c) => {
     const input = await gateInputFromRequest(c);
     const day = DaySchema.parse(c.req.query('day') ?? (c.req.header('content-type')?.includes('json') ? ((await c.req.json().catch(() => ({}))) as { day?: number }).day : undefined));
-    const mode = (c.req.query('mode') as 'launched' | 'connected' | 'portable' | 'submit' | undefined) ?? 'submit';
+    const mode = (c.req.query('mode') as 'launched' | 'submit' | undefined) ?? 'submit';
     return c.json(await service.submit(day, input, mode, c.req.query('adapter') ?? undefined));
   });
 
@@ -370,8 +360,7 @@ export function createApp({ service, auth, onShutdown }: AppDeps): Hono {
     return serveFile(c, dir, rel, { 'cache-control': 'public, max-age=86400' });
   });
 
-  // --- public docs for agents -------------------------------------------------------------------------------
-  app.get('/agent-guide.md', (c) => (existsSync(AGENT_GUIDE_FILE) ? c.text(readFileSync(AGENT_GUIDE_FILE, 'utf8')) : c.text('missing', 404)));
+  // --- schema and library for agents ------------------------------------------------------------------------
   app.get('/schema/gift.schema.json', (c) => serveFile(c, join(WORKSHOP_DIR, '..', 'schema'), 'gift.schema.json'));
   app.get('/library/*', (c) => serveFile(c, LIBRARY_DIR, c.req.path.slice('/library/'.length)));
 

@@ -12,8 +12,7 @@ Source of truth for the launched-mode adapter table. Flags marked **verified** w
 | GitHub Copilot CLI | `copilot --version` | not installed | `copilot -p "<prompt>"` | — | advisory | *unverified* |
 | Goose | `goose --version` | not installed | `goose run -t "<prompt>"` | — | advisory | *unverified* |
 | Amp | `amp --version` | not installed | `amp -x "<prompt>"` | — | advisory | *unverified* |
-| Muse Code (Meta) | `muse --version` | not installed | no headless mode confirmed | — | — | *unverified*: offered as connected/portable only until verified |
-| Custom command | user-provided | — | template with `{prompt}`, `{prompt_file}`, `{workspace}`, `{workshop}`, `{day}` | user-defined (warning shown) | advisory | n/a |
+| Custom command | user-provided | — | template with `{prompt}`, `{prompt_file}`, `{workspace}`, `{door}`, `{workshop}`, `{day}` | user-defined (warning shown) | advisory | n/a |
 
 ## Smoke-test results
 

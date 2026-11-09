@@ -2,7 +2,7 @@
  * CalendarService: every operation the HTTP API, CLI and MCP server expose. One instance per companion process.
  * All spoiler rules are enforced here; routes are thin.
  */
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { getAdapter } from '../adapters/index.js';
 import { buildAgentContext, renderBriefMarkdown, type BriefHistory } from '../core/brief.js';
@@ -18,8 +18,13 @@ import { readSealedGift, reportForAgent, runGate, sealGift, type GateInput, type
 import type { AgentContext, CalendarResponse, GateReport, RevealedGift, ShelfItem } from '../shared/api.js';
 import type { Config, HistoryRecord, Profile, Season } from '../shared/config.js';
 import type { ConnectionMode, DoorState, PublicDoor } from '../shared/door.js';
-import type { ProgressPhase } from '../shared/gift.js';
-import { AgentRun, DEFAULT_PROMPT } from './runner.js';
+import type { DoorPhase } from '../shared/gift.js';
+import { AgentRun, LIST_PROMPT, promptForDoor } from './runner.js';
+import { applyUserEdit, gatherSources, mergeLines, parseListMd, readList, relabelSources, renderListTask, renderSourceIndex, writeList } from '../core/list.js';
+import { personaFromCandidate, personaFromFile, scanPersonas, syncPersona } from '../core/persona.js';
+import { TIER_TOKENS } from '../core/tiers.js';
+import { resolveHomeRoot } from '../core/paths.js';
+import type { List, Persona, PersonaCandidate } from '../shared/list.js';
 import { runProvider, ProviderRefused, type GenerateImageParams } from '../providers/index.js';
 import { allProviderKeyValues } from '../providers/keychain.js';
 
@@ -190,15 +195,13 @@ export class CalendarService {
 
   /**
    * What the agent knows about earlier doors (D15 rotation): every sealed gift of this season, opened or not,
-   * with its family/emotion/interaction/collection, plus the recipient's reactions. Portable mode only sees opened ones,
-   * because the request text is shown to the user.
+   * with its family/emotion/interaction/collection, plus the recipient's reactions.
    */
-  briefHistory(season: Season, mode: ConnectionMode): BriefHistory[] {
+  briefHistory(season: Season): BriefHistory[] {
     const feedback = new Map(this.store.history(season.year).map((h) => [h.day, h]));
     const out: BriefHistory[] = [];
     for (const d of this.doorsOf(season).readAll()) {
       if (!d.gift) continue;
-      if (mode === 'portable' && !d.revealed) continue;
       out.push({ ...historyRecordFor(d.day, d.gift, d.revealedAt ?? d.gift.sealedAt), feedback: d.feedback?.reaction ?? feedback.get(d.day)?.feedback, opened: d.revealed });
     }
     return out;
@@ -254,7 +257,7 @@ export class CalendarService {
 
   /**
    * Start preparing a door before it unlocks (Day 1 at setup, the finale from December 20). Launched mode runs the agent;
-   * connected and portable modes put the door into their waiting state so the agent (or a drop) can fill it. Never reveals.
+   * submit mode waits for a local process to submit. Never reveals.
    */
   prepareEarly(day: number) {
     const season = this.requireSeason();
@@ -310,23 +313,53 @@ export class CalendarService {
     const mode = state.attempts.at(-1)?.mode ?? season.connection.mode;
     if (mode === 'launched') {
       void this.runLaunched(season, state.day);
-    } else if (mode === 'connected') {
-      this.save(season, transition(state, 'waiting_for_agent'));
     } else {
-      this.save(season, transition(state, 'waiting_for_drop'));
+      this.save(season, transition(state, 'waiting_for_agent'));
     }
   }
 
-  /** Workspace + BRIEF for a door (launched runs and MCP start_gift). */
-  prepareWorkspace(season: Season, day: number, mode: ConnectionMode, previousProblems?: GateResult['problems']): { workspace: string; context: AgentContext } {
+  // ---- the season workspace (D28) ----------------------------------------------------------------
+  /** Folders that belong to the calendar itself: never read for the list, never offered as personas. */
+  private ownRoots(): string[] { return [this.store.home.root, resolveHomeRoot()]; }
+
+  /** The one folder every agent run starts in. The chosen persona is kept in sync in CLAUDE.md and AGENTS.md. */
+  ensureSeasonWorkspace(season: Season, opts: { forcePersona?: boolean } = {}): string {
+    const cwd = this.store.home.seasonWorkspaceDir(season.year);
+    mkdirSync(join(cwd, 'doors'), { recursive: true });
+    const cfg = this.config();
+    const synced = syncPersona(cwd, cfg.persona, { force: opts.forcePersona });
+    if (synced && cfg.persona && synced.sourceHash !== cfg.persona.sourceHash) this.store.saveConfig({ persona: synced });
+    return cwd;
+  }
+
+  /** Earlier doors' sealed gifts, as read-only copies in `doors/NN/gift`, so a collection can grow an earlier gift. */
+  private syncEarlierDoors(season: Season, day: number): void {
+    for (const d of this.doorsOf(season).readAll()) {
+      if (d.day === day || !d.gift) continue;
+      const folder = this.store.home.workspaceDir(season.year, d.day);
+      const dest = join(folder, 'gift');
+      if (existsSync(folder) && !existsSync(join(folder, '.sealed-copy'))) continue; // that door is being worked on right now
+      if (existsSync(dest)) continue; // sealed gifts never change
+      try {
+        mkdirSync(folder, { recursive: true });
+        cpSync(this.store.home.giftDir(season.year, d.day), dest, { recursive: true, filter: (src) => !src.split(/[\\/]/).includes('.advent') });
+        writeFileSync(join(folder, '.sealed-copy'), 'A read-only copy of the sealed gift. Changes here are ignored.\n');
+      } catch { /* a missing copy only costs a collection its context */ }
+    }
+  }
+
+  /** Workspace + BRIEF for a door (launched runs). The agent starts in the season workspace; the door has its own subfolder. */
+  prepareWorkspace(season: Season, day: number, mode: ConnectionMode, previousProblems?: GateResult['problems']): { workspace: string; cwd: string; context: AgentContext } {
     const doors = this.doorsOf(season);
     const state = doors.read(day);
+    const cwd = this.ensureSeasonWorkspace(season);
     const workspace = doors.freshWorkspace(day);
+    this.syncEarlierDoors(season, day);
     const adapterId = season.connection.adapter;
     const adapter = adapterId ? getAdapter(adapterId) : undefined;
     const context = buildAgentContext({
-      season, day, now: this.clock(season).now(), config: this.config(), profile: this.profile(), history: this.briefHistory(season, mode),
-      mode, adapter: adapterId, workspace, attempt: state.attempt, previousProblems, ...this.catchUp(season, day), tokenEnforced: Boolean(adapter?.capabilities().budgetEnforced && this.config().budgets.usdCapPerGift),
+      season, day, now: this.clock(season).now(), config: this.config(), profile: this.profile(), history: this.briefHistory(season),
+      mode, adapter: adapterId, workspace, cwd, list: this.list().lines, persona: this.config().persona, attempt: state.attempt, previousProblems, ...this.catchUp(season, day), tokenEnforced: Boolean(adapter?.capabilities().budgetEnforced && this.config().budgets.usdCapPerGift),
     });
     let brief = renderBriefMarkdown(context);
     const labFile = join(this.store.home.doorDir(season.year, day), 'lab.json');
@@ -343,7 +376,134 @@ export class CalendarService {
     writeFileSync(join(workspace, 'BRIEF.md'), brief);
     writeJsonAtomic(join(workspace, 'brief.json'), context);
     mkdirSync(join(workspace, 'gift'), { recursive: true });
-    return { workspace, context };
+    return { workspace, cwd, context };
+  }
+
+  // ---- persona and the list (D28) -------------------------------------------------------------------
+  list(): List { return readList(this.store.home.listFile); }
+
+  personaCandidates(): PersonaCandidate[] { return scanPersonas({ ownRoots: this.ownRoots() }); }
+
+  /** "One of my personas": pick a scanned candidate (by id) or a file the user chose. Pass null to go back to "Just my agent". */
+  setPersona(choice: { candidateId?: string; file?: string; fileName?: string; text?: string } | null): Persona | undefined {
+    let persona: Persona | undefined;
+    if (choice?.text?.trim()) {
+      // "Choose a file…": a browser gives us the text, not the path, so the text is kept as the persona's source.
+      const slug = (choice.fileName ?? 'persona').replace(/\.[A-Za-z0-9]+$/, '').replace(/[^A-Za-z0-9_-]+/g, '-').slice(0, 40) || 'persona';
+      const dir = join(this.store.home.root, 'personas');
+      mkdirSync(dir, { recursive: true });
+      const file = join(dir, `${slug}.md`);
+      writeFileSync(file, choice.text);
+      choice = { file };
+    }
+    if (choice?.candidateId) {
+      const c = this.personaCandidates().find((x) => x.id === choice.candidateId);
+      if (!c) throw new ApiError(404, 'no_such_persona', 'That persona was not found any more. Scan again.');
+      persona = personaFromCandidate(c);
+    } else if (choice?.file) {
+      persona = personaFromFile(choice.file);
+      if (!persona) throw new ApiError(400, 'bad_persona_file', 'That file could not be read, or it is empty.');
+    }
+    this.store.saveConfig((cur) => ({ ...cur, persona }));
+    const season = this.season();
+    if (season) this.ensureSeasonWorkspace(season, { forcePersona: true });
+    this.events.emitSse({ type: 'calendar' });
+    return this.config().persona;
+  }
+
+  /** Settings → "Refresh": copy the persona text again from its source file. */
+  refreshPersona(): Persona | undefined {
+    const season = this.season();
+    if (season) this.ensureSeasonWorkspace(season, { forcePersona: true });
+    return this.config().persona;
+  }
+
+  /** Edits made in Settings: lines changed or deleted, pasted text. Never required. */
+  saveList(edit: { lines?: Array<{ id?: string; text: string }>; pasted?: string }): List {
+    return writeList(this.store.home.listFile, applyUserEdit(this.list(), edit));
+  }
+
+  private listLog(season: Season): string {
+    const f = this.store.home.listLogFile(season.year);
+    mkdirSync(join(f, '..'), { recursive: true });
+    return f;
+  }
+
+  private listRun?: Promise<number>;
+  private listFailedAt = 0;
+  listChecking(): boolean { return Boolean(this.listRun); }
+
+  /** The first check happens before the first door of a season is made; December 8 and 15 refresh it ("checking it twice"). */
+  listCheckDue(season: Season, now = this.clock(season).now()): 'first' | 'refresh' | undefined {
+    if (season.kind === 'demo' || season.connection.mode !== 'launched' || !season.connection.adapter) return undefined;
+    const list = this.list();
+    if (list.checks.length === 0) return 'first';
+    const milestone = [15, 8].find((d) => now.getTime() >= unlockInstant(season, d).getTime());
+    if (!milestone) return undefined;
+    const since = unlockInstant(season, milestone).getTime();
+    return list.checks.some((c) => c.kind === 'refresh' && Date.parse(c.at) >= since) ? undefined : 'refresh';
+  }
+
+  /** Scheduler hook: refresh the list on December 8 and 15, at most one failed attempt every six hours. */
+  maybeRefreshList(): void {
+    const season = this.season();
+    if (!season || this.listRun || this.closed) return;
+    if (this.listCheckDue(season) !== 'refresh') return;
+    if (Date.now() - this.listFailedAt < 6 * 3600_000) return;
+    void this.checkList('refresh').catch(() => { this.listFailedAt = Date.now(); });
+  }
+
+  /**
+   * One launched agent run, as the chosen persona, with a modest token cap (tier S). It reads only copies of an allow-list of files
+   * the app chose, writes list.md, and the app merges the lines into list.json. Returns the number of new lines.
+   */
+  checkList(kind: 'first' | 'refresh', onStart?: () => void): Promise<number> {
+    if (this.listRun) return this.listRun;
+    const run = this.runListCheck(kind, onStart).finally(() => { this.listRun = undefined; this.events.emitSse({ type: 'calendar' }); });
+    this.listRun = run;
+    this.events.emitSse({ type: 'calendar' });
+    return run;
+  }
+
+  private async runListCheck(kind: 'first' | 'refresh', onStart?: () => void): Promise<number> {
+    const season = this.requireSeason();
+    const adapterId = season.connection.adapter;
+    const adapter = adapterId ? getAdapter(adapterId) : undefined;
+    if (!adapter) throw new ApiError(409, 'no_adapter', 'No agent is configured. Open Settings to connect one.');
+    if (!this.allowRealAgents || season.kind === 'demo') throw new ApiError(403, 'demo', 'Demo calendars never run a real agent.');
+    const cfg = this.config();
+    const profile = this.profile();
+    const cwd = this.ensureSeasonWorkspace(season);
+    const task = join(cwd, 'list');
+    rmSync(task, { recursive: true, force: true });
+    mkdirSync(task, { recursive: true });
+    const list = this.list();
+    const sources = gatherSources(task, { adapter: adapter.id, persona: cfg.persona, ownRoots: this.ownRoots() });
+    if (list.pasted.trim()) {
+      writeFileSync(join(task, 'sources', 'pasted.md'), list.pasted);
+      sources.push({ copy: 'sources/pasted.md', label: 'pasted' });
+    }
+    writeFileSync(join(task, 'sources', 'INDEX.md'), renderSourceIndex(sources));
+    writeFileSync(join(task, 'TASK.md'), renderListTask({ sources, hasPasted: Boolean(list.pasted.trim()), existing: list.lines.map((l) => l.text), avoid: profile.avoid, personaName: cfg.persona?.name, tokens: TIER_TOKENS.S }));
+    onStart?.();
+    const run = new AgentRun({
+      adapter, task: 'list', cwd, workspace: task, logFile: this.listLog(season), prompt: LIST_PROMPT, day: 0, year: season.year,
+      timeoutMs: Math.min(cfg.timeoutMinutes, 10) * 60_000, apiToken: this.store.apiToken(), apiUrl: `http://127.0.0.1:${this.appPort}`,
+      webResearch: false, inspirationFolders: [], usdCap: cfg.budgets.usdCapPerGift ? cfg.budgets.usdCapPerGift * 0.5 : undefined,
+      permissive: season.connection.permissive, customCommand: season.connection.customCommand, onPhase: () => undefined,
+    });
+    const outcome = await run.run();
+    if (outcome.usage) this.store.appendLedger(season.year, { at: new Date().toISOString(), type: 'usage', tokens: outcome.usage.tokens, usd: outcome.usage.usd, note: `${adapter.label} · checking the list` });
+    const file = join(task, 'list.md');
+    const fresh = existsSync(file) ? relabelSources(parseListMd(readFileSync(file, 'utf8'), { avoid: profile.avoid }), sources) : [];
+    // The copies of the user's files do not stay in the workspace.
+    rmSync(join(task, 'sources'), { recursive: true, force: true });
+    const before = this.list();
+    const merged = mergeLines({ ...before, pasted: outcome.exitCode === 0 || fresh.length ? '' : before.pasted }, fresh);
+    const added = merged.lines.length - before.lines.length;
+    writeList(this.store.home.listFile, { ...merged, checks: [...before.checks, { at: this.clock(season).now().toISOString(), kind, lines: fresh.length }] });
+    if (!fresh.length) this.listFailedAt = Date.now();
+    return Math.max(added, 0);
   }
 
   private async runLaunched(season: Season, day: number): Promise<void> {
@@ -356,14 +516,26 @@ export class CalendarService {
     const det = await adapter.detect();
     if (!det.installed && adapter.id !== 'custom') { this.save(season, failDoor(state, 'agent_missing', `${adapter.label} is not installed on this computer (we looked for "${adapter.binary}" on your PATH).`)); return; }
     const cfg = this.config();
+    // "Checking the list": before the first door of a season is made, the Secret Santa learns who it is giving to.
+    if (this.listCheckDue(season) === 'first') {
+      try {
+        await this.checkList('first', () => { try { this.save(season, { ...doors.read(day), phase: 'list' }); } catch { /* door moved on */ } });
+      } catch (e) {
+        this.listFailedAt = Date.now();
+        console.error('checking the list:', (e as Error).message);
+      }
+      if (this.closed) return;
+    } else if (this.listRun) {
+      await this.listRun.catch(() => undefined);
+    }
     let previousProblems: GateResult['problems'] | undefined;
     for (let round = 0; round < 2; round++) {
       state = doors.read(day);
       if (state.jobState === 'cancelled') return;
-      const { workspace } = this.prepareWorkspace(season, day, 'launched', previousProblems);
+      const { workspace, cwd } = this.prepareWorkspace(season, day, 'launched', previousProblems);
       state = this.save(season, round === 0 ? transition(state, 'preparing') : state.jobState === 'validating' ? transition(state, 'preparing') : state);
       const run = new AgentRun({
-        adapter, workspace, logFile: this.store.home.logFile(season.year, day), prompt: DEFAULT_PROMPT, day, year: season.year,
+        adapter, cwd, workspace, logFile: this.store.home.logFile(season.year, day), prompt: promptForDoor(day), day, year: season.year,
         timeoutMs: cfg.timeoutMinutes * 60_000, apiToken: this.store.apiToken(), apiUrl: `http://127.0.0.1:${this.appPort}`,
         webResearch: cfg.permissions.webResearch, inspirationFolders: cfg.permissions.inspirationFolders, usdCap: cfg.budgets.usdCapPerGift,
         permissive: season.connection.permissive, customCommand: season.connection.customCommand,
@@ -409,7 +581,7 @@ export class CalendarService {
   }
 
   // ---- progress & submission (all modes) ----------------------------------------------------
-  progress(day: number, phase: ProgressPhase) {
+  progress(day: number, phase: DoorPhase) {
     const season = this.requireSeason();
     const doors = this.doorsOf(season);
     const current = doors.read(day);
@@ -422,7 +594,7 @@ export class CalendarService {
     return allProviderKeyValues(this.config().providers.map((p) => p.id));
   }
 
-  /** Gate without sealing (CLI `check`, MCP check_gift). */
+  /** Gate without sealing (CLI `check`). */
   async check(input: GateInput, day?: number): Promise<GateReport> {
     const cfg = this.config();
     const result = await runGate(input, { day, limits: { maxFiles: cfg.intakeLimits.maxFiles, maxTotalBytes: cfg.intakeLimits.maxTotalMB * 1024 * 1024 }, apiToken: this.store.apiToken(), keychainValues: await this.secretValues(), keepQuarantine: false, allowedNetwork: cfg.permissions.giftNetwork ? undefined : [] });
@@ -464,7 +636,7 @@ export class CalendarService {
     if (state.jobState === 'cancelled') { if (result.root) rmSync(result.root, { recursive: true, force: true }); return reportForAgent(result); }
     if (!result.ok) {
       // Back to the waiting state the mode implies so the agent/user can fix and resubmit.
-      const back = mode === 'launched' ? state : mode === 'connected' ? transition(state, 'waiting_for_agent') : transition(state, 'waiting_for_drop');
+      const back = mode === 'launched' ? state : transition(state, 'waiting_for_agent');
       this.save(season, back);
       return reportForAgent(result);
     }
@@ -623,25 +795,7 @@ export class CalendarService {
     this.assertPreparable(season, target);
     const state = doors.read(target);
     const m = mode ?? state.attempts.at(-1)?.mode ?? season.connection.mode;
-    return buildAgentContext({ season, day: target, now: this.clock(season).now(), config: this.config(), profile: this.profile(), history: this.briefHistory(season, m), mode: m, attempt: state.attempt, ...this.catchUp(season, target), workspace: existsSync(this.store.home.workspaceDir(season.year, target)) ? this.store.home.workspaceDir(season.year, target) : undefined });
-  }
-
-  /** MCP start_gift: create a workspace for a door the user opened (or open it now) and mark it preparing. */
-  startGift(day: number): { workspace: string; context: AgentContext } {
-    const season = this.requireSeason();
-    this.assertPreparable(season, day);
-    const doors = this.doorsOf(season);
-    let state = doors.read(day);
-    if (state.jobState === 'ready') throw new ApiError(409, 'already_ready', `Door ${day} already has a gift.`);
-    if (state.jobState === 'not_requested' || state.jobState === 'failed' || state.jobState === 'cancelled') {
-      state = state.jobState === 'not_requested' ? openDoor(state, { mode: 'connected' }).state : retryDoor(state, { mode: 'connected' });
-      doors.write(state);
-    }
-    const prepared = this.prepareWorkspace(season, day, 'connected');
-    state = doors.read(day);
-    if (state.jobState === 'queued' || state.jobState === 'waiting_for_agent' || state.jobState === 'waiting_for_drop') state = transition(state, 'preparing');
-    this.save(season, { ...state, phase: state.phase ?? 'thinking' });
-    return prepared;
+    return buildAgentContext({ season, day: target, now: this.clock(season).now(), config: this.config(), profile: this.profile(), history: this.briefHistory(season), list: this.list().lines, persona: this.config().persona, mode: m, attempt: state.attempt, ...this.catchUp(season, target), workspace: existsSync(this.store.home.workspaceDir(season.year, target)) ? this.store.home.workspaceDir(season.year, target) : undefined });
   }
 
   // ---- optional providers (D9) ---------------------------------------------------------------------

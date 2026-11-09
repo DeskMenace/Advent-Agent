@@ -140,7 +140,7 @@ export function buildManifest(root: string, files: UnpackedFile[], opts: { day?:
 
   return {
     form: 'unknown',
-    problems: [problem('manifest_missing', 'No gift.json found. Add a gift.json manifest (see AGENT_GUIDE.md), or submit a single HTML file, a text file, or media files.')],
+    problems: [problem('manifest_missing', 'No gift.json found. Add a gift.json manifest (see the packaging section of the gift-director skill), or submit a single HTML file, a text file, or media files.')],
     needsDay: false,
   };
 }

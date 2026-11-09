@@ -25,7 +25,7 @@ export interface DemoOptions {
 
 export async function installDemoFixtures(service: CalendarService, opts: DemoOptions = {}): Promise<void> {
   const store = service.store;
-  if (!store.config().setupComplete) store.saveConfig({ setupComplete: true, connection: { mode: 'portable', permissive: false }, gary: { show: true } });
+  if (!store.config().setupComplete) store.saveConfig({ setupComplete: true, connection: { mode: 'submit', permissive: false }, gary: { show: true } });
   service.ensureSeason('demo');
   writeFileSync(store.home.demoFile, JSON.stringify({ simulatedDay: opts.simulatedDay ?? 8 }));
   const season = service.season()!;

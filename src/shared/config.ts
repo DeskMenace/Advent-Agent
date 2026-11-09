@@ -2,13 +2,12 @@
  * Non-secret settings (config.json), season (season.json), profile (profile.json) and promo config.
  */
 import { z } from 'zod';
-import { ConnectionModeSchema } from './door.js';
+import { PersonaSchema } from './list.js';
 
 export const LAUNCHED_ADAPTERS = [
   'claude-code',
   'codex',
   'gemini',
-  'muse',
   'opencode',
   'cursor',
   'copilot',
@@ -20,15 +19,18 @@ export type LaunchedAdapterId = (typeof LAUNCHED_ADAPTERS)[number];
 
 export const MoneySchema = z.object({ amount: z.number().nonnegative(), currency: z.string().length(3) });
 
+/** Chat modes (connected, portable) and the Muse adapter were removed in D28: old files read as "no agent chosen yet". */
+const legacyMode = (v: unknown) => (v === 'connected' || v === 'portable' ? 'launched' : v);
+const legacyAdapter = (v: unknown) => (v === 'muse' ? undefined : v);
+
 export const ConnectionSchema = z.object({
-  mode: ConnectionModeSchema.default('launched'),
-  adapter: z.enum(LAUNCHED_ADAPTERS).optional(),
+  /** launched: the calendar starts the agent. submit: nothing is launched; a local process submits (tests, scripts). */
+  mode: z.preprocess(legacyMode, z.enum(['launched', 'submit'])).default('launched'),
+  adapter: z.preprocess(legacyAdapter, z.enum(LAUNCHED_ADAPTERS).optional()),
   /** Custom command template with {prompt} {prompt_file} {workspace} {workshop} {day}. */
   customCommand: z.string().max(2000).optional(),
   /** Opt-in to a more permissive flag set for the chosen adapter; the UI shows a warning. */
   permissive: z.boolean().default(false),
-  /** Connected mode: which MCP host the user said they use (for copy-paste config). */
-  mcpHost: z.string().max(40).optional(),
 });
 
 export const ProviderSchema = z.object({
@@ -89,9 +91,9 @@ export const ConfigSchema = z.object({
   share: z.object({ mark: z.boolean().default(true) }).default({ mark: true }),
   testDrive: z.object({ enabled: z.boolean().default(false) }).default({ enabled: false }),
   providers: z.array(ProviderSchema).default([]),
+  /** "Who is your Secret Santa?": a persona the user picked, or none (just the agent). D28. */
+  persona: PersonaSchema.optional(),
   debugKeepWorkspace: z.boolean().default(false),
-  /** Installed Advent Agent skills (connected-mode comfort), by host id → folder. */
-  installedSkills: z.record(z.string(), z.string()).default({}),
 });
 export type Config = z.infer<typeof ConfigSchema>;
 export type ConfigInput = z.input<typeof ConfigSchema>;

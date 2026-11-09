@@ -9,7 +9,7 @@ afterEach(async () => { await t?.close(); });
 
 describe('HTTP auth, Host and Origin checks', () => {
   it('I3.1 mutating and reading /api without a token or cookie → 401; with cookie → 200; with token → 200', async () => {
-    t = await testCompanion({ config: { connection: { mode: 'portable', permissive: false } } });
+    t = await testCompanion({ config: { connection: { mode: 'submit', permissive: false } } });
     const none = await fetch(`${t.appUrl}/api/calendar`);
     expect(none.status).toBe(401);
     const post = await fetch(`${t.appUrl}/api/doors/8/open`, { method: 'POST' });
@@ -92,9 +92,9 @@ describe('HTTP auth, Host and Origin checks', () => {
   });
 
   it('the gift origin serves only revealed gifts under unguessable tokens, with CSP and CORP headers', async () => {
-    t = await testCompanion({ config: { connection: { mode: 'portable', permissive: false } } });
+    t = await testCompanion({ config: { connection: { mode: 'submit', permissive: false } } });
     await t.api('POST', '/api/doors/8/open');
-    const sub = await t.api<{ ok: boolean }>('POST', '/api/doors/8/submit', { text: '# Hello\n\nA letter.' });
+    const sub = await t.api<{ ok: boolean }>('POST', '/api/agent/submit?day=8', { text: '# Hello\n\nA letter.' });
     expect(sub.data.ok).toBe(true);
     const guess = await fetch(`${t.giftUrl}/g/2026-08-anything/gift.md`);
     expect(guess.status).toBe(404);

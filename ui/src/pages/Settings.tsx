@@ -6,7 +6,7 @@ import { api, saveBlob } from '../api.js';
 import { Footer, Header } from '../components/Header.js';
 import { BudgetChoice, DeliveryChoice } from '../components/Onboarding.js';
 import { toast } from '../lib/ui.js';
-import { AboutYouSection, BudgetSection, ConnectionSection, ExtrasSection, InspirationSection, ServiceNotice, TimeSection, type Detect } from './SettingsSections.js';
+import { BudgetSection, ConnectionSection, ExtrasSection, InspirationSection, ListSection, PersonaSettings, ServiceNotice, TimeSection, type Detect } from './SettingsSections.js';
 
 export function SettingsPage() {
   const [cfg, setCfg] = useState<Config | null>(null);
@@ -14,9 +14,8 @@ export function SettingsPage() {
   const [detect, setDetect] = useState<Detect | null>(null);
   const [cal, setCal] = useState<CalendarResponse | null>(null);
   const [dirty, setDirty] = useState(false);
-  const [skills, setSkills] = useState<Awaited<ReturnType<typeof api.skillTargets>>['targets'] | null>(null);
   useEffect(() => {
-    Promise.all([api.settings(), api.profile(), api.detect(), api.calendar(), api.skillTargets()]).then(([c, p, d, k, s]) => { setCfg(c); setProfile(p); setDetect(d); setCal(k); setSkills(s.targets); }).catch((e) => toast((e as Error).message));
+    Promise.all([api.settings(), api.profile(), api.detect(), api.calendar()]).then(([c, p, d, k]) => { setCfg(c); setProfile(p); setDetect(d); setCal(k); }).catch((e) => toast((e as Error).message));
   }, []);
   if (!cfg || !profile || !detect || !cal) return <div class="shell"><Header current="settings" /><p class="empty">Opening the drawer…</p></div>;
   const patch = (p: Partial<Config>) => { setCfg({ ...cfg, ...p }); setDirty(true); };
@@ -48,35 +47,20 @@ export function SettingsPage() {
           <p class="settings-q">How generous is your Secret Santa?</p>
           <BudgetChoice value={cfg.budgets.generosity} onChange={(g) => patch({ budgets: { ...cfg.budgets, generosity: g } })} />
         </div>
-        <div class="paper settings-block"><AboutYouSection profile={profile} onProfile={(p) => { setProfile(p); setDirty(true); }} /></div>
+        <div class="paper settings-block"><ListSection profile={profile} onProfile={(p) => { setProfile(p); setDirty(true); }} /></div>
+        <div class="paper settings-block"><PersonaSettings persona={cfg.persona} onPersona={(persona) => setCfg((cur) => (cur ? { ...cur, persona } : cur))} /></div>
         <div class="paper settings-block">
           <h2 class="settings-h">Reminder</h2>
           <p class="page-sub" style="margin-bottom:14px">One event a day in your own calendar app, when a door opens. A local file: no account, no tracking.</p>
           <a class="secondary-button" href="/api/reminder.ics" download="advent-agent-doors.ics">Remind me when a door opens</a>
         </div>
-        <div class="paper settings-block"><ConnectionSection cfg={cfg} onChange={patch} detect={detect} /></div>
+        <div class="paper settings-block"><ConnectionSection cfg={cfg} onChange={patch} detect={detect} withPersona={false} /></div>
         <details class="advanced settings-more">
           <summary>More settings</summary>
         <div class="paper" style="margin-top:20px"><TimeSection cfg={cfg} onChange={patch} deviceTimeZone={detect.deviceTimeZone} frozen={frozen} /></div>
         <div class="paper" style="margin-top:20px"><BudgetSection cfg={cfg} onChange={patch} /></div>
         <div class="paper" style="margin-top:20px"><InspirationSection cfg={cfg} onChange={patch} /></div>
         <div class="paper" style="margin-top:20px"><ExtrasSection cfg={cfg} onChange={patch} /></div>
-        <div class="paper" style="margin-top:20px">
-          <section class="section" style="margin-top:0">
-            <div class="eyebrow">Skills for connected apps</div>
-            <h2>Install the Advent Agent skills into an agent</h2>
-            <p class="page-sub">Launched agents need nothing installed: they read the bundled workshop. For apps that support Agent Skills, you can copy the eight skills into their skills folder. One folder, removed cleanly. Never automatic.</p>
-            {skills?.map((t) => (
-              <div class="check" key={t.host}>
-                <span class="check-text"><strong>{t.label}</strong><small>{t.folder} · {t.files.length} files{t.installed ? ' · installed' : ''}</small></span>
-                <span style="margin-left:auto" class="button-row">
-                  {!t.installed ? <button class="secondary-button" onClick={async () => { const r = await api.skillsInstall(t.host, false); if (confirm(`${r.message}\n\nFiles:\n${r.files.slice(0, 12).join('\n')}${r.files.length > 12 ? '\n…' : ''}`)) { const w = await api.skillsInstall(t.host, true); toast(w.message); setSkills((await api.skillTargets()).targets); } }}>Install…</button>
-                    : <button class="ghost-button" onClick={async () => { const r = await api.skillsUninstall(t.host); toast(r.message); setSkills((await api.skillTargets()).targets); }}>Uninstall</button>}
-                </span>
-              </div>
-            ))}
-          </section>
-        </div>
         <div class="paper" style="margin-top:20px">
           <section class="section" style="margin-top:0">
             <div class="eyebrow">Your data</div>

@@ -48,7 +48,7 @@ export async function testCompanion(opts: TestCompanionOptions = {}): Promise<Te
     setupComplete: true,
     timeZone: 'Europe/Zurich',
     unlockHour: 0,
-    connection: { mode: 'launched', adapter: 'custom', customCommand: `"${process.execPath}" "${FAKE_AGENT}" {prompt_file} {workspace} {day}`, permissive: false },
+    connection: { mode: 'launched', adapter: 'custom', customCommand: `"${process.execPath}" "${FAKE_AGENT}" {prompt_file} {door} {day}`, permissive: false },
     timeoutMinutes: 1,
     ...opts.config,
   });

@@ -10,13 +10,12 @@ afterEach(async () => { await t?.close(); });
 const setNow = (iso: string) => { process.env.ADVENT_AGENT_FAKE_NOW = iso; };
 
 describe('budget tiers (D16)', () => {
-  it('maps generosity to S/M/L, anchors to XL (3×, at least L), portable capped at M', () => {
-    expect(tierFor(5, 'light', 'launched')).toMatchObject({ tier: 'S', tokens: 30_000 });
-    expect(tierFor(5, 'standard', 'launched')).toMatchObject({ tier: 'M', tokens: 100_000 });
-    expect(tierFor(5, 'generous', 'connected')).toMatchObject({ tier: 'L', tokens: 300_000 });
-    expect(tierFor(1, 'light', 'launched')).toMatchObject({ tier: 'XL', tokens: 300_000, capMultiplier: 3 });
-    expect(tierFor(24, 'generous', 'launched')).toMatchObject({ tier: 'XL', tokens: 900_000 });
-    expect(tierFor(24, 'generous', 'portable').tier).toBe('M');
+  it('maps generosity to S/M/L, anchors to XL (3×, at least L)', () => {
+    expect(tierFor(5, 'light')).toMatchObject({ tier: 'S', tokens: 30_000 });
+    expect(tierFor(5, 'standard')).toMatchObject({ tier: 'M', tokens: 100_000 });
+    expect(tierFor(5, 'generous')).toMatchObject({ tier: 'L', tokens: 300_000 });
+    expect(tierFor(1, 'light')).toMatchObject({ tier: 'XL', tokens: 300_000, capMultiplier: 3 });
+    expect(tierFor(24, 'generous')).toMatchObject({ tier: 'XL', tokens: 900_000 });
   });
 });
 
@@ -42,9 +41,9 @@ describe('season shape', () => {
   });
 
   it('the Day 1 brief restricts the choice to day1 anchors and carries tier XL', async () => {
-    t = await testCompanion({ now: '2026-11-08T12:00:00Z', config: { connection: { mode: 'connected', permissive: false } } });
+    t = await testCompanion({ now: '2026-11-08T12:00:00Z', config: { connection: { mode: 'submit', permissive: false } } });
     await t.api('POST', '/api/doors/1/prepare');
-    const ctx = (await t.api<AgentContext>('GET', '/api/agent/context?day=1&mode=connected')).data;
+    const ctx = (await t.api<AgentContext>('GET', '/api/agent/context?day=1&mode=submit')).data;
     expect(ctx.season).toMatchObject({ year: 2026, anchor: 'day1', isCatchUp: false });
     expect(ctx.budget.tier).toBe('XL');
     expect(ctx.anchorIdeas?.map((i) => i.id).sort()).toEqual(['holo-card-of-you', 'pop-up-hello', 'snow-globe-of-your-year', 'tiny-companion']);
@@ -52,7 +51,7 @@ describe('season shape', () => {
     // Door 2 cannot be prepared or submitted early.
     expect((await t.api('POST', '/api/doors/2/prepare')).status).toBe(423);
     expect((await t.api('POST', '/api/agent/submit?day=2', { text: '# early' })).status).toBe(423);
-    // Day 1 can be submitted early (connected/portable setup), but never revealed before Dec 1.
+    // Day 1 can be submitted early (a script that submits), but never revealed before Dec 1.
     expect((await t.api<{ ok: boolean }>('POST', '/api/agent/submit?day=1', { text: '# Hello\n\nI am your Secret Santa.' })).data.ok).toBe(true);
     expect((await t.api('POST', '/api/doors/1/reveal')).status).toBe(423);
     setNow('2026-11-30T23:01:00Z');
@@ -73,17 +72,17 @@ describe('season shape', () => {
   });
 
   it('D18 catch-up: a missed door is flagged in the brief; history lists earlier gifts with family, emotion and interaction', async () => {
-    t = await testCompanion({ now: '2026-12-08T12:00:00Z', config: { connection: { mode: 'connected', permissive: false } } });
+    t = await testCompanion({ now: '2026-12-08T12:00:00Z', config: { connection: { mode: 'submit', permissive: false } } });
     const manifest = { schema: 'advent-agent/gift@2', day: 2, title: 'Jelly persimmon', note: 'Wobble.', entry: 'index.html', emotion: 'cute', interaction: ['squeeze'], family: 'tactile-toys', ideaId: 'jelly-fruit', collection: { set: 'jelly-fruits', index: 1, size: 3 }, share: { still: { capture: 'still' } } };
-    const r = await t.api<{ ok: boolean; problems: unknown[] }>('POST', '/api/agent/submit?day=2&mode=connected', { files: [{ name: 'gift.json', text: JSON.stringify(manifest) }, { name: 'index.html', text: '<!doctype html><html><body><script>window.adventCapture={async prepare(){}}</script></body></html>' }] });
+    const r = await t.api<{ ok: boolean; problems: unknown[] }>('POST', '/api/agent/submit?day=2&mode=submit', { files: [{ name: 'gift.json', text: JSON.stringify(manifest) }, { name: 'index.html', text: '<!doctype html><html><body><script>window.adventCapture={async prepare(){}}</script></body></html>' }] });
     expect(r.data.ok, JSON.stringify(r.data.problems)).toBe(true);
     await t.api('POST', '/api/doors/3/open');
-    const ctx = (await t.api<AgentContext>('GET', '/api/agent/context?day=3&mode=connected')).data;
+    const ctx = (await t.api<AgentContext>('GET', '/api/agent/context?day=3&mode=submit')).data;
     expect(ctx.season.isCatchUp).toBe(true);
     expect(ctx.modeNotes.join(' ')).toMatch(/caught up/);
     expect(ctx.history).toEqual([expect.objectContaining({ day: 2, family: 'tactile-toys', emotion: 'cute', interaction: ['squeeze'], ideaId: 'jelly-fruit', opened: false })]);
     expect(ctx.collections).toEqual([{ set: 'jelly-fruits', size: 3, days: [2], complete: false }]);
-    const today = (await t.api<AgentContext>('GET', '/api/agent/context?day=8&mode=connected')).data;
+    const today = (await t.api<AgentContext>('GET', '/api/agent/context?day=8&mode=submit')).data;
     expect(today.season.isCatchUp).toBe(false);
     expect(today.budget.tier).toBe('M');
   });

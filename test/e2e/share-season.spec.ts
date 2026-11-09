@@ -72,8 +72,8 @@ test.describe('settings (handoff §1.7, D26)', () => {
     await login(page, '/settings');
     await expect(page.locator('.settings-h').first()).toBeVisible();
     const heads = await page.locator('.settings-h').evaluateAll((els) => els.map((e) => e.childNodes[0]!.textContent!.trim()));
-    expect(heads.slice(0, 4)).toEqual(['Delivery', 'Budget', 'About you', 'Reminder']);
-    await expect(page.getByText('Your Secret Santa already knows you. Add anything it might not.')).toBeVisible();
+    expect(heads.slice(0, 5)).toEqual(['Delivery', 'Budget', 'Your Secret Santa’s list', 'Your Secret Santa', 'Reminder']);
+    await expect(page.getByText('Anything it might not know')).toBeVisible();
     await expect(page.getByRole('link', { name: 'Remind me when a door opens' })).toHaveAttribute('href', '/api/reminder.ics');
     await expect(page.getByText(/Advent Agent mark/)).toHaveCount(0);
     const generous = page.getByRole('radio', { name: /Generous/ });

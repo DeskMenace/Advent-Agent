@@ -111,6 +111,7 @@ export function Onboarding(props: { mode: ConnectionMode; unlockHour: number; on
           <>
             <h2 id="onboard-title" class="onboard-title">How generous is your Secret Santa?</h2>
             <BudgetChoice value={generosity} onChange={setGenerosity} />
+            <p class="muted-line small">Before wrapping, your Secret Santa checks its list. Nothing leaves your computer.</p>
           </>
         )}
         <div class="onboard-nav">

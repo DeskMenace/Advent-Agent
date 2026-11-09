@@ -11,7 +11,7 @@ export function buildGiftJsonSchema(): Record<string, unknown> {
     $id: 'https://raw.githubusercontent.com/suchipizza/Advent-Agent/main/schema/gift.schema.json',
     title: 'Advent Agent gift manifest (gift.json)',
     description:
-      'Manifest of a gift package submitted to an Advent Agent calendar. See AGENT_GUIDE.md. The agent never purchases or books anything; realWorld entries are proposals.',
+      'Manifest of a gift package submitted to an Advent Agent calendar. See the gift-director skill. The agent never purchases or books anything; realWorld entries are proposals.',
     ...json,
   };
 }

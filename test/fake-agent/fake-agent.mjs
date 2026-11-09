@@ -11,9 +11,11 @@
  *   broken       manifest references a missing file
  *   fix-on-retry broken on the first run, fixed when BRIEF.md lists previous problems
  *   cli          uses `advent-agent progress/submit` from PATH (requires the shim to work)
- * Usage: node fake-agent.mjs <prompt_file> <workspace> <day>
+ *   list-task    (automatic when the folder holds TASK.md) turns sources/*.md bullet lines into list.md
+ * Usage: node fake-agent.mjs <prompt_file> <door folder> <day>
+ * The process starts in the season workspace (D28); the door folder is a subfolder (doors/NN).
  */
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
@@ -25,6 +27,19 @@ const day = Number(dayArg ?? brief.match(/^# Door (\d+)/m)?.[1] ?? process.env.A
 const url = process.env.ADVENT_AGENT_URL;
 const token = process.env.ADVENT_AGENT_TOKEN;
 const log = (m) => console.log(`[fake-agent] ${m}`);
+if (existsSync(join(cwd, 'TASK.md'))) {
+  // "Checking the list": read only the copied sources, write list.md.
+  const dir = join(cwd, 'sources');
+  const out = [];
+  for (const f of existsSync(dir) ? readdirSync(dir).sort() : []) {
+    if (f === 'INDEX.md') continue;
+    for (const l of readFileSync(join(dir, f), 'utf8').split('\n')) if (/^- /.test(l)) out.push(`${l} [source: ${f}]`);
+  }
+  if (process.env.FAKE_AGENT_LIST_FAIL) process.exit(1);
+  writeFileSync(join(cwd, 'list.md'), out.join('\n') + '\n');
+  writeFileSync(join(cwd, 'list-run.json'), JSON.stringify({ cwd: process.cwd(), sources: existsSync(dir) ? readdirSync(dir) : [] }));
+  process.exit(0);
+}
 log(`scenario=${scenario} day=${day} prompt=${promptFile ? readFileSync(promptFile, 'utf8').slice(0, 40) : '(none)'}`);
 // Emit something that looks like usage telemetry so the runner's parser has work to do.
 console.log(JSON.stringify({ type: 'result', usage: { input_tokens: 1200, output_tokens: 800 }, total_cost_usd: 0.0123 }));
@@ -36,6 +51,8 @@ async function progress(phase) {
 }
 
 function writeGift({ secret = false, broken = false } = {}) {
+  // Record where this process started and which doors it can see (the season workspace holds earlier doors).
+  writeFileSync(join(process.cwd(), `seen-${day}.json`), JSON.stringify({ cwd: process.cwd(), doors: readdirSync(join(cwd, '..')).sort(), earlierGifts: readdirSync(join(cwd, '..')).filter((d) => existsSync(join(cwd, '..', d, 'gift', 'gift.json'))).sort(), persona: existsSync(join(process.cwd(), 'CLAUDE.md')) ? readFileSync(join(process.cwd(), 'CLAUDE.md'), 'utf8') : null }));
   const gift = join(cwd, 'gift');
   mkdirSync(join(gift, 'assets'), { recursive: true });
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 490"><rect width="700" height="490" fill="#fbf3e4"/><text x="350" y="245" text-anchor="middle" font-family="Georgia" font-size="48" fill="#1d513e">For you, door ${day}</text>${secret ? `<!-- sk-ant-api03-${'x'.repeat(40)} -->` : ''}</svg>`;

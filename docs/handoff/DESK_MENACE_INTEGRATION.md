@@ -47,7 +47,7 @@ All links carry a `ref` parameter so website analytics can attribute visits. The
 ## 6. Items for the future website FAQ (deskmenace.com/advent)
 Write these down for the website session:
 - **Does my agent buy things?** No. Advent Agent never makes purchases or bookings. When a gift is a real object or experience, your agent prepares it (exact item, vendor, price checked on a date, link) and you decide whether to buy.
-- **Which agents work?** Terminal agents run on their own and can be scheduled. Desktop apps like Claude Desktop connect through MCP, and you ask them to open a door. Chat assistants and cloud agents can make a gift from our guide, which you then drop in.
+- **Which agents work?** Terminal agents installed on your computer: Claude Code, Codex, Gemini CLI, OpenCode, Cursor CLI, Copilot CLI, Goose and Amp, plus any command. The calendar starts them itself, and they can work ahead on a schedule.
 - **Do I need API keys or paid services?** No. Optional advanced settings let you add your own.
 - **Is my data sent anywhere?** The calendar runs on your computer and sends nothing to us. Your agent works as it normally does, including with its own model provider.
 - **Can I peek?** Locks prevent accidental spoilers. They are not a vault: changing your computer's clock will unlock doors.

@@ -6,9 +6,7 @@ Recommendations, not dogma. Deviate if there's a clear reason and record it in `
 
 ```
                  ┌───────────── user's agents ─────────────┐
- launched CLI ◄──┤ claude / codex / gemini / muse / custom  │
- MCP (stdio) ◄───┤ Claude Desktop, any MCP client           │
- drop / paste ◄──┤ chat LLMs, cloud agents (portable mode)  │
+ launched CLI ◄──┤ claude / codex / gemini / custom         │
                  └──────────────────────────────────────────┘
                                    │
                     advent-agent companion (Node)
@@ -26,8 +24,7 @@ Recommendations, not dogma. Deviate if there's a clear reason and record it in `
 - **Runtime**: Node ≥ 20 (test on 20, 22 and 24), TypeScript, ESM. Prefer packages without native dependencies; `npx` must work on macOS, Linux and Windows.
 - **Server**: Hono (or bare `node:http`) on `127.0.0.1` only.
 - **UI**: Vite + Preact (or vanilla TS) + plain CSS ported from the mockup. No component library or Tailwind look. Built assets ship inside the npm package.
-- **MCP**: `@modelcontextprotocol/sdk`, stdio transport (`advent-agent mcp`). The MCP process talks to the running companion over the authenticated local API, and starts the companion if it isn't running.
-- **Validation**: zod schemas shared by server, CLI and MCP.
+- **Validation**: zod schemas shared by server and CLI.
 - **Archive handling**: `yauzl` (or similar) with zip-slip and size-bomb protection.
 - **Keychain** (Advanced only): `@napi-rs/keyring` as an *optional* dependency. If it's unavailable, keys are not stored and the UI explains why. Never fall back to plaintext.
 - **Tests**: Vitest (unit and integration), Playwright (e2e; already a dev dependency, not a runtime dependency).
@@ -46,14 +43,20 @@ Data directory: `~/.advent-agent/` by default (override with `ADVENT_AGENT_HOME`
 ```
 ~/.advent-agent/
   config.json                 # non-secret settings, schemaVersion
-  profile.json                # optional personalisation profile
+  profile.json                # optional personalisation profile (name, language, avoid list, …)
+  list.json                   # "the list" (D28): what the Secret Santa knows, editable in Settings
+  personas/                   # text of a persona chosen with "Choose a file…" (D28)
   session.key                 # 0600; signs session cookies
-  api.token                   # 0600; for CLI/MCP/HTTP submissions
+  api.token                   # 0600; for CLI/HTTP submissions
   seasons/2026/
     season.json               # year, timeZone (frozen), unlockHour, mode, adapter
+    workspace/                # ONE stable working folder per season (D28): every agent run starts here
+      CLAUDE.md, AGENTS.md    # the chosen persona's text (only when a persona is set)
+      list/                   # the "checking the list" task: TASK.md, list.md (copied sources are deleted afterwards)
+      doors/07/               # one door's folder: BRIEF.md, brief.json, gift/ (deleted after sealing unless debug)
+      doors/03/gift/          # read-only copies of earlier sealed gifts, for collections
     doors/07/
       state.json              # job + reveal state (see §5)
-      workspace/              # private agent workspace (deleted after sealing unless debug)
       gift/                   # sealed, validated package (read-only after seal)
       log.txt                 # private agent output; never sent to the UI
     history.jsonl             # concise gift records for continuity (D7)
@@ -76,8 +79,8 @@ jobState: not_requested → queued → preparing → (waiting_for_agent | waitin
 revealed: boolean + revealedAt   (set only when the user opens a READY gift)
 ```
 
-- `waiting_for_agent`: connected mode; the user has to tell their agent to start.
-- `waiting_for_drop`: portable mode; the user drops or pastes the gift.
+- `waiting_for_agent`: submit mode; a local process has to submit the gift.
+- `waiting_for_drop`: legacy (portable mode, removed in D28); old doors may still carry it.
 - **Idempotency**: `POST /api/doors/:day/open` returns the existing job if there is one. Retry creates a new attempt number under the same door, and the previous workspace is archived, not merged.
 - The UI envelope states from DESIGN_SPEC §4.4 are derived from this model.
 - Eligibility is checked on the **server** for every door and gift request; direct URLs to future doors get the same lock response. Clock tampering is not defended against (DESIGN_SPEC §9.2); say so in the docs.
@@ -85,14 +88,13 @@ revealed: boolean + revealedAt   (set only when the user opens a READY gift)
 
 ## 6. HTTP API (app origin, localhost)
 
-All mutating routes need the session cookie (UI) or a `Bearer api.token` (CLI/MCP), and all routes check `Host` (127.0.0.1/localhost only, which blocks DNS rebinding) and `Origin`.
+All mutating routes need the session cookie (UI) or a `Bearer api.token` (CLI), and all routes check `Host` (127.0.0.1/localhost only, which blocks DNS rebinding) and `Origin`.
 
 ```
 GET  /api/calendar                    season, eligibility, door states (no gift content for unrevealed doors)
 POST /api/doors/:day/open             start or return the job (eligible doors only)
 GET  /api/doors/:day                  state; gift manifest only if revealed (or ready + opening now)
 POST /api/doors/:day/retry | cancel
-POST /api/doors/:day/submit           multipart: zip | html | files | text  (portable/CLI)
 GET  /api/events                      SSE: state changes, day rollover (spoiler-free)
 GET  /api/gifts                       revealed gifts (shelf); /api/archive/:season
 POST /api/doors/:day/feedback         loved it / not my thing / too personal / note
@@ -101,7 +103,7 @@ GET/PUT /api/settings, /api/profile
 POST /api/export, /api/import
 ```
 
-Agent-facing (bearer token): `GET /api/agent/context?day=N`, `POST /api/agent/progress`, `POST /api/agent/submit`. These are the same operations as the CLI and MCP tools in `AGENT_CONNECTIONS.md`.
+Agent-facing (bearer token): `GET /api/agent/context?day=N`, `POST /api/agent/progress`, `POST /api/agent/submit`. These are the same operations as the CLIls in `AGENT_CONNECTIONS.md`.
 
 ## 7. Gift intake and quality gate
 

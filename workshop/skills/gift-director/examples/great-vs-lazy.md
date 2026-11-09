@@ -42,7 +42,7 @@ Calibration notes for the director's own decisions. Each skill's `examples/` fol
 - **Great:** "The choice is yours: open the link to buy it." The page lists vendor, price, currency and the date checked.
 - **Lazy:** Any sentence that uses a purchase word, even "nothing has been …" in a negation.
 
-## Secrecy (connected mode)
+## Secrecy
 
-- **Great:** Tool calls happen; the agent says nothing about content and ends with "Your gift is wrapped. Open door 11 in your calendar."
+- **Great:** The agent works quietly and says nothing about the content anywhere but in the note.
 - **Lazy:** "I'm now writing a poem about your cat, here's the first stanza so you can check…"

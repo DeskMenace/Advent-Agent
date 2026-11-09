@@ -9,7 +9,7 @@ export const CalendarResponseSchema = z.object({
     timeZone: z.string(),
     unlockHour: z.number().int(),
     deliveryMode: z.enum(['on_demand', 'scheduled']),
-    mode: z.enum(['launched', 'connected', 'portable', 'submit']),
+    mode: z.enum(['launched', 'submit']),
     adapter: z.string().optional(),
     kind: z.enum(['live', 'demo', 'lab']),
   }),
@@ -100,8 +100,12 @@ export const AgentContextSchema = z.object({
   locale: z.string(),
   language: z.string(),
   timeZone: z.string(),
-  mode: z.enum(['launched', 'connected', 'portable', 'submit']),
+  mode: z.enum(['launched', 'submit']),
   recipient: z.record(z.string(), z.unknown()).optional(),
+  /** What the Secret Santa knows about the recipient (D28): the list, each line with where it came from. */
+  list: z.array(z.object({ text: z.string(), source: z.string() })),
+  /** Set when the recipient chose one of their personas as their Secret Santa (D28). */
+  persona: z.object({ name: z.string(), sourcePath: z.string() }).optional(),
   history: z.array(
     z.object({
       day: z.number().int(),
@@ -149,6 +153,8 @@ export const AgentContextSchema = z.object({
   library: z.object({ howTo: z.string(), count: z.number().int() }),
   packaging: z.object({ format: z.string(), check: z.string(), submit: z.string(), progress: z.string() }),
   workspace: z.string().optional(),
+  /** The folder the agent is started in (the season workspace); `workspace` is this door's subfolder. */
+  cwd: z.string().optional(),
   attempt: z.number().int(),
   previousProblems: z.array(GateProblemSchema).optional(),
 });

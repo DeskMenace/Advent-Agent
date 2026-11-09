@@ -15,9 +15,12 @@ export const claudeCode: Adapter = {
   detect: async () => detectCli('claude'),
   capabilities: () => base({ budgetEnforced: true, verified: true, notes: ['Budget enforced with --max-budget-usd when a spend cap is set.', 'Loads ~/.claude/CLAUDE.md and its own memory.'] }),
   launch(ctx) {
-    const tools = ['Read', 'Write', 'Edit', 'MultiEdit', 'Glob', 'Grep', 'Bash(advent-agent:*)', 'Bash(node:*)', 'Bash(ls:*)', 'Bash(cat:*)', 'Bash(mkdir:*)', 'Bash(cp:*)', 'Bash(python3:*)', 'Bash(npx:*)', 'TodoWrite'];
-    if (ctx.webResearch) tools.push('WebSearch', 'WebFetch');
-    const args = ['-p', ctx.prompt, '--output-format', 'stream-json', '--verbose', '--no-session-persistence', '--add-dir', ctx.workshop, ...ctx.inspirationFolders.flatMap((f) => ['--add-dir', f]), '--allowedTools', ...tools];
+    const list = ctx.task === 'list';
+    // Checking the list reads copied files and writes list.md: no shell, no web, no extra folders.
+    const tools = list ? ['Read', 'Write', 'Glob', 'Grep'] : ['Read', 'Write', 'Edit', 'MultiEdit', 'Glob', 'Grep', 'Bash(advent-agent:*)', 'Bash(node:*)', 'Bash(ls:*)', 'Bash(cat:*)', 'Bash(mkdir:*)', 'Bash(cp:*)', 'Bash(python3:*)', 'Bash(npx:*)', 'TodoWrite'];
+    if (ctx.webResearch && !list) tools.push('WebSearch', 'WebFetch');
+    const dirs = list ? [] : ['--add-dir', ctx.workshop, ...ctx.inspirationFolders.flatMap((f) => ['--add-dir', f])];
+    const args = ['-p', ctx.prompt, '--output-format', 'stream-json', '--verbose', '--no-session-persistence', ...dirs, '--allowedTools', ...tools];
     if (ctx.permissive) args.push('--permission-mode', 'bypassPermissions');
     else args.push('--permission-mode', 'acceptEdits', '--permission-prompts', 'none');
     if (ctx.usdCap) args.push('--max-budget-usd', String(ctx.usdCap));
@@ -33,7 +36,8 @@ export const codex: Adapter = {
   detect: async () => detectCli('codex'),
   capabilities: () => base({ verified: true, notes: ['Runs in the workspace-write sandbox: it may write only inside the workspace.', 'No token-limit flag: the budget is advisory.', 'Loads ~/.codex/AGENTS.md.'] }),
   launch(ctx) {
-    const args = ['exec', '--json', '--skip-git-repo-check', '-C', ctx.workspace, '--sandbox', ctx.permissive ? 'danger-full-access' : 'workspace-write', '--add-dir', ctx.workshop, ...ctx.inspirationFolders.flatMap((f) => ['--add-dir', f]), '-o', `${ctx.workspace}/.codex-last-message.txt`];
+    const dirs = ctx.task === 'list' ? [] : ['--add-dir', ctx.workshop, ...ctx.inspirationFolders.flatMap((f) => ['--add-dir', f])];
+    const args = ['exec', '--json', '--skip-git-repo-check', '-C', ctx.workspace, '--sandbox', ctx.permissive ? 'danger-full-access' : 'workspace-write', ...dirs, '-o', `${ctx.workspace}/.codex-last-message.txt`];
     if (ctx.permissive) args.push('--dangerously-bypass-approvals-and-sandbox');
     args.push(ctx.prompt);
     return { command: 'codex', args };
@@ -50,7 +54,8 @@ export const gemini: Adapter = {
   launch(ctx) {
     // --skip-trust: without it Gemini CLI silently downgrades --approval-mode to "default" in an untrusted folder
     // (observed with 0.49.0), and every edit would wait for an approval nobody can give.
-    const args = ['-p', ctx.prompt, '--output-format', 'json', '--skip-trust', '--include-directories', ctx.workshop, ...ctx.inspirationFolders.flatMap((f) => ['--include-directories', f])];
+    const dirs = ctx.task === 'list' ? [] : ['--include-directories', ctx.workshop, ...ctx.inspirationFolders.flatMap((f) => ['--include-directories', f])];
+    const args = ['-p', ctx.prompt, '--output-format', 'json', '--skip-trust', ...dirs];
     args.push('--approval-mode', ctx.permissive ? 'yolo' : 'auto_edit');
     return { command: 'gemini', args };
   },
@@ -75,19 +80,6 @@ export const copilot = indicative('copilot', 'GitHub Copilot CLI', 'copilot', (c
 export const goose = indicative('goose', 'Goose', 'goose', (ctx) => ['run', '-t', ctx.prompt]);
 export const amp = indicative('amp', 'Amp', 'amp', (ctx) => ['-x', ctx.prompt]);
 
-export const muse: Adapter = {
-  id: 'muse',
-  label: 'Muse Code (Meta)',
-  binary: 'muse',
-  detect: async () => {
-    const d = detectCli('muse');
-    return d.installed ? { ...d, note: 'No headless mode confirmed. Use connected or portable mode.' } : d;
-  },
-  capabilities: () => base({ headless: false, notes: ['No headless mode confirmed: offered as connected/portable only.'] }),
-  launch: (ctx) => ({ command: 'muse', args: ['-p', ctx.prompt] }),
-  parseUsage: parseUsageGeneric,
-};
-
 /** User-provided template: {prompt} {prompt_file} {workspace} {workshop} {day}. Split on whitespace, quotes respected. */
 export const custom: Adapter = {
   id: 'custom',
@@ -98,7 +90,7 @@ export const custom: Adapter = {
   launch(ctx) {
     const template = ctx.customCommand ?? '';
     const parts = splitCommand(template).map((p) =>
-      p.replace(/\{prompt_file\}/g, ctx.promptFile).replace(/\{prompt\}/g, ctx.prompt).replace(/\{workspace\}/g, ctx.workspace).replace(/\{workshop\}/g, ctx.workshop).replace(/\{day\}/g, String(ctx.day)),
+      p.replace(/\{door\}/g, ctx.doorDir).replace(/\{prompt_file\}/g, ctx.promptFile).replace(/\{prompt\}/g, ctx.prompt).replace(/\{workspace\}/g, ctx.workspace).replace(/\{workshop\}/g, ctx.workshop).replace(/\{day\}/g, String(ctx.day)),
     );
     const [command, ...args] = parts;
     if (!command) throw new Error('The custom command is empty.');
@@ -126,7 +118,7 @@ export function splitCommand(s: string): string[] {
   return out;
 }
 
-export const ADAPTERS: Record<LaunchedAdapterId, Adapter> = { 'claude-code': claudeCode, codex, gemini, muse, opencode, cursor, copilot, goose, amp, custom };
+export const ADAPTERS: Record<LaunchedAdapterId, Adapter> = { 'claude-code': claudeCode, codex, gemini, opencode, cursor, copilot, goose, amp, custom };
 
 export function getAdapter(id: string): Adapter | undefined {
   return (LAUNCHED_ADAPTERS as readonly string[]).includes(id) ? ADAPTERS[id as LaunchedAdapterId] : undefined;

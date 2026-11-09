@@ -18,7 +18,6 @@ export const WORKSHOP_DIR = join(PACKAGE_ROOT, 'workshop');
 export const LIBRARY_DIR = join(PACKAGE_ROOT, 'gift-library');
 export const UI_DIST_DIR = join(PACKAGE_ROOT, 'dist', 'ui');
 export const SCHEMA_DIR = join(PACKAGE_ROOT, 'schema');
-export const AGENT_GUIDE_FILE = join(PACKAGE_ROOT, 'AGENT_GUIDE.md');
 
 export function packageVersion(): string {
   try {

@@ -103,8 +103,8 @@ describe('storage', () => {
   it('deleteSeason removes only that season', () => {
     const store = new Store(root);
     store.config();
-    store.createSeason({ year: 2025, timeZone: 'UTC', unlockHour: 0, deliveryMode: 'on_demand', connection: { mode: 'portable', permissive: false }, kind: 'live', prepareDayBefore: true });
-    store.createSeason({ year: 2026, timeZone: 'UTC', unlockHour: 0, deliveryMode: 'on_demand', connection: { mode: 'portable', permissive: false }, kind: 'live', prepareDayBefore: true });
+    store.createSeason({ year: 2025, timeZone: 'UTC', unlockHour: 0, deliveryMode: 'on_demand', connection: { mode: 'submit', permissive: false }, kind: 'live', prepareDayBefore: true });
+    store.createSeason({ year: 2026, timeZone: 'UTC', unlockHour: 0, deliveryMode: 'on_demand', connection: { mode: 'submit', permissive: false }, kind: 'live', prepareDayBefore: true });
     store.deleteSeason(2025);
     expect(store.seasonYears()).toEqual([2026]);
     expect(existsSync(store.home.configFile)).toBe(true);

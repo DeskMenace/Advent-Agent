@@ -1,0 +1,199 @@
+import { afterEach, describe, expect, it } from 'vitest';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { decodeProjectDir, definesPersona, encodeProjectDir, personaFromCandidate, personaFromFile, scanPersonas, syncPersona } from '../../src/core/persona.js';
+import { applyUserEdit, cleanSourceText, gatherSources, mergeLines, parseListMd, relabelSources, renderListTask } from '../../src/core/list.js';
+import { ListSchema } from '../../src/shared/list.js';
+
+const dirs: string[] = [];
+const tmp = () => { const d = realpathSync(mkdtempSync(join(tmpdir(), 'aa-pl-'))); dirs.push(d); return d; };
+afterEach(() => { for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true }); });
+
+function write(file: string, text: string) { mkdirSync(join(file, '..'), { recursive: true }); writeFileSync(file, text); }
+
+/** A pretend user home with two projects, a persona agent, a transcript, an .env and a secret. */
+function fakeHome() {
+  const root = tmp();
+  const home = join(root, 'home');
+  const proj = join(root, 'work', 'my-proj');
+  const own = join(root, 'home', '.advent-agent', 'seasons', '2026', 'workspace');
+  for (const d of [proj, own]) mkdirSync(d, { recursive: true });
+  write(join(home, '.claude', 'CLAUDE.md'), '# About me\n- I row on the lake every morning\n- My dog is called Biscuit\n- api key: sk-ant-api03-' + 'x'.repeat(40) + '\n');
+  write(join(home, '.claude', 'agents', 'captain.md'), '---\nname: Captain Pepper\ndescription: a pirate\n---\nYou are Captain Pepper, a gruff but kind pirate. Speak in nautical terms.\n');
+  write(join(home, '.claude', 'output-styles', 'terse.md'), '---\nname: Terse\n---\nAnswer in as few words as possible.\n');
+  write(join(proj, 'CLAUDE.md'), '# Project\nYour name is Ada. You are a meticulous archivist.\n');
+  write(join(proj, '.claude', 'agents', 'helper.md'), '# Helper\nA helper agent.\n');
+  write(join(proj, '.env'), 'SECRET_TOKEN=abcdefghijklmnop\n');
+  const enc = join(home, '.claude', 'projects', encodeProjectDir(proj));
+  write(join(enc, 'memory', 'MEMORY.md'), '- Project is a podcast about lakes\n');
+  write(join(enc, 'session-1.jsonl'), '{"type":"user","message":"TRANSCRIPT-CONTENT"}\n');
+  const encOwn = join(home, '.claude', 'projects', encodeProjectDir(own));
+  write(join(encOwn, 'memory', 'MEMORY.md'), '- OWN-FOLDER-MEMORY\n');
+  write(join(own, 'CLAUDE.md'), 'You are the calendar itself.\n');
+  return { root, home, proj, own, enc };
+}
+
+describe('project folder names', () => {
+  it('decodes the lossy encoding by looking at the file system', () => {
+    const { proj } = fakeHome();
+    expect(decodeProjectDir(encodeProjectDir(proj))).toBe(proj);
+    expect(decodeProjectDir('-no-such-place-anywhere')).toBeUndefined();
+  });
+});
+
+describe('persona candidates (D28 §2)', () => {
+  it('finds custom agents, output styles and persona-defining CLAUDE.md files, with name, project and preview', () => {
+    const { home, proj, own, root } = fakeHome();
+    const found = scanPersonas({ home, ownRoots: [join(home, '.advent-agent')] });
+    const byName = Object.fromEntries(found.map((c) => [c.name, c]));
+    expect(byName['Captain Pepper']).toMatchObject({ kind: 'claude-agent', project: undefined });
+    expect(byName['Captain Pepper']!.preview).toMatch(/gruff but kind pirate/);
+    expect(byName['Terse']!.kind).toBe('claude-output-style');
+    expect(byName['Ada']).toMatchObject({ kind: 'claude-md', project: proj });
+    expect(byName['Helper']?.project).toBe(proj);
+    // The calendar's own folder is never a candidate.
+    expect(found.some((c) => c.sourcePath.startsWith(own))).toBe(false);
+    void root;
+  });
+
+  it('the CLAUDE.md heuristic wants an identity, not just repo instructions', () => {
+    expect(definesPersona('# Repo\nRun npm test before committing.')).toBe(false);
+    expect(definesPersona('You are Gary, an annoying coworker.')).toBe(true);
+    expect(definesPersona('# Notes\nYour name is Mo.')).toBe(true);
+  });
+
+  it('finds Codex AGENTS.md of projects named in session metadata', () => {
+    const root = tmp();
+    const home = join(root, 'home');
+    const proj = join(root, 'code', 'owl');
+    write(join(proj, 'AGENTS.md'), 'You are Professor Owl, a patient tutor.\n');
+    write(join(home, '.codex', 'sessions', '2026', '11', '08', 'rollout-1.jsonl'), JSON.stringify({ type: 'session_meta', payload: { cwd: proj } }) + '\n{"type":"message","text":"SECRET TRANSCRIPT"}\n');
+    const found = scanPersonas({ home, ownRoots: [] });
+    expect(found.find((c) => c.name === 'Professor Owl')).toMatchObject({ kind: 'codex-agents', project: proj });
+  });
+});
+
+describe('persona copy in the season workspace', () => {
+  it('writes CLAUDE.md and AGENTS.md, refreshes when the source changes, and removes only its own files', () => {
+    const { home } = fakeHome();
+    const ws = tmp();
+    const c = scanPersonas({ home, ownRoots: [] }).find((x) => x.name === 'Captain Pepper')!;
+    const persona = personaFromCandidate(c)!;
+    expect(syncPersona(ws, persona)?.sourceHash).toBe(persona.sourceHash); // first copy, nothing changed
+    for (const f of ['CLAUDE.md', 'AGENTS.md']) expect(readFileSync(join(ws, f), 'utf8')).toMatch(/gruff but kind pirate/);
+    expect(readFileSync(join(ws, 'CLAUDE.md'), 'utf8')).not.toMatch(/^---/m);
+    // Source changes → copy and hash are refreshed on the next sync.
+    writeFileSync(c.sourcePath, '---\nname: Captain Pepper\n---\nYou are Captain Pepper. New orders: speak softly.\n');
+    const refreshed = syncPersona(ws, persona)!;
+    expect(refreshed.sourceHash).not.toBe(persona.sourceHash);
+    expect(readFileSync(join(ws, 'AGENTS.md'), 'utf8')).toMatch(/speak softly/);
+    // Never writes to the persona's own project or file.
+    expect(readFileSync(c.sourcePath, 'utf8')).toMatch(/New orders/);
+    // A file we did not write stays; ours goes when the persona is cleared.
+    write(join(ws, 'AGENTS.md'), 'the user wrote this\n');
+    syncPersona(ws, undefined);
+    expect(existsSync(join(ws, 'CLAUDE.md'))).toBe(false);
+    expect(readFileSync(join(ws, 'AGENTS.md'), 'utf8')).toBe('the user wrote this\n');
+  });
+
+  it('a chosen file becomes a persona named after its identity line', () => {
+    const root = tmp();
+    write(join(root, 'me.md'), 'Your name is Noodle. You are a calm cat.\n');
+    expect(personaFromFile(join(root, 'me.md'))).toMatchObject({ name: 'Noodle' });
+    write(join(root, 'bb.md'), '# Trailbot — instructions for Claude Code working in this repo\n\nYou are building Trailbot.\n');
+    expect(personaFromFile(join(root, 'bb.md'))).toMatchObject({ name: 'Trailbot' });
+    expect(personaFromFile(join(root, 'missing.md'))).toBeUndefined();
+  });
+});
+
+describe('what the list may read (D28 §4)', () => {
+  it('copies global instructions, project memory and project CLAUDE.md; never transcripts, .env, secrets or the calendar\'s own folders', () => {
+    const { home, own } = fakeHome();
+    const task = tmp();
+    const sources = gatherSources(task, { adapter: 'claude-code', home, ownRoots: [join(home, '.advent-agent')] });
+    const labels = sources.map((s) => s.label);
+    expect(labels).toContain('~/.claude/CLAUDE.md');
+    expect(labels.some((l) => l.endsWith('MEMORY.md') && l.includes('.claude/projects'))).toBe(true);
+    expect(labels.some((l) => l.endsWith('my-proj/CLAUDE.md'))).toBe(true);
+    const all = sources.map((s) => readFileSync(join(task, s.copy), 'utf8')).join('\n');
+    expect(all).toMatch(/Biscuit/);
+    expect(all).not.toMatch(/TRANSCRIPT-CONTENT|SECRET_TOKEN|OWN-FOLDER-MEMORY|sk-ant-/);
+    expect(labels.some((l) => l.includes('.env') || l.endsWith('.jsonl') || l.startsWith(own))).toBe(false);
+    expect(all).toMatch(/line removed/);
+  });
+
+  it('Codex: global AGENTS.md, memories and project AGENTS.md from session metadata', () => {
+    const root = tmp();
+    const home = join(root, 'home');
+    const proj = join(root, 'code', 'owl');
+    write(join(proj, 'AGENTS.md'), '- Owl project is about tutoring\n');
+    write(join(home, '.codex', 'AGENTS.md'), '- Prefers tea\n');
+    write(join(home, '.codex', 'memories', 'm.md'), '- Lives near a lake\n');
+    write(join(home, '.codex', 'sessions', '2026', '11', '08', 'rollout-1.jsonl'), JSON.stringify({ payload: { cwd: proj } }) + '\n');
+    const task = tmp();
+    const labels = gatherSources(task, { adapter: 'codex', home, ownRoots: [] }).map((s) => s.label);
+    expect(labels).toEqual(expect.arrayContaining(['~/.codex/AGENTS.md', '~/.codex/memories/m.md']));
+    expect(labels.some((l) => l.endsWith('owl/AGENTS.md'))).toBe(true);
+  });
+
+  it('the persona\'s project memory is read too', () => {
+    const { home, proj } = fakeHome();
+    const c = scanPersonas({ home, ownRoots: [] }).find((x) => x.name === 'Ada')!;
+    const persona = personaFromCandidate(c)!;
+    const sources = gatherSources(tmp(), { adapter: 'claude-code', persona, home, ownRoots: [] });
+    expect(sources.some((s) => s.label.includes(encodeProjectDir(proj)) && s.label.endsWith('MEMORY.md'))).toBe(true);
+  });
+
+  it('the task tells the agent what to leave out, including the avoid list', () => {
+    const text = renderListTask({ sources: [], hasPasted: false, existing: [], avoid: ['politics'], tokens: 30000 });
+    expect(text).toMatch(/10–20 short lines/);
+    expect(text).toMatch(/no session transcripts, no source code, no `.env` files/);
+    expect(text).toMatch(/health, money, relationships/);
+    expect(text).toMatch(/politics/);
+  });
+
+  it('cleanSourceText removes secret-looking lines but keeps home paths', () => {
+    expect(cleanSourceText('hello\nexport OPENAI_API_KEY=abcdef123456789\nnotes in /Users/me/notes')).toBe('hello\n[line removed: it looked like a secret]\nnotes in /Users/me/notes');
+  });
+});
+
+describe('the calendar\'s own and lab folders', () => {
+  it('are never read for the list, even when the folder is gone and only its encoded name is left', () => {
+    const { home } = fakeHome();
+    // A deleted lab home: only Claude's project folder remains.
+    write(join(home, '.claude', 'projects', '-Users-someone--advent-agent-lab-plan-x-seasons-2026-doors-01-workspace', 'memory', 'MEMORY.md'), '- LAB-MEMORY\n');
+    const sources = gatherSources(tmp(), { adapter: 'claude-code', home, ownRoots: [] });
+    const all = sources.map((s) => s.label).join('\n');
+    expect(all).not.toMatch(/advent-agent/);
+    expect(sources.length).toBeGreaterThan(0);
+  });
+});
+
+describe('list parsing and merging', () => {
+  it('parses tagged bullet lines, drops secrets and the avoid list', () => {
+    const lines = parseListMd('# List\n- Rows every morning [source: ~/.claude/CLAUDE.md]\n- Dog called Biscuit (source: memory)\n- Votes for politics-party [source: x]\n- key sk-ant-api03-' + 'y'.repeat(40) + '\nnot a bullet\n', { avoid: ['politics'] });
+    expect(lines.map((l) => l.text)).toEqual(['Rows every morning', 'Dog called Biscuit']);
+    expect(lines[0]!.source).toBe('~/.claude/CLAUDE.md');
+  });
+
+  it('shows the real origin of a line, not the name of the copy the agent read', () => {
+    const lines = relabelSources(parseListMd('- Rows daily [source: sources/03-memory-lake-MEMORY.md]\n- Has a dog [source: pasted]\n'), [{ copy: 'sources/03-memory-lake-MEMORY.md', label: '~/.claude/projects/lake/memory/MEMORY.md' }]);
+    expect(lines.map((l) => l.source)).toEqual(['~/.claude/projects/lake/memory/MEMORY.md', 'pasted']);
+  });
+
+  it('merges new lines without duplicates and never brings back a deleted line', () => {
+    let list = ListSchema.parse({});
+    list = mergeLines(list, parseListMd('- Rows every morning\n- Dog called Biscuit\n'));
+    list = applyUserEdit(list, { lines: [{ id: list.lines[1]!.id, text: 'Dog called Biscuit' }] }); // deletes "Rows…", keeps the dog
+    expect(list.lines.map((l) => l.text)).toEqual(['Dog called Biscuit']);
+    list = mergeLines(list, parseListMd('- rows every morning!\n- Dog called biscuit\n- Loves lakes\n'));
+    expect(list.lines.map((l) => l.text)).toEqual(['Dog called Biscuit', 'Loves lakes']);
+  });
+
+  it('an edited line becomes the user\'s own', () => {
+    let list = mergeLines(ListSchema.parse({}), parseListMd('- Rows every morning [source: a]\n'));
+    list = applyUserEdit(list, { lines: [{ id: list.lines[0]!.id, text: 'Rows at dawn' }] });
+    expect(list.lines[0]).toMatchObject({ text: 'Rows at dawn', origin: 'user' });
+  });
+});

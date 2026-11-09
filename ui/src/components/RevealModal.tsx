@@ -4,14 +4,13 @@
  * The gift is marked opened (and lands on the shelf) the moment the unwrap starts.
  */
 import { useEffect, useRef, useState } from 'preact/hooks';
-import type { CalendarResponse, GateReport, RevealedGift } from '../../../src/shared/api.js';
+import type { CalendarResponse, RevealedGift } from '../../../src/shared/api.js';
 import type { PublicDoor } from '../../../src/shared/door.js';
 import { api, subscribe } from '../api.js';
 import { Inline } from '../lib/markdown.js';
 import { AgentNote } from './AgentNote.js';
 import { emitAdvent } from '../lib/site.js';
 import { announce, prefersReducedMotion, sleep, toast } from '../lib/ui.js';
-import { ConnectedPrompt, DropArea, PortableRequest, Problems } from '../pages/Door.js';
 import { getRenderer } from '../renderers/index.js';
 import { navigate } from '../router.js';
 import { Bow } from './Board.js';
@@ -25,6 +24,7 @@ const PHASE_LINE: Record<string, string> = {
   testing: 'Choosing the ribbon…',
   wrapping: 'Tying the bow…',
   validating: 'Checking the knots…',
+  list: 'Your Secret Santa is checking its list…',
 };
 
 type Stage = 'loading' | 'unwrapping' | 'revealed';
@@ -41,11 +41,9 @@ export function Present(props: { state: 'wobble' | 'still' | 'unwrap' }) {
 
 export function RevealModal(props: { day: number; cal: CalendarResponse; onClose: () => void }) {
   const { day, cal } = props;
-  const mode = cal.season.mode;
   const [door, setDoor] = useState<PublicDoor>(() => cal.doors[day - 1]!);
   const [stage, setStage] = useState<Stage>('loading');
   const [gift, setGift] = useState<RevealedGift | null>(null);
-  const [report, setReport] = useState<GateReport | null>(null);
   const [share, setShare] = useState(false);
   const [busy, setBusy] = useState(false);
   const shownAt = useRef(Date.now());
@@ -99,12 +97,11 @@ export function RevealModal(props: { day: number; cal: CalendarResponse; onClose
 
   const act = async (fn: () => Promise<PublicDoor>) => {
     setBusy(true);
-    try { setDoor(await fn()); setReport(null); } catch (e) { toast((e as Error).message); } finally { setBusy(false); }
+    try { setDoor(await fn()); } catch (e) { toast((e as Error).message); } finally { setBusy(false); }
   };
 
   const failed = door.jobState === 'failed' || door.jobState === 'cancelled';
   const sealedEarly = !door.eligible && !door.wrapping; // wrapped before its day (Day 1, the finale)
-  const waitingForUser = door.jobState === 'waiting_for_agent' || door.jobState === 'waiting_for_drop' || (!door.eligible && door.wrapping && mode !== 'launched');
   const line = failed ? (door.failure?.userMessage ?? 'Your Secret Santa got tangled in the ribbon.')
     : sealedEarly ? `Wrapped. It opens on December ${day}.`
     : door.jobState === 'waiting_for_permission' ? (door.permission?.message ?? 'Waiting for your permission.')
@@ -122,15 +119,6 @@ export function RevealModal(props: { day: number; cal: CalendarResponse; onClose
               <>
                 <p class="reveal-line" aria-live="polite">{line}</p>
                 {failed && door.eligible && door.failure?.canRetry !== false && <button type="button" class="primary-button" disabled={busy} onClick={() => act(() => api.retry(day))}>Try again</button>}
-                {!failed && waitingForUser && mode === 'connected' && <ConnectedPrompt day={day} early={!door.eligible} />}
-                {!failed && waitingForUser && mode === 'portable' && (
-                  <details class="reveal-help">
-                    <summary>Ask your assistant</summary>
-                    <PortableRequest day={day} />
-                    <DropArea day={day} onReport={setReport} />
-                    {report && !report.ok && <Problems report={report} />}
-                  </details>
-                )}
               </>
             )}
           </div>

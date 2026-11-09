@@ -14,7 +14,7 @@ describe('agent failure diagnosis', () => {
     expect(d?.message).not.toContain('Secret Gift Title');
   });
   it('Gemini is launched with --skip-trust so its approval mode is not silently downgraded', () => {
-    const spec = gemini.launch({ workspace: '/w', workshop: '/ws', promptFile: '/w/P', prompt: 'p', day: 1, webResearch: false, inspirationFolders: [], permissive: false });
+    const spec = gemini.launch({ task: 'gift', doorDir: '/w/doors/01', workspace: '/w', workshop: '/ws', promptFile: '/w/P', prompt: 'p', day: 1, webResearch: false, inspirationFolders: [], permissive: false });
     expect(spec.args).toContain('--skip-trust');
     expect(spec.args.slice(spec.args.indexOf('--approval-mode'), spec.args.indexOf('--approval-mode') + 2)).toEqual(['--approval-mode', 'auto_edit']);
   });

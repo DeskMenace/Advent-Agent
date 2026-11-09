@@ -14,10 +14,7 @@ workshop/
 
 ## How agents find this folder
 
-- **Launched agents** get the absolute path in `BRIEF.md` (and `brief.json` → `capabilities.workshopPath`), written into their private workspace by the calendar. The CLI is started with read access to this folder and write access to the workspace only.
-- **Connected agents** (MCP) call `list_workshop()` for the skill index and `read_workshop_guide(skill, file?)` for the full text on demand.
-- **Portable agents** (chat LLMs without local tools) do not need this folder: they follow `AGENT_GUIDE.md` at the repo root, which is a compact version of `gift-director` plus the package format and an inline music player.
-- Optionally, Settings can install the skills into a connected host that supports the Agent Skills convention (never automatically).
+- **Launched agents** get the absolute path in `BRIEF.md` (and `brief.json` → `capabilities.workshopPath`), written into their door's folder of the season workspace by the calendar. The CLI is started with read access to this folder and write access to the workspace only.
 
 ## Rules of the house
 

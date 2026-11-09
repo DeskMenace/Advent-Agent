@@ -17,7 +17,7 @@ describe('packaging', () => {
     expect(statSync(tgz).size).toBeLessThanOrEqual(15 * 1024 * 1024);
     const paths = info.files.map((f) => f.path);
     expect(paths.some((p) => /chrom|ffmpeg|ffprobe|\.app\//i.test(p))).toBe(false);
-    expect(paths).toEqual(expect.arrayContaining(['bin/advent-agent.js', 'dist/cli/main.js', 'dist/ui/index.html', 'AGENT_GUIDE.md', 'schema/gift.schema.json', 'gift-library/INDEX.json', 'workshop/skills/gift-director/SKILL.md']));
+    expect(paths).toEqual(expect.arrayContaining(['bin/advent-agent.js', 'dist/cli/main.js', 'dist/ui/index.html', 'schema/gift.schema.json', 'gift-library/INDEX.json', 'workshop/skills/gift-director/SKILL.md']));
     // D24: no user-facing demo, so the fixture gifts are not shipped.
     expect(paths.some((p) => p.startsWith('fixtures/'))).toBe(false);
     expect(paths.some((p) => p.startsWith('docs/') || p.startsWith('test/') || p.startsWith('src/') || p.startsWith('ui/'))).toBe(false);
@@ -71,7 +71,7 @@ describe('packaging', () => {
 
   it('the package manifest lists exactly the runtime folders', () => {
     const pkg = JSON.parse((require('node:fs') as typeof import('node:fs')).readFileSync(join(root, 'package.json'), 'utf8')) as { files: string[]; dependencies: Record<string, string> };
-    expect(pkg.files).toEqual(expect.arrayContaining(['bin/', 'dist/', 'schema/', 'workshop/', 'gift-library/', 'AGENT_GUIDE.md', 'README.md', 'THIRD_PARTY.md', 'LICENSE']));
+    expect(pkg.files).toEqual(expect.arrayContaining(['bin/', 'dist/', 'schema/', 'workshop/', 'gift-library/', 'README.md', 'THIRD_PARTY.md', 'LICENSE']));
     expect(pkg.files).not.toContain('fixtures/');
     expect(Object.keys(pkg.dependencies)).toContain('gary.js');
     expect(readdirSync(join(root, 'fixtures', 'gifts')).length).toBeGreaterThanOrEqual(10);

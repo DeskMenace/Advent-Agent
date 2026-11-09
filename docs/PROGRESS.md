@@ -68,12 +68,7 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 - [x] I1.5 Broken gift (missing primary file) → gate rejects
 - [x] I1.6 Log output never reaches `/api/calendar`, `/api/doors/:day` or SSE
 
-### MCP — `test/integration/mcp.test.ts`
-- [x] I2.1 Every tool callable from an SDK client (`get_calendar_context`, `list_workshop`, `read_workshop_guide`, `list_ideas`, `read_idea`, `start_gift`, `report_progress`, `check_gift`, `submit_gift`)
-- [x] I2.2 Inline `files[]` submission seals a gift
-- [x] I2.3 "No pending door" case returns a clear message
-- [x] I2.4 Submission for an ineligible day is rejected
-- [x] I2.5 Resources expose the guides
+### MCP — removed in D28 (chat modes are gone; launched agents never used MCP)
 
 ### CLI and HTTP submit — `test/integration/http-auth.test.ts`
 - [x] I3.1 Mutating routes without a token or cookie → 401
@@ -170,8 +165,6 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 
 ## 4. Real-agent smoke tests — TEST_PLAN §4 (opt-in)
 - [~] R1 `ADVENT_REAL_AGENTS=1 npm run test:agents` runs against each installed CLI (Claude Code, Codex, Gemini CLI); results in `docs/AGENT_COMPAT.md` — Claude Code passed on 8 Nov (gift sealed in 55 s); Codex and Gemini still blocked by account setup.
-- [ ] R2 Manual: Claude Desktop MCP connection (connected mode) — Noémie
-- [ ] R3 Manual: portable mode with a chat LLM via `AGENT_GUIDE.md` — Noémie
 
 ## 5. Packaging — TEST_PLAN §5 — `test/packaging/pack.test.ts`
 - [x] P1 `npm pack` → install in a clean temp dir → `npx advent-agent doctor` and `start` work; `demo` is gone (D24) (macOS here; Ubuntu/Windows via CI)
@@ -204,7 +197,7 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 - [x] H1 2-step onboarding modal (Delivery, Budget); defaults on dismiss; Day 1 starts after it; Scheduled disabled where it can't run (`calendar.spec.ts`, `season-shape.test.ts`)
 - [x] H2 Mockup look: tokens, bundled Fraunces + Instrument Sans, board with our red bow, home copy and steps, GitHub footer mark, no Archive (`calendar.spec.ts`)
 - [x] H3 Four wordless envelope states with full aria-labels, greyscale-safe, reduced motion (`calendar.spec.ts`, `layout-a11y.spec.ts`)
-- [x] H4 Reveal pop-up: flap → wrapped present → unwrap → gift; saved on reveal; closing during preparation is safe; events for Gary (`calendar.spec.ts`, `portable.spec.ts`)
+- [x] H4 Reveal pop-up: flap → wrapped present → unwrap → gift; saved on reveal; closing during preparation is safe; events for Gary (`calendar.spec.ts`)
 - [x] H5 Your Gifts grid and `/gifts/:day` page (`shelf.spec.ts`, `renderers.spec.ts`)
 - [x] H6 Share sheet: privacy preview, X, Facebook, Instagram, TikTok, Copy image, native share; fixed caption; deskmenace.com; no mark (`share-season.spec.ts`, `share.test.ts`)
 - [x] H7 Save = the gift itself in its natural format; `save` in gift.json (`renderers.spec.ts`, `share.test.ts`, `package-parse.test.ts`)
@@ -221,9 +214,19 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 - [x] L5 `check_gift` for tools: README, uninstall, delete calls without dry run fail; network warns (`tool-gift.test.ts`)
 - [x] L6 Kit `terminal-frame` block; maker skill carries the small-tool safety rules (`kit-v2.test.ts`)
 
+## 6d. Agents only, personas, one workspace per season, checking the list (PROMPT_CC_list_and_personas, D28)
+- [x] P1 Chat modes gone: portable mode, connected mode, MCP server, public guide, drop area, their docs and tests; README "Which agents work?" lists terminal agents only; old configs, doors and sealed gifts still load (`workspace-list.test.ts` legacy test, `persona-list.spec.ts`)
+- [x] P2 "Who is your Secret Santa?" picker in setup: Just my agent (default) or One of my personas (scanned candidates with name, project, preview; Choose a file…) (`persona-list.test.ts`, `workspace-list.test.ts`, `persona-list.spec.ts`)
+- [x] P3 Persona copied into the season workspace as CLAUDE.md and AGENTS.md, refreshed when its source changes, never written to its own project; the brief says to sign the note with its name (`persona-list.test.ts`, `workspace-list.test.ts`)
+- [x] P4 One workspace per season; doors are subfolders; later doors read earlier sealed gifts (`workspace-list.test.ts`)
+- [x] P5 Checking the list: before the first door and on December 8 and 15; reads only the copied allow-list; no transcripts, source, .env, keys or the calendar's own and lab folders; editable and pasteable in Settings (`persona-list.test.ts`, `workspace-list.test.ts`, `persona-list.spec.ts`)
+- [x] P6 Brief carries the list; "at least one real detail" wording, "never invent" kept for an empty list (`workspace-list.test.ts`)
+- [x] P7 Two quality fixes: desktop/terminal offer rule in gift-director §7; Downloads Archaeologist rewritten with the demo-dig page (`workshop.test.ts`, `library.test.ts`)
+- [x] P8 Lab rerun: personal-detail rate for Claude Code and Codex after checking the list, persona test, fish-tank and downloads-archaeologist rebuilds (see `lab/out/list-rerun.md`)
+
 ## 7. Release checklist — TEST_PLAN §7
 - [ ] REL1 Every item above ticked or in `docs/KNOWN_LIMITATIONS.md`
 - [ ] REL2 `promo.json` code set and verified on the website — Noémie
 - [x] REL3 README with envelope GIF, quick start, modes table, FAQ, credits, licence notes
-- [x] REL4 `AGENT_GUIDE.md` reachable at its public URL (GitHub raw)
+- [x] REL4 `AGENT_GUIDE.md` removed with portable mode (D28)
 - [ ] REL5 npm publish `advent-agent` 1.0.0, GitHub release, tag — Noémie approves

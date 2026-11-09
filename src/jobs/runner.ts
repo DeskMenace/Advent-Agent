@@ -12,6 +12,11 @@ import { PROGRESS_PHASES, type ProgressPhase } from '../shared/gift.js';
 
 export interface RunInput {
   adapter: Adapter;
+  /** 'gift' for a door, 'list' for checking the list (D28). */
+  task?: 'gift' | 'list';
+  /** The folder the agent is started in: the season workspace. */
+  cwd: string;
+  /** This door's (or the list task's) folder inside it. */
   workspace: string;
   logFile: string;
   prompt: string;
@@ -54,6 +59,9 @@ export interface RunOutcome {
 }
 
 export const DEFAULT_PROMPT = 'Read BRIEF.md in the current folder and follow the gift-director skill.';
+/** The agent starts in the season workspace; each door's brief lives in its own subfolder (D28). */
+export const promptForDoor = (day: number) => `Read doors/${String(day).padStart(2, '0')}/BRIEF.md and follow the gift-director skill. Work in that door's folder.`;
+export const LIST_PROMPT = 'Read list/TASK.md and do what it says. Write list/list.md and nothing else.';
 
 /** A tiny shim so `advent-agent` resolves for the child even when the package was run with npx. */
 export function writeBinShim(dir: string): string {
@@ -98,9 +106,11 @@ export class AgentRun {
     mkdirSync(input.workspace, { recursive: true });
     const promptFile = join(input.workspace, 'PROMPT.txt');
     writeFileSync(promptFile, input.prompt);
-    const shimDir = writeBinShim(join(input.workspace, '..', '.bin'));
+    const shimDir = writeBinShim(join(input.cwd, '.bin'));
     const ctx: LaunchContext = {
-      workspace: input.workspace,
+      task: input.task ?? 'gift',
+      workspace: input.cwd,
+      doorDir: input.workspace,
       workshop: WORKSHOP_DIR,
       promptFile,
       prompt: input.prompt,
@@ -128,6 +138,7 @@ export class AgentRun {
       ADVENT_AGENT_TOKEN: input.apiToken,
       ADVENT_AGENT_URL: input.apiUrl,
       ADVENT_AGENT_WORKSPACE: input.workspace,
+      ADVENT_AGENT_CWD: input.cwd,
       ADVENT_AGENT_WORKSHOP: WORKSHOP_DIR,
       CI: '1',
       NO_COLOR: '1',
@@ -150,7 +161,7 @@ export class AgentRun {
       };
       let child: ChildProcess;
       try {
-        child = spawn(command, spec.args, { cwd: input.workspace, env, shell: false, stdio: [spec.stdinPrompt ? 'pipe' : 'ignore', 'pipe', 'pipe'], windowsHide: true });
+        child = spawn(command, spec.args, { cwd: input.cwd, env, shell: false, stdio: [spec.stdinPrompt ? 'pipe' : 'ignore', 'pipe', 'pipe'], windowsHide: true });
       } catch (e) {
         finish({ exitCode: null, timedOut: false, error: `Could not start ${command}: ${(e as Error).message}` });
         return;

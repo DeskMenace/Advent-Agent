@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import type { Page, APIRequestContext } from '@playwright/test';
 import { STATE_FILE } from './global-setup.js';
 
-export interface E2EState { home: string; demoHome: string; token: string; appPort: number; giftPort: number }
+export interface E2EState { home: string; userHome: string; demoHome: string; token: string; appPort: number; giftPort: number }
 
 export function state(): E2EState {
   return JSON.parse(readFileSync(STATE_FILE, 'utf8')) as E2EState;

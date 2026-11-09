@@ -36,12 +36,12 @@ test.describe('Your Gifts (handoff §1.5)', () => {
     const dir = join(state().demoHome, 'seasons', '2025');
     if (!existsSync(dir)) {
       mkdirSync(join(dir, 'doors', '03', 'gift', '.advent'), { recursive: true });
-      writeFileSync(join(dir, 'season.json'), JSON.stringify({ schemaVersion: 1, year: 2025, timeZone: 'Europe/Zurich', unlockHour: 0, deliveryMode: 'on_demand', prepareDayBefore: true, connection: { mode: 'portable', permissive: false }, createdAt: '2025-11-20T10:00:00Z', kind: 'live', archivedAt: '2026-01-10T10:00:00Z' }));
+      writeFileSync(join(dir, 'season.json'), JSON.stringify({ schemaVersion: 1, year: 2025, timeZone: 'Europe/Zurich', unlockHour: 0, deliveryMode: 'on_demand', prepareDayBefore: true, connection: { mode: 'submit', permissive: false }, createdAt: '2025-11-20T10:00:00Z', kind: 'live', archivedAt: '2026-01-10T10:00:00Z' }));
       const manifest = { schema: 'advent-agent/gift@1', day: 3, title: 'Last year’s poem', note: 'Kept from last December.', primary: 'poem.md', artifacts: [{ path: 'poem.md', kind: 'document', role: 'primary' }], network: [], incomplete: [] };
       writeFileSync(join(dir, 'doors', '03', 'gift', 'poem.md'), '# Snow\n\nQuiet.');
-      const sealed = { manifest, kind: 'document', files: [{ path: 'poem.md', bytes: 15, sha256: 'a'.repeat(64), mime: 'text/markdown', downloadOnly: false }], sealedAt: '2025-12-03T07:00:00Z', attempt: 1, mode: 'portable', verification: { render: 'skipped', renderNotes: [], media: 'skipped', secretScan: 'clean', warnings: [] }, networkConsent: [] };
+      const sealed = { manifest, kind: 'document', files: [{ path: 'poem.md', bytes: 15, sha256: 'a'.repeat(64), mime: 'text/markdown', downloadOnly: false }], sealedAt: '2025-12-03T07:00:00Z', attempt: 1, mode: 'submit', verification: { render: 'skipped', renderNotes: [], media: 'skipped', secretScan: 'clean', warnings: [] }, networkConsent: [] };
       writeFileSync(join(dir, 'doors', '03', 'gift', '.advent', 'manifest.sealed.json'), JSON.stringify(sealed));
-      writeFileSync(join(dir, 'doors', '03', 'state.json'), JSON.stringify({ schemaVersion: 1, day: 3, jobState: 'ready', attempt: 1, attempts: [{ n: 1, mode: 'portable', startedAt: '2025-12-03T06:00:00Z', endedAt: '2025-12-03T07:00:00Z', outcome: 'ready', gateReports: 0 }], revealed: true, revealedAt: '2025-12-03T08:15:00Z', gift: sealed, updatedAt: '2025-12-03T08:15:00Z' }));
+      writeFileSync(join(dir, 'doors', '03', 'state.json'), JSON.stringify({ schemaVersion: 1, day: 3, jobState: 'ready', attempt: 1, attempts: [{ n: 1, mode: 'submit', startedAt: '2025-12-03T06:00:00Z', endedAt: '2025-12-03T07:00:00Z', outcome: 'ready', gateReports: 0 }], revealed: true, revealedAt: '2025-12-03T08:15:00Z', gift: sealed, updatedAt: '2025-12-03T08:15:00Z' }));
     }
     await login(page, '/gift/2025/3');
     await expect(page.locator('#gift-title')).toHaveText('Last year’s poem');

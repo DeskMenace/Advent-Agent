@@ -13,7 +13,7 @@ A feature is done when its tests pass in CI on macOS, Ubuntu and Windows (Node 2
 
 ## 2. Integration
 - **Fake agent adapter** (`test/fake-agent/`): a scripted CLI that behaves like a launched agent. It emits progress phases, writes a fixture gift, submits, and can fail, time out, emit a secret or produce a broken gift. It drives every launched-mode path.
-- **MCP**: an SDK client calls every tool, including inline-file submission, the "no pending door" case, and a submission for an ineligible day (rejected).
+- **Workspace, persona and list (D28)**: one workspace per season with doors as subfolders and earlier doors readable; persona copied as CLAUDE.md/AGENTS.md, refreshed when its source changes; checking the list reads only the copied allow-list, merges tagged lines, is editable, and refreshes on December 8 and 15.
 - **CLI and HTTP submit**: token required; Host/Origin checks; DNS-rebinding style Host rejected.
 - **Scheduler**: preparation at the configured time with a faked clock; catch-up after a simulated sleep; no duplicate runs; honest "late" status.
 - **Service install**: generates the correct unit, plist or task definition (tested as file output; real install only in a manual check).
@@ -23,7 +23,7 @@ A feature is done when its tests pass in CI on macOS, Ubuntu and Windows (Node 2
 - **Renderers**: fixture gift per kind (interactive HTML, image, audio, video, document, card + PNG/SVG/PDF downloads, song with score, WAV and render-it-yourself sheet, real-world proposal, link, unknown → download).
 - **Sandbox**: a fixture gift tries `parent.document`, `localStorage`, `fetch('http://127.0.0.1:4224/api/…')`, top-level navigation and a remote image without consent. All are blocked.
 - **Shelf and archive**: only revealed gifts; past season browsable; dates kept.
-- **Portable flow**: drop a zip, drop an HTML file, paste text, drop loose media.
+- **Persona and list**: the "Who is your Secret Santa?" picker in setup, the list section in Settings.
 - **Gary**: present on the calendar only; right-click shows "Hire Gary" with the correct URL; "send home" persists for the day; the setting hides him; hidden under reduced motion.
 - **Voucher**: appears on door 6 after reveal, never before reveal, never on other doors.
 - **Layouts**: screenshots at 320, 390, 768, 1280 and 1440 px, plus 200% zoom; no horizontal overflow; compared against `previews/` by eye in the PR and by Playwright snapshot thereafter.
@@ -32,12 +32,11 @@ A feature is done when its tests pass in CI on macOS, Ubuntu and Windows (Node 2
 ## 4. Real-agent smoke tests (opt-in, local, costs tokens)
 `ADVENT_REAL_AGENTS=1 npm run test:agents`. For each installed CLI (Claude Code, Codex, Gemini CLI, plus any others found), run a lab season and ask for one small gift with a 10k-token budget. Assert that progress was reported, the gate passed and the gift rendered. Record the CLI version, flags used, duration and usage in `docs/AGENT_COMPAT.md`. That file is the source of truth for the adapter table.
 
-Also check manually: the Claude Desktop MCP connection (connected mode), and portable mode with a claude.ai or ChatGPT chat using `AGENT_GUIDE.md`.
 
 ## 5. Packaging
-- `npm pack` → install in a clean temp directory → `npx advent-agent doctor` and `demo` work, on all three OSes.
+- `npm pack` → install in a clean temp directory → `npx advent-agent doctor` and `start` work, on all three OSes.
 - Package size budget: ≤ 15 MB, with no Chromium or ffmpeg bundled.
-- First run with no agent installed: a friendly path to demo mode, connected mode or portable mode.
+- First run with no agent installed: a friendly message that says which terminal agents are supported.
 
 ## 6. Gift lab, then Noémie's manual review (after sections 1–5 are green)
 
@@ -76,7 +75,7 @@ advent-agent lab review                      # opens the review sheet
 | Choose-your-own story / Three-Riddle Escape Room | multi-step interaction |
 | One `--free` wildcard | — |
 
-  Run it once through Claude Code (launched), once through Claude Desktop (connected) and once through a chat LLM (portable).
+  Run it once through Claude Code and once through Codex (launched).
 
 ## 7. Release checklist
 - [ ] Every PROGRESS item ticked; known limitations documented.

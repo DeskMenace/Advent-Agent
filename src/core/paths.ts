@@ -20,9 +20,16 @@ export interface Home {
   seasonFile(year: number): string;
   doorDir(year: number, day: number): string;
   doorStateFile(year: number, day: number): string;
+  /** One stable working folder per season (D28): every agent run starts here, doors are subfolders. */
+  seasonWorkspaceDir(year: number): string;
+  /** `<season workspace>/doors/NN`: the folder one door's agent works in (BRIEF.md, gift/). */
   workspaceDir(year: number, day: number): string;
+  /** The list of what the Secret Santa knows (D28). */
+  listFile: string;
   giftDir(year: number, day: number): string;
   logFile(year: number, day: number): string;
+  /** Private log of the "checking the list" runs (never exported). */
+  listLogFile(year: number): string;
   historyFile(year: number): string;
   ledgerFile(year: number): string;
 }
@@ -52,9 +59,12 @@ export function makeHome(root: string): Home {
     seasonFile: (year) => join(seasonDir(year), 'season.json'),
     doorDir,
     doorStateFile: (year, day) => join(doorDir(year, day), 'state.json'),
-    workspaceDir: (year, day) => join(doorDir(year, day), 'workspace'),
+    seasonWorkspaceDir: (year) => join(seasonDir(year), 'workspace'),
+    workspaceDir: (year, day) => join(seasonDir(year), 'workspace', 'doors', pad(day)),
+    listFile: join(root, 'list.json'),
     giftDir: (year, day) => join(doorDir(year, day), 'gift'),
     logFile: (year, day) => join(doorDir(year, day), 'log.txt'),
+    listLogFile: (year) => join(seasonDir(year), 'list', 'log.txt'),
     historyFile: (year) => join(seasonDir(year), 'history.jsonl'),
     ledgerFile: (year) => join(seasonDir(year), 'ledger.jsonl'),
   };

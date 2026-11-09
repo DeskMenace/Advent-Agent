@@ -12,7 +12,7 @@ Made by [Desk Menace](https://deskmenace.com/?ref=aa-readme), the people behind 
 npx advent-agent
 ```
 
-That is the whole install. The companion starts on your computer, your browser opens on the calendar, and a short wizard asks how your agent connects. No account, no API keys, no tracking.
+That is the whole install. The companion starts on your computer, your browser opens on the calendar, and a short wizard asks which agent is your Secret Santa. No account, no API keys, no tracking.
 
 ## What it does
 
@@ -27,20 +27,21 @@ That is the whole install. The companion starts on your computer, your browser o
 
 ## Which agents work?
 
-| Mode | Who | Who starts the work | Scheduled? | Surprise kept? | Gifts possible |
-|---|---|---|---|---|---|
-| **Launched** | Terminal agents installed on your computer: Claude Code, Codex CLI, Gemini CLI, plus OpenCode, Cursor CLI, Copilot CLI, Goose, Amp and a custom command | The calendar, when you open a door or on schedule | Yes | Fully: output hidden, only phases shown | Everything: games, audio, multi-file, web research |
-| **Connected** | MCP clients: Claude Desktop, Codex desktop, Cursor, any MCP host | You: "Open door 7 of my Advent Agent calendar." | No | Partly: the chat shows tool calls | Everything, when the host can write files and run code |
-| **Portable** | Any chat assistant or cloud agent (claude.ai, ChatGPT, Gemini app, …) | You paste a request, then drop the result in | No | Partly: ask it to send the file without a preview | One self-contained HTML file, text, or a real-world proposal |
-| **Command line** | Your own scripts | Whoever runs `advent-agent submit` | If your script is | Up to you | Anything in the package format |
+Terminal agents installed on your computer. The calendar starts them itself, when you open a door or on a schedule, and keeps their output hidden: you only see spoiler-free phases.
 
-Flags for Claude Code, Codex CLI and Gemini CLI were verified against the installed versions; see [docs/AGENT_COMPAT.md](docs/AGENT_COMPAT.md). Agents without local tools follow [AGENT_GUIDE.md](AGENT_GUIDE.md).
+| Agent | Notes |
+|---|---|
+| **Claude Code**, **Codex CLI**, **Gemini CLI** | Flags verified against the installed versions; see [docs/AGENT_COMPAT.md](docs/AGENT_COMPAT.md) |
+| **OpenCode**, **Cursor CLI**, **Copilot CLI**, **Goose**, **Amp** | Built from their documented flags; not yet verified on every machine |
+| **Custom command** | Any other agent that can be started with a command |
+
+Any local script can also hand a gift in with `advent-agent submit`, or through the authenticated localhost API.
 
 ## Quick start
 
 1. `npx advent-agent` opens the calendar and the setup wizard.
-2. Pick how your agent connects (see the table). Launched agents are detected automatically.
-3. Choose the unlock hour, on-demand or scheduled delivery, and (optionally) a few hints about you.
+2. Pick your agent (installed agents are detected automatically), and whether it is just your agent or one of your personas.
+3. Choose on-demand or scheduled delivery and how generous it should be. Before wrapping, your Secret Santa checks its list: what it already knows about you.
 4. On December 1, open the first door.
 
 Useful commands:
@@ -49,7 +50,6 @@ Useful commands:
 advent-agent                  start + open the calendar
 advent-agent doctor           detect agents, ports, browser, ffprobe
 advent-agent status           door states, no spoilers
-advent-agent mcp              MCP server for Claude Desktop & friends
 advent-agent service install  start the companion at login (scheduled mode)
 advent-agent export | import  your seasons as a zip, without secrets
 advent-agent lab …            gift lab for trying ideas with real agents
@@ -67,6 +67,8 @@ advent-agent lab …            gift lab for trying ideas with real agents
 **Does my agent buy things?** No. Advent Agent never makes purchases or bookings. If your agent suggests something to buy or book, you decide.
 
 **Do I need API keys or paid services?** No. Optional advanced settings let you add your own providers, stored in your OS keychain, used only through narrow adapters with a spend cap.
+
+**How does my Secret Santa know me?** Before Door 1 (and again on December 8 and 15) it checks its list: one short run of your own agent over its own memory and a few of your agent instructions files. It never reads session transcripts, source code, keys or credentials. The list is on your computer, and you can edit or delete any line in Settings. You can also choose one of your own personas as your Secret Santa; its notes are signed with its name.
 
 **Is my data sent anywhere?** It runs entirely on your computer. Nothing is sent to us. Your agent works as it normally does, including with its own model provider.
 
@@ -87,7 +89,7 @@ advent-agent lab …            gift lab for trying ideas with real agents
 ```
 npm install
 npm run build          # server + UI + schema
-npm test               # unit + integration (fake agent, MCP, auth, scheduler)
+npm test               # unit + integration (fake agent, auth, scheduler, workspace, list)
 npm run e2e            # Playwright against the internal fixture calendar (scripts/fixture-calendar.ts)
 npm run test:packaging # npm pack → clean install → doctor + start
 ADVENT_REAL_AGENTS=1 npm run test:agents   # real agents, costs tokens

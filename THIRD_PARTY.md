@@ -12,7 +12,6 @@ Advent Agent is MIT-licensed (see `LICENSE`). It ships with, or installs at runt
 | Package | Licence | Use |
 |---|---|---|
 | hono, @hono/node-server | MIT | local HTTP server |
-| @modelcontextprotocol/sdk | MIT | MCP server (`advent-agent mcp`) |
 | zod | MIT | validation |
 | yauzl, yazl | MIT | zip reading / writing |
 | open | MIT | opening the browser |

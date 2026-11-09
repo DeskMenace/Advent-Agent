@@ -1,7 +1,8 @@
 /** Typed fetch wrappers for the companion API (same origin, cookie auth) and the SSE stream. */
-import type { AgentContext, CalendarResponse, GateReport, RevealedGift, ShelfItem, SseEvent } from '../../src/shared/api.js';
+import type { CalendarResponse, GateReport, RevealedGift, ShelfItem, SseEvent } from '../../src/shared/api.js';
 import type { PublicDoor } from '../../src/shared/door.js';
 import type { Config, Profile } from '../../src/shared/config.js';
+import type { List, Persona, PersonaCandidate } from '../../src/shared/list.js';
 
 export class ApiError extends Error {
   constructor(public readonly status: number, public readonly code: string, message: string) {
@@ -37,8 +38,6 @@ export const api = {
   feedback: (day: number, body: { reaction?: string; note?: string }) => request<PublicDoor>('POST', `/doors/${day}/feedback`, body),
   bought: (day: number, bought: boolean, note?: string) => request<{ bought: { at: string; note?: string } | null }>('POST', `/doors/${day}/bought`, { bought, note }),
   consentNetwork: (day: number, origins: string[]) => request<{ allowed: string[] }>('POST', `/doors/${day}/network`, { origins }),
-  submitFiles: (day: number, form: FormData) => request<GateReport>('POST', `/doors/${day}/submit`, form),
-  submitText: (day: number, text: string, title?: string) => request<GateReport>('POST', `/doors/${day}/submit`, { text, title }),
   shelf: () => request<{ season: number | null; items: ShelfItem[] }>('GET', '/gifts'),
   settings: () => request<Config>('GET', '/settings'),
   saveSettings: (patch: Partial<Config>) => request<Config>('PUT', '/settings', patch),
@@ -48,11 +47,6 @@ export const api = {
   saveProfile: (patch: Partial<Profile>) => request<Profile>('PUT', '/profile', patch),
   detect: () => request<{ adapters: Array<{ id: string; label: string; detection: { installed: boolean; version?: string; path?: string; note?: string }; capabilities: { headless: boolean; budgetEnforced: boolean; verified: boolean; canRunCommands: boolean; notes: string[] } }>; deviceTimeZone: string; platform: string }>('GET', '/setup/detect'),
   doctor: () => request<Record<string, unknown>>('GET', '/doctor'),
-  mcpConfig: () => request<{ snippets: Record<string, { label: string; configPath?: string; format: string; snippet: string; notes: string }> }>('GET', '/mcp/config'),
-  mcpInstall: (host: string, confirm: boolean) => request<{ configPath?: string; existed: boolean; before: string; after: string; written: boolean; message: string }>('POST', '/mcp/install', { host, confirm }),
-  skillTargets: () => request<{ targets: Array<{ host: string; label: string; folder: string; installed: boolean; files: string[] }> }>('GET', '/skills/targets'),
-  skillsInstall: (host: string, confirm: boolean) => request<{ installed: boolean; folder: string; files: string[]; message: string }>('POST', '/skills/install', { host, confirm }),
-  skillsUninstall: (host: string) => request<{ removed: boolean; message: string }>('POST', '/skills/uninstall', { host }),
   service: () => request<{ installed: boolean; running: boolean; detail: string; definition: { path: string; platform: string } }>('GET', '/service'),
   serviceInstall: () => request<{ ok: boolean; message: string }>('POST', '/service/install'),
   serviceUninstall: () => request<{ ok: boolean; message: string }>('POST', '/service/uninstall'),
@@ -62,7 +56,13 @@ export const api = {
   deleteKey: (id: string) => request<{ ok: boolean; message: string }>('DELETE', `/providers/${encodeURIComponent(id)}/key`),
   backup: () => request<{ folder: string }>('POST', '/backup'),
   importZip: (form: FormData) => request<{ files: number }>('POST', '/import', form),
-  agentContext: (day: number, mode: string) => request<AgentContext>('GET', `/agent/context?day=${day}&mode=${mode}`),
+  persona: () => request<{ persona: Persona | null }>('GET', '/persona'),
+  personaCandidates: () => request<{ candidates: PersonaCandidate[] }>('GET', '/persona/candidates'),
+  setPersona: (choice: { candidateId: string } | { fileName: string; text: string } | null) => request<{ persona: Persona | null }>('PUT', '/persona', choice),
+  refreshPersona: () => request<{ persona: Persona | null }>('POST', '/persona/refresh'),
+  list: () => request<List & { checking: boolean }>('GET', '/list'),
+  saveList: (body: { lines?: Array<{ id?: string; text: string }>; pasted?: string }) => request<List & { checking: boolean }>('PUT', '/list', body),
+  checkList: () => request<{ started: boolean; checking: boolean }>('POST', '/list/check'),
   labSheet: () => request<{ season: number | null; items: Array<{ day: number; title?: string; kind?: string; idea?: string; agent?: string; state: string; revealed: boolean }>; reviewsFile: string }>('GET', '/lab/review'),
   labSave: (body: unknown) => request<{ saved: string; approved?: string }>('POST', '/lab/review', body),
 };

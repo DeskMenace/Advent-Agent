@@ -131,18 +131,18 @@ export class Store {
     return dest;
   }
 
-  /** Every file that may leave the machine: seasons (states, sealed gifts), config, profile. Never tokens, keys, logs, workspaces, backups, lab. */
+  /** Every file that may leave the machine: seasons (states, sealed gifts), config, profile. Never tokens, keys, logs, workspaces, the list, personas, backups, lab. */
   *walkExportable(root = this.home.root): Generator<string> {
     if (!existsSync(root)) return;
     for (const entry of readdirSync(root, { withFileTypes: true })) {
       const full = join(root, entry.name);
       if (entry.isSymbolicLink()) continue;
       if (entry.isDirectory()) {
-        if (full === this.home.backupsDir || full === this.home.labDir) continue;
+        if (full === this.home.backupsDir || full === this.home.labDir || full === join(this.home.root, 'personas')) continue;
         if (entry.name === 'workspace' || /^workspace\.attempt-\d+$/.test(entry.name) || entry.name === 'quarantine') continue;
         yield* this.walkExportable(full);
       } else if (entry.isFile()) {
-        if (SECRET_FILE_NAMES.has(entry.name)) continue;
+        if (SECRET_FILE_NAMES.has(entry.name) || full === this.home.listFile) continue; // the list holds what the agent learned about the user: it never leaves with an export
         if (entry.name.endsWith('.tmp') || entry.name === 'demo.json') continue;
         yield full;
       }

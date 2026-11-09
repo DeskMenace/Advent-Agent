@@ -3,7 +3,7 @@
  */
 import { existsSync, renameSync, rmSync } from 'node:fs';
 import { DoorStateSchema, type Attempt, type ConnectionMode, type DoorState, type JobState, type EnvelopeState, type PublicDoor, type SealedGift } from '../shared/door.js';
-import type { ProgressPhase } from '../shared/gift.js';
+import type { DoorPhase } from '../shared/gift.js';
 import { ensureDir, readJson, writeJsonAtomic } from './fsutil.js';
 import type { Home } from './paths.js';
 
@@ -91,7 +91,7 @@ export function cancelDoor(state: DoorState, now = new Date()): DoorState {
   return transition(state, 'cancelled', now);
 }
 
-export function setPhase(state: DoorState, phase: ProgressPhase, now = new Date()): DoorState {
+export function setPhase(state: DoorState, phase: DoorPhase, now = new Date()): DoorState {
   if (!IN_FLIGHT.has(state.jobState)) throw new DoorTransitionError(state.jobState, state.jobState, `Door ${state.day} is not being prepared`);
   const next = state.jobState === 'waiting_for_agent' || state.jobState === 'queued' ? transition(state, 'preparing', now) : state;
   return cloneWith(next, { phase }, now);
@@ -189,7 +189,7 @@ export class DoorStore {
   archiveWorkspace(day: number, attempt: number): void {
     const ws = this.home.workspaceDir(this.year, day);
     if (!existsSync(ws)) return;
-    const archived = `${ws}.attempt-${attempt}`;
+    const archived = `${ws}.attempt-${attempt}`; // doors/NN.attempt-N inside the season workspace
     if (existsSync(archived)) rmSync(archived, { recursive: true, force: true });
     renameSync(ws, archived);
   }

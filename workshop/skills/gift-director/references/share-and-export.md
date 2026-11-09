@@ -71,7 +71,7 @@ The calendar opens the gift in a headless browser at 1080×1350 (or 1080×1920 f
   "collection": { "set": "jelly-fruits", "index": 1, "size": 3 },   // optional
   "entry": "index.html",
   "note": "You said persimmons taste like autumn pretending to be summer. This one wobbles like it agrees.",
-  "signature": "Pip",                   // optional, any name you like, or leave it out
+  "signature": "Pip",                   // optional; the persona's name if the brief has one, otherwise any name you like
   "save": { "file": "jelly-persimmon.png", "type": "image/png" },   // optional: the gift's primary file
   "followUp": {                         // optional, at most one (SKILL.md §7); never shown by the calendar
     "offer": "A desktop jelly persimmon",

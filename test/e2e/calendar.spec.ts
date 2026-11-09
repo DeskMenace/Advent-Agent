@@ -55,7 +55,7 @@ test.describe('envelope states (handoff §1.2)', () => {
     // Door 7 temporarily "being prepared" (the fixture file is restored afterwards).
     const file7 = join(state().demoHome, 'seasons', '2026', 'doors', '07', 'state.json');
     const original7 = (await import('node:fs')).readFileSync(file7, 'utf8');
-    writeFileSync(file7, JSON.stringify({ schemaVersion: 1, day: 7, jobState: 'waiting_for_drop', attempt: 1, attempts: [{ n: 1, mode: 'portable', startedAt: new Date().toISOString(), outcome: 'running', gateReports: 0 }], revealed: false, updatedAt: new Date().toISOString() }));
+    writeFileSync(file7, JSON.stringify({ schemaVersion: 1, day: 7, jobState: 'waiting_for_drop', attempt: 1, attempts: [{ n: 1, mode: 'submit', startedAt: new Date().toISOString(), outcome: 'running', gateReports: 0 }], revealed: false, updatedAt: new Date().toISOString() }));
     try {
     await login(page, '/?gary=0');
     const locked = page.locator(env(12));

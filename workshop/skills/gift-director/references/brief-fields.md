@@ -6,8 +6,11 @@
 | `season.anchor` | `day1`, `finale` or `null` (when present) | Day 1: choose among `anchor: day1` ideas; December 24: `anchor: finale` or something that size |
 | `season.isCatchUp` | The door is being caught up after a gap (when present) | Lighter, more varied; never mention the delay |
 | `locale`, `language`, `timeZone` | Recipient's locale, language code, IANA zone | Write in `language`; format dates and prices for `locale`; print services ship to this country |
-| `mode` | `launched`, `connected`, `portable`, `submit` | Decides secrecy and hand-over |
-| `recipient` | Optional, only shared fields: hobbies, humour, dislikes, avoid, language, accessibility, people, pets | Facts you may use; `dislikes`/`avoid` are hard rules |
+| `mode` | `launched`, `submit` | Launched: you are started by the calendar and it submits `./doors/NN/gift` if you exit without submitting |
+| `list` | Lines about the recipient, each with its source | Real details you should use (at least one per gift, where it fits); empty means do not invent facts |
+| `persona` | Present when the recipient chose a persona | Speak in its voice and sign the note with its name |
+| `cwd`, `workspace` | Your start folder (season workspace) and this door's subfolder | Write only into your door's folder |
+| `recipient` | Optional, only fields they told us directly: hobbies, humour, dislikes, avoid, language, accessibility, people, pets | Facts you may use; `dislikes`/`avoid` are hard rules |
 | `history[]` | `{day, title, kind, category, motifs, thread, feedback}` plus `family`, `emotion`, `interaction`, `collection` when present | Rotation rules: no repeated family, form or verb within 3 days; emotion mix; callbacks for the finale |
 | `collections` | Sets started this season and how many items each has (when present) | At most 2 sets, 3 items each, 4+ days apart |
 | `budget.tier`, `budget.tokens` | `S`, `M`, `L` or `XL` and an advisory token count (when present) | Choose an idea whose minimum `tier` fits; write `tierUsed` |

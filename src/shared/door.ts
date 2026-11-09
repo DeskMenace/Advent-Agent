@@ -2,7 +2,7 @@
  * Door state model (ARCHITECTURE §5). Eligibility, job state, readiness and reveal are kept separate.
  */
 import { z } from 'zod';
-import { GiftKindSchema, GiftManifestSchema, ProgressPhaseSchema } from './gift.js';
+import { DoorPhaseSchema, GiftKindSchema, GiftManifestSchema } from './gift.js';
 
 export const JOB_STATES = [
   'not_requested',
@@ -19,9 +19,11 @@ export const JOB_STATES = [
 export type JobState = (typeof JOB_STATES)[number];
 export const JobStateSchema = z.enum(JOB_STATES);
 
-export const CONNECTION_MODES = ['launched', 'connected', 'portable', 'submit'] as const;
+/** launched = the calendar starts a terminal agent; submit = any local process submits through the CLI or localhost API. */
+export const CONNECTION_MODES = ['launched', 'submit'] as const;
 export type ConnectionMode = (typeof CONNECTION_MODES)[number];
-export const ConnectionModeSchema = z.enum(CONNECTION_MODES);
+/** Records written before D28 may say connected or portable (chat modes, since removed): they read as submit. */
+export const ConnectionModeSchema = z.preprocess((v) => (v === 'connected' || v === 'portable' ? 'submit' : v), z.enum(CONNECTION_MODES));
 
 export const VerificationSchema = z.object({
   render: z.enum(['passed', 'failed', 'skipped']),
@@ -88,7 +90,7 @@ export const DoorStateSchema = z.object({
   jobState: JobStateSchema.default('not_requested'),
   attempt: z.number().int().nonnegative().default(0),
   attempts: z.array(AttemptSchema).default([]),
-  phase: ProgressPhaseSchema.optional(),
+  phase: DoorPhaseSchema.optional(),
   revealed: z.boolean().default(false),
   revealedAt: z.string().optional(),
   failure: z
@@ -124,7 +126,7 @@ export const PublicDoorSchema = z.object({
   envelope: z.enum(ENVELOPE_STATES),
   jobState: JobStateSchema,
   attempt: z.number().int(),
-  phase: ProgressPhaseSchema.optional(),
+  phase: DoorPhaseSchema.optional(),
   revealed: z.boolean(),
   revealedAt: z.string().optional(),
   late: z.object({ scheduledFor: z.string(), reason: z.string(), preparedAt: z.string() }).optional(),

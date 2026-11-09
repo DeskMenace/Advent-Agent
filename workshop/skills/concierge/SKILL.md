@@ -64,7 +64,7 @@ Use the manifest `realWorld` block and a page. Kit template: `kit/templates/real
 "share": { "still": { "capture": "still" }, "caption": "My Secret Santa found the exact book I didn't know I wanted" }
 ```
 
-The share frame shows the thing and why it suits them, never the price or anything sensitive. In portable mode, write the same fields as plain text (item, vendor, url, price + currency, checkedAt, constraints, what's left).
+The share frame shows the thing and why it suits them, never the price or anything sensitive.
 
 ## Taste rules
 

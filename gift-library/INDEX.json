@@ -1106,7 +1106,7 @@
       "tier": "S",
       "capability": "chat-ok",
       "render": "terminal",
-      "summary": "A small script that excavates their Downloads folder: it sorts files into absurdly named folders ('Things You Swore You'd Read', 'Installers of Yesteryear') and prints an excavation report with their oldest artefact.",
+      "summary": "A command that digs through their Downloads folder and writes a funny excavation report about what it finds, then sorts the finds into absurdly named folders, moving files and never deleting them.",
       "suitable_if": "They use a computer daily.",
       "status": "candidate",
       "file": "ideas/downloads-archaeologist.md"

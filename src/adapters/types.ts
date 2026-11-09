@@ -5,7 +5,7 @@ export interface Detection {
   installed: boolean;
   version?: string;
   path?: string;
-  /** Human note, e.g. "no headless mode: connected/portable only". */
+  /** Human note, e.g. "not found on your PATH". */
   note?: string;
 }
 
@@ -30,7 +30,12 @@ export interface LaunchSpec {
 }
 
 export interface LaunchContext {
+  /** What this run is for: a door's gift, or checking the list (read a few copied files, write list.md; no shell, no web). */
+  task: 'gift' | 'list';
+  /** The folder the agent is started in: the season workspace (D28). */
   workspace: string;
+  /** The folder of this door (or of the list task) inside the workspace. */
+  doorDir: string;
   workshop: string;
   promptFile: string;
   prompt: string;

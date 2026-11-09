@@ -17,8 +17,8 @@ const page = `<!doctype html><html><body style="margin:0;background:#fde7cf"><h1
 <link rel="stylesheet" href="style.css"><script src="app.js"></script><script>window.adventCapture={async prepare(kind){document.getElementById('state').textContent='prepared:'+kind;}};let i=0;setInterval(()=>{document.body.style.background=i++%2?'#fde7cf':'#f6c79c'},200);</script></body></html>`;
 
 beforeAll(async () => {
-  t = await testCompanion({ config: { connection: { mode: 'connected', permissive: false } } });
-  const r = await t.api<{ ok: boolean; problems: unknown[] }>('POST', '/api/agent/submit?day=5&mode=connected', { files: [{ name: 'gift.json', text: JSON.stringify(gift) }, { name: 'index.html', text: page }, { name: 'style.css', text: 'h1{color:#a00}' }, { name: 'app.js', text: 'window.__app=1;' }, { name: 'wall.png', base64: PNG }] });
+  t = await testCompanion({ config: { connection: { mode: 'submit', permissive: false } } });
+  const r = await t.api<{ ok: boolean; problems: unknown[] }>('POST', '/api/agent/submit?day=5&mode=submit', { files: [{ name: 'gift.json', text: JSON.stringify(gift) }, { name: 'index.html', text: page }, { name: 'style.css', text: 'h1{color:#a00}' }, { name: 'app.js', text: 'window.__app=1;' }, { name: 'wall.png', base64: PNG }] });
   expect(r.data.ok, JSON.stringify(r.data.problems)).toBe(true);
   await t.api('POST', '/api/doors/5/reveal');
 }, 60_000);

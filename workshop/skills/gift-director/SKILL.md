@@ -49,16 +49,16 @@ Do not write tomorrow teasers or hint at future gifts.
 
 ## 4. Fit the gift to your budget
 
-The brief gives a token **budget tier** (S, M, L or XL) and your **mode** (launched, connected, portable, chat-only). Choose a gift you can finish **polished** inside it. One modest gift done beautifully beats an ambitious one that breaks.
+The brief gives a token **budget tier** (S, M, L or XL) and, when the recipient set a spend cap, whether your runtime enforces it. Choose a gift you can finish **polished** inside it. One modest gift done beautifully beats an ambitious one that breaks.
 
 | Tier | Typical scope | Good choices |
 |---|---|---|
-| **S** (small budget, or chat-only LLM) | One page, one mechanic, kit blocks inlined | CSS 3D object with one interaction (envelope, crystal, holo card), a pop-up card from the kit, a jelly fruit from the kit, a short karaoke song, a deadpan document with one interactive twist, a small tool |
+| **S** (small budget, or a small or fast model) | One page, one mechanic, kit blocks inlined | CSS 3D object with one interaction (envelope, crystal, holo card), a pop-up card from the kit, a jelly fruit from the kit, a short karaoke song, a deadpan document with one interactive twist, a small tool |
 | **M** | 2–3 interactions, personalised illustration, sound | Snow globe with their objects, fish tank, bouquet that blooms, sticker sheet with peel, cassette mixtape, small arcade game |
 | **L** | Several scenes, custom art, physics, an export pipeline | A reacting character of their pet, an illustrated pop-up diorama, an escape room, a nature-documentary film with narration |
 | **XL** (December 24 and Day 1 only) | A complete, polished experience | A well-designed game, an explorable world, a finale that calls back to the season |
 
-Details and example token ranges: `references/budget-tiers.md`. If you are a chat model without tools, you can still write a self-contained HTML file with CSS 3D and canvas. Stay in tier S or M forms and make them flawless.
+Details and example token ranges: `references/budget-tiers.md`.
 
 ## 5. The season shape
 
@@ -93,17 +93,17 @@ Many gifts can become something they keep using: a desktop snow globe or fish ta
 - If it means software on their computer (a desktop widget, a terminal command), **don't build or install it unasked.** Offer it at the end of your note, in one short line, for example: "If you want, I can turn this into a snow globe that lives on your desktop." Then add `followUp` to `gift.json` with a ready-to-paste request that names the gift's folder, so you (or any session of their agent) can pick it up later:
   `"followUp": { "offer": "A desktop snow globe", "prompt": "Turn my Advent Agent gift from December 1 (<gift folder path>) into a desktop snow globe." }`
   The calendar never shows `followUp`; your offer reaches them only through your note.
-- At most one offer per gift. Not every gift needs one.
+- At most one offer per gift. If the idea's "Make it useful" lists a desktop or terminal version, offer it in your note and add `followUp`. Otherwise an offer is optional.
 - **Desktop creatures stay silent.** A pet or character that lives on their desktop walks, naps, stares and reacts to the cursor, but never talks: no speech bubbles, no lines of dialogue.
 
 ## 8. Write the note
 
 The note is written by you, in your voice, and only by you: the calendar never writes, completes or replaces it, and shows nothing if you leave it out. It appears exactly as you wrote it, in a small terminal window under the gift. Write it after the gift is done. Two to four sentences, warm, specific. It says why you made this for them. No stock phrases, no explanation of how you built it, no chain of thought.
 
-You may sign it with any name you like in `signature` (up to 40 characters): a name they gave you, "your agent", or a name you choose for yourself. Or don't sign at all.
+If the brief has a **Who you are** section, the recipient chose that persona as their Secret Santa: write the note in its voice and set `signature` to its name. Otherwise you may sign with any name you like in `signature` (up to 40 characters): a name they gave you, "your agent", or a name you choose for yourself. Or don't sign at all.
 
 ## 9. Package and submit
 
-Write `gift.json` (fields in `references/share-and-export.md`), then run the check (`check_gift` or `advent-agent check`), fix every problem, and submit. In connected or chat modes, don't describe the gift in chat. Say: "Your gift is wrapped. Open door N in your calendar."
+Write `gift.json` (fields in `references/share-and-export.md`), then run the check (`advent-agent check`), fix every problem, and submit. You are started in the season workspace and your door has its own folder, so use the paths in your brief (`./doors/NN/gift`). Earlier doors' gifts are readable in `doors/NN/gift/` (never change them).
 
 Never put "bought", "ordered" or "booked" anywhere. You never purchase (D1).

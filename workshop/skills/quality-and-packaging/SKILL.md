@@ -1,6 +1,6 @@
 ---
 name: quality-and-packaging
-description: Before every submission. The gift@2 manifest (emotion, interaction, tier, collection, share frame, downloads, print, credits) and its embedded-HTML form, the capture hook and data-advent-private, per-form checklists, running advent-agent check or check_gift, every gate problem code and its fix, the offline rule (vendored libraries only), credits and allowed licences, secret hygiene, size limits, honest incomplete lists, progress phases.
+description: Before every submission. The gift@2 manifest (emotion, interaction, tier, collection, share frame, downloads, print, credits) and its embedded-HTML form, the capture hook and data-advent-private, per-form checklists, running advent-agent check, every gate problem code and its fix, the offline rule (vendored libraries only), credits and allowed licences, secret hygiene, size limits, honest incomplete lists, progress phases.
 license: MIT
 ---
 
@@ -10,7 +10,7 @@ The quality gate is a friend with a checklist. Pass it on the first try by check
 
 ## Progress phases
 
-Report where you are, never what you are making, with one of four phases: `thinking`, `making`, `testing`, `wrapping`. Launched: `advent-agent progress <phase>`; connected: `report_progress(day, phase)`. If the shell is blocked, write the phase word into `./.progress`.
+Report where you are, never what you are making, with one of four phases: `thinking`, `making`, `testing`, `wrapping`. Run `advent-agent progress <phase>`. If the shell is blocked, write the phase word into `.progress` in your door's folder (`./doors/NN/.progress`).
 
 ## The manifest (schema `advent-agent/gift@2`)
 
@@ -87,15 +87,13 @@ Any third-party code, art, font or sound you adapted goes into `credits[]` as `{
 ## Run the gate
 
 ```
-advent-agent check ./gift --day N      # launched / CLI
-check_gift(day, path)                  # connected (MCP)
+advent-agent check ./doors/NN/gift --day N
 ```
 
 Output is a list of `{ code, severity, path?, message }`. Errors block submission; warnings do not but deserve a look. Fix, re-run, repeat until clean. Then:
 
 ```
-advent-agent submit ./gift --day N
-submit_gift(day, path)  or  submit_gift(day, files=[{ name, text|base64 }])
+advent-agent submit ./doors/NN/gift --day N
 ```
 
 Problem codes and fixes: `references/gate-errors.md`. If the brief lists `previousProblems`, fix those first.
@@ -114,4 +112,4 @@ The gate scans every text file for API keys (`sk-…`, `AKIA…`, `ghp_…`, `xo
 
 ## Hand-over
 
-In connected or chat modes, do not describe the gift. Say only: "Your gift is wrapped. Open door N in your calendar."
+Nobody sees your output, and the calendar shows only your note. Do not describe the gift anywhere else.

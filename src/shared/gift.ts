@@ -188,6 +188,10 @@ export const FORBIDDEN_PURCHASE_CLAIMS = ['bought', 'ordered', 'booked', 'purcha
 export const PROGRESS_PHASES = ['thinking', 'making', 'testing', 'wrapping'] as const;
 export type ProgressPhase = (typeof PROGRESS_PHASES)[number];
 export const ProgressPhaseSchema = z.enum(PROGRESS_PHASES);
+/** What the door shows while it is being prepared: the agent's phases plus the list check that precedes Day 1 (D28). */
+export const DOOR_PHASES = [...PROGRESS_PHASES, 'list'] as const;
+export type DoorPhase = (typeof DOOR_PHASES)[number];
+export const DoorPhaseSchema = z.enum(DOOR_PHASES);
 
 /** Inline file for hosts that cannot write to disk (MCP submit_gift(day, files[])). */
 export const InlineFileSchema = z.object({

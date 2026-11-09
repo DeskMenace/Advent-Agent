@@ -69,7 +69,7 @@ tool/
   uninstall.sh
 ```
 
-The calendar shows the display and your note, and Save gives the `tool/` folder as a zip. `check_gift` fails a tool with no README, no uninstall instruction (a script or a line in the README), or a delete call (`rm -rf`, `shutil.rmtree`, `os.remove`, `unlink`) without a dry-run guard. It warns about network use.
+The calendar shows the display and your note, and Save gives the `tool/` folder as a zip. `advent-agent check` fails a tool with no README, no uninstall instruction (a script or a line in the README), or a delete call (`rm -rf`, `shutil.rmtree`, `os.remove`, `unlink`) without a dry-run guard. It warns about network use.
 
 If the gift could become a tool later (a desktop snow globe, a terminal command), don't build it unasked: offer it in your note and add `followUp` (`gift-director` §7).
 

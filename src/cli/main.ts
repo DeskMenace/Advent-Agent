@@ -36,7 +36,6 @@ Usage:
   advent-agent check <path> [--day N]  run the quality gate without sealing
   advent-agent submit <path> --day N   submit a gift (folder, zip, html, media file or .txt/.md)
   advent-agent progress <phase>        thinking | making | testing | wrapping (launched agents)
-  advent-agent mcp                     MCP server over stdio
   advent-agent service install|uninstall|status
   advent-agent generate image --prompt "…" [--day N]   use the recipient's own image provider (if enabled)
   advent-agent lab --idea <id> | --ideas <a,b> | --free | open | review   gift lab (isolated, real agents)
@@ -278,7 +277,7 @@ async function cmdDev(): Promise<void> {
   const companion = await startCompanion({ homeRoot, allowRealAgents: true, allowShutdown: true });
   const store = companion.service.store;
   if (!store.currentSeason()) {
-    store.saveConfig({ setupComplete: true, connection: { mode: 'portable', permissive: false } });
+    store.saveConfig({ setupComplete: true, connection: { mode: 'submit', permissive: false } });
     companion.service.ensureSeason('demo');
     writeFileSync(store.home.demoFile, JSON.stringify({ simulatedDay: 8 }));
     await installDemoFixtures(companion.service, { simulatedDay: 8 });
@@ -304,7 +303,6 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
       case 'check': return await cmdCheck(p);
       case 'submit': return await cmdSubmit(p);
       case 'progress': return await cmdProgress(p);
-      case 'mcp': { const { runMcpServer } = await import('../mcp/server.js'); await runMcpServer(); return 0; }
       case 'service': return await cmdService(p);
       case 'generate': return await cmdGenerate(p);
       case 'lab': return await cmdLab(p);

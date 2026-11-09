@@ -64,7 +64,8 @@ describe('workshop skills', () => {
     for (const term of ['Emotional effect', 'Delightful interaction', 'Shareability', '`emotion`', '`interaction`', 'share frame', 'references/share-and-export.md']) expect(text).toContain(term);
     expect(text).toMatch(/never purchase/i);
     for (const word of ['bought', 'ordered', 'booked']) expect(text.toLowerCase()).toContain(word);
-    expect(text).toContain('Your gift is wrapped. Open door N in your calendar.');
+    expect(text).toContain('If the idea\'s "Make it useful" lists a desktop or terminal version, offer it in your note and add `followUp`');
+    expect(text).toContain('**Who you are**'); // D28: a persona signs the note
     expect(text).toMatch(/one modest gift done beautifully beats an ambitious one/i);
   });
 
@@ -78,9 +79,9 @@ describe('workshop skills', () => {
     const text = readFileSync(join(SKILLS, 'quality-and-packaging', 'SKILL.md'), 'utf8');
     for (const phase of ['thinking', 'making', 'testing', 'wrapping']) expect(text).toContain(`\`${phase}\``);
     expect(text).toContain('advent-agent progress <phase>');
-    expect(text).toContain('./.progress');
-    expect(text).toContain('advent-agent check ./gift --day N');
-    expect(text).toContain('advent-agent submit ./gift --day N');
+    expect(text).toContain('.progress');
+    expect(text).toContain('advent-agent check ./doors/NN/gift --day N');
+    expect(text).toContain('advent-agent submit ./doors/NN/gift --day N');
     for (const term of ['advent-agent/gift@2', 'window.adventCapture', 'data-advent-private', 'credits', 'workshop/kit/vendor/']) expect(text).toContain(term);
   });
 
@@ -102,10 +103,10 @@ describe('workshop skills', () => {
 });
 
 describe('workshop hygiene', () => {
-  it('never mentions the mascot, the brand or vouchers under workshop/ or in AGENT_GUIDE.md', () => {
+  it('never mentions the mascot, the brand or vouchers under workshop/', () => {
     // share-and-export.md names the share-mark domain by design (D21).
     const allowed = new Set([join(SKILLS, 'gift-director', 'references', 'share-and-export.md')]);
-    const files = [...walk(WORKSHOP).filter((f) => !allowed.has(f) && !f.includes(`${join('kit', 'vendor')}`)), join(ROOT, 'AGENT_GUIDE.md')];
+    const files = [...walk(WORKSHOP).filter((f) => !allowed.has(f) && !f.includes(`${join('kit', 'vendor')}`))];
     const offenders: string[] = [];
     for (const f of files) {
       const text = readFileSync(f, 'utf8').toLowerCase();
@@ -155,23 +156,5 @@ describe('workshop hygiene', () => {
       expect(text, n).not.toMatch(/<link[^>]+href=["']https?:/i);
     }
     expect(readFileSync(join(dir, 'real-world-proposal.html'), 'utf8')).toContain('Prepared for you. Buying or booking is yours to decide.');
-  });
-
-  it('AGENT_GUIDE.md covers the portable contract', () => {
-    const text = readFileSync(join(ROOT, 'AGENT_GUIDE.md'), 'utf8');
-    expect(text).toContain('https://raw.githubusercontent.com/suchipizza/Advent-Agent/main/schema/gift.schema.json');
-    expect(text).toContain('https://raw.githubusercontent.com/suchipizza/Advent-Agent/main/gift-library/INDEX.md');
-    expect(text).toContain('"schema": "advent-agent/gift@2"');
-    for (const term of ['"emotion"', '"interaction"', '"tierUsed"', '"share"', '"capture": "still"', 'window.adventCapture', 'data-advent-private', 'credits', 'chat-ok']) expect(text).toContain(term);
-    for (const c of ['Emotional effect', 'Delightful interaction', 'Shareability']) expect(text).toContain(c);
-    const manifest = GiftManifestSchema.safeParse(embeddedManifest(text));
-    expect(manifest.success, JSON.stringify(manifest.error?.issues)).toBe(true);
-    expect(['S', 'M']).toContain(manifest.data?.tierUsed);
-    expect(text).toContain('Your gift is wrapped. Open door N in your calendar.');
-    expect(text).toMatch(/never purchases or books/);
-    expect(text).toContain('`signature`'); // D26: the agent may sign its own note
-    expect(text).not.toMatch(/share mark|160×48/);
-    const snippet = text.match(/```html\n<button id="play"[\s\S]*?```/)![0]!;
-    expect(snippet.split('\n').length).toBeLessThanOrEqual(62);
   });
 });

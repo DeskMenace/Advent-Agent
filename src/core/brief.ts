@@ -8,6 +8,7 @@ import type { AgentContext, GateProblem } from '../shared/api.js';
 import type { Config, Profile, Season } from '../shared/config.js';
 import { GIFT_KINDS } from '../shared/gift.js';
 import type { ConnectionMode } from '../shared/door.js';
+import type { Persona, ListLine } from '../shared/list.js';
 import type { HistoryRecord } from '../shared/config.js';
 import { WORKSHOP_DIR, LIBRARY_DIR } from './package-paths.js';
 import { zonedDateString } from './time.js';
@@ -40,7 +41,13 @@ export interface BriefInput {
   /** Number of doors being made in the same catch-up pile. */
   pile?: number;
   adapter?: string;
+  /** This door's folder (`<season workspace>/doors/NN`). */
   workspace?: string;
+  /** The folder the agent starts in. */
+  cwd?: string;
+  /** D28: what the Secret Santa knows, and the persona the user picked. */
+  list?: ListLine[];
+  persona?: Persona;
   attempt: number;
   previousProblems?: GateProblem[];
   /** Whether the launched CLI enforces a budget (Claude Code: --max-budget-usd). */
@@ -88,7 +95,7 @@ export function buildAgentContext(input: BriefInput): AgentContext {
   const { season, day, now, config, profile, history, mode } = input;
   const ceiling = config.budgets.priceCeilingPerGift;
   const anchor = anchorFor(day);
-  const tier = tierFor(day, config.budgets.generosity as Generosity, mode);
+  const tier = tierFor(day, config.budgets.generosity as Generosity);
   const earlier = history.filter((h) => h.day < day || (anchor === 'finale' && h.day !== day));
   const sets = new Map<string, { set: string; size: number; days: number[] }>();
   for (const h of earlier) {
@@ -102,19 +109,16 @@ export function buildAgentContext(input: BriefInput): AgentContext {
   if (anchor === 'finale') modeNotes.push('This is December 24, the finale. Choose an anchor: finale idea or invent something of that size, and call back to the season (the history below: gifts, collections, reactions).');
   if (input.isCatchUp) modeNotes.push(`This door is being caught up${input.pile && input.pile > 1 ? ` with ${input.pile - 1} other door(s)` : ''}. Don't mention the delay. Make it a little lighter and different from its neighbours.`);
   if (mode === 'launched') {
-    modeNotes.push('Nobody will see your output except the final gift. Your log stays private. Work in the current folder (your private workspace).');
-    modeNotes.push('Write the finished gift into ./gift (gift.json + files). Report progress with `advent-agent progress <thinking|making|testing|wrapping>` if you can run commands; otherwise write the phase name into ./.progress.');
-    modeNotes.push('When you are done, run `advent-agent submit ./gift --day ' + day + '`. If you cannot run commands, just finish: the calendar submits ./gift when you exit.');
-  } else if (mode === 'connected') {
-    modeNotes.push('The recipient may glimpse your tool calls in the chat. Do not describe, summarise or quote the gift in chat while you work. When finished say only: "Your gift is wrapped. Open door ' + day + ' in your calendar."');
-    modeNotes.push('Use start_gift to get a workspace folder if you can write files, or submit_gift with inline files if you cannot.');
-  } else if (mode === 'portable') {
-    modeNotes.push('You have no access to this computer. Produce a single self-contained HTML file (inline all CSS/JS/images as data URIs, no network), or a text/markdown letter, or a real-world proposal written as text. Do not show a preview; hand the file or text over directly.');
+    const gift = `./doors/${String(day).padStart(2, '0')}/gift`;
+    modeNotes.push('Nobody will see your output except the final gift. Your log stays private. You are started in your season workspace; this door\'s folder is `doors/' + String(day).padStart(2, '0') + '/` (BRIEF.md and brief.json are there). Earlier doors\' gifts sit in `doors/NN/gift/` if you need to read them (collections, second lives); never change them.');
+    modeNotes.push(`Write the finished gift into ${gift} (gift.json + files). Report progress with \`advent-agent progress <thinking|making|testing|wrapping>\` if you can run commands; otherwise write the phase name into ./doors/${String(day).padStart(2, '0')}/.progress.`);
+    modeNotes.push(`When you are done, run \`advent-agent submit ${gift} --day ${day}\`. If you cannot run commands, just finish: the calendar submits ${gift} when you exit.`);
   } else {
     modeNotes.push('Submit the finished package with `advent-agent submit <path> --day ' + day + '` or POST it to the local API.');
   }
   if (!config.budgets.realWorldSuggestions) modeNotes.push('The recipient turned real-world suggestions off: make something digital.');
-  const workshopPath = mode === 'launched' || mode === 'connected' ? WORKSHOP_DIR : undefined;
+  const workshopPath = WORKSHOP_DIR;
+  const giftRel = mode === 'launched' ? `./doors/${String(day).padStart(2, '0')}/gift` : './gift';
   return {
     season: { year: season.year, anchor, isCatchUp: Boolean(input.isCatchUp), pile: input.pile },
     day,
@@ -124,6 +128,8 @@ export function buildAgentContext(input: BriefInput): AgentContext {
     timeZone: season.timeZone,
     mode,
     recipient: sharedProfile(profile),
+    list: (input.list ?? []).map((l) => ({ text: l.text, source: l.source })),
+    persona: input.persona ? { name: input.persona.name, sourcePath: input.persona.sourcePath } : undefined,
     history: earlier
       .sort((a, b) => a.day - b.day)
       .map((h) => ({ day: h.day, title: h.title, kind: h.kind, category: h.category, ideaId: h.ideaId, family: h.family, emotion: h.emotion, interaction: h.interaction, collection: h.collection, motifs: h.motifs, thread: h.thread, followUp: h.followUp, feedback: h.feedback, opened: h.opened })),
@@ -154,16 +160,17 @@ export function buildAgentContext(input: BriefInput): AgentContext {
     },
     modeNotes,
     library: {
-      howTo: mode === 'launched' ? `Read ${join(LIBRARY_DIR, 'INDEX.md')} for the idea index, then any idea file you like. Ideas are inspiration, never a quota.` : 'Call list_ideas and read_idea if you want inspiration. Ideas are inspiration, never a quota.',
+      howTo: `Read ${join(LIBRARY_DIR, 'INDEX.md')} for the idea index, then any idea file you like. Ideas are inspiration, never a quota.`,
       count: libraryCount(),
     },
     packaging: {
       format: 'A folder with gift.json (schema advent-agent/gift@2: emotion, interaction and a share frame are required; see gift-director references/share-and-export.md) plus files, a zip of it, or a single HTML file with an embedded manifest. Schema: schema/gift.schema.json next to the workshop folder.',
-      check: mode === 'launched' ? `advent-agent check ./gift --day ${day}` : 'check_gift(day, path)',
-      submit: mode === 'launched' ? `advent-agent submit ./gift --day ${day}` : 'submit_gift(day, path or files)',
-      progress: mode === 'launched' ? 'advent-agent progress <thinking|making|testing|wrapping>' : 'report_progress(day, phase)',
+      check: `advent-agent check ${giftRel} --day ${day}`,
+      submit: `advent-agent submit ${giftRel} --day ${day}`,
+      progress: 'advent-agent progress <thinking|making|testing|wrapping>',
     },
     workspace: input.workspace,
+    cwd: input.cwd,
     attempt: input.attempt,
     previousProblems: input.previousProblems,
   };
@@ -194,10 +201,22 @@ export function renderBriefMarkdown(ctx: AgentContext): string {
   lines.push(`- Web research: ${ctx.permissions.webResearch ? 'allowed' : 'not allowed'}.`);
   lines.push(`- Folders you may look at for inspiration (read-only): ${ctx.permissions.inspirationFolders.length ? ctx.permissions.inspirationFolders.map((f) => `\`${f}\``).join(', ') : 'none. Do not browse the recipient\'s other folders.'}`);
   lines.push(`- Gifts may load from the network: ${ctx.permissions.giftNetwork ? 'only origins you declare in gift.json "network" (the recipient consents)' : 'no. Inline everything.'}`);
-  lines.push('- Never invent personal facts. A universal delight beats a forced reference.');
+  if (ctx.list.length === 0) lines.push('- Never invent personal facts. A universal delight beats a forced reference.');
   lines.push('');
+  if (ctx.persona) {
+    lines.push('## Who you are');
+    lines.push(`You are **${ctx.persona.name}**, the persona the recipient chose as their Secret Santa. Your instructions are already loaded from CLAUDE.md / AGENTS.md in your workspace. Write the note in that voice and **sign it** with \`signature\`: "${ctx.persona.name}".`);
+    lines.push('');
+  }
+  if (ctx.list.length) {
+    lines.push('## What you know about the recipient (your list)');
+    for (const l of ctx.list) lines.push(`- ${l.text}${l.source ? ` _(${l.source})_` : ''}`);
+    lines.push('');
+    lines.push('Use **at least one real detail from this list** in the gift where it fits naturally: a name, a project, a running joke, a place. Never force it, never say you have a list, and keep sensitive details out of the share frame. Do not invent facts beyond the list and what you really know.');
+    lines.push('');
+  }
   if (ctx.recipient) {
-    lines.push('## About the recipient (shared by them)');
+    lines.push('## Also told by the recipient');
     for (const [k, v] of Object.entries(ctx.recipient)) lines.push(`- ${k}: ${Array.isArray(v) ? v.join(', ') : String(v)}`);
     lines.push('');
   }

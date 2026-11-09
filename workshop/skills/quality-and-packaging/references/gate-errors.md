@@ -1,6 +1,6 @@
 # Gate problem codes
 
-`advent-agent check` and `check_gift` return `{ code, severity, path?, message }`. Errors block; warnings do not.
+`advent-agent check` returns `{ code, severity, path?, message }`. Errors block; warnings do not.
 
 ## gift@2 codes
 
