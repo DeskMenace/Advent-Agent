@@ -1,9 +1,15 @@
 version: 2
+# Major-version bumps are paused until 2027-01-15 (D33). Dependabot ignore rules cannot expire:
+# REMOVE the two "ignore" blocks below on or after 2027-01-15. Note that GitHub Actions are pinned
+# to major tags (@v4), so for actions this pauses all updates until then.
 updates:
   - package-ecosystem: npm
     directory: "/"
     schedule: { interval: weekly }
     open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       production-dependencies:
         dependency-type: production
@@ -14,6 +20,9 @@ updates:
   - package-ecosystem: github-actions
     directory: "/"
     schedule: { interval: weekly }
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       github-actions:
         patterns: ["*"]

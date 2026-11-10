@@ -29,7 +29,7 @@ import { allProviderKeyValues } from '../providers/keychain.js';
 
 /**
  * A hard spend limit for one list check, whatever the user's own cap (Claude Code enforces it with --max-budget-usd; adapters
- * without a budget flag rely on the 48 KB read cap). A normal check costs well under this.
+ * without a budget flag rely on the 64 KB read cap). A normal check costs well under this.
  */
 export const LIST_USD_CAP = 0.25;
 

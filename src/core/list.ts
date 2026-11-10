@@ -14,9 +14,9 @@ import { readJson, writeJsonAtomic } from './fsutil.js';
 import { claudeProjects, codexProjects, encodeProjectDir, isOwnFolder, isOwnProject, userHome } from './persona.js';
 
 // What the list check may read, in total. Every turn of the agent re-reads everything it has read so far, so this is the real cost
-// lever: ~48 KB is about 12k tokens, read once from a single bundle.
+// lever: ~64 KB is about 16k tokens, read once from a single bundle.
 const FILE_CAP = 6_000;
-const TOTAL_CAP = 48_000;
+const TOTAL_CAP = 64_000;
 const MAX_FILES = 40;
 const REFUSED_NAME = /(^|[\\/])\.env|secret|credential|token|\.pem$|\.key$|id_rsa|\.p12$|keychain|password/i;
 

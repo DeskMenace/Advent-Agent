@@ -18,7 +18,7 @@ The first public release.
 - `advent-agent submit` and the authenticated localhost API for local scripts.
 
 ### Knowing you
-- "Checking the list": before Door 1, and again on December 8 and 15, one short run of your agent over copies of a few files the app chooses, capped at 48 KB. The list is on your computer, editable in Settings, and never exported.
+- "Checking the list": before Door 1, and again on December 8 and 15, one short run of your agent over copies of a few files the app chooses, capped at 64 KB. The list is on your computer, editable in Settings, and never exported.
 - A persona picker: choose your agent, or one of your own personas; notes are signed with its name.
 - One workspace per season, so the Secret Santa's own memory carries across doors.
 - Gifts use one or two details, varied from gift to gift.

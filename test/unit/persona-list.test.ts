@@ -163,7 +163,7 @@ describe('the list check reads a small, single bundle (cost cap)', () => {
     const task = tmp();
     const sources = gatherSources(task, { home, adapter: 'claude-code', ownRoots: [] });
     const bytes = bundleSources(task, sources);
-    expect(bytes).toBeLessThan(60_000);
+    expect(bytes).toBeLessThan(72_000);
     const all = readFileSync(join(task, 'sources', 'ALL.md'), 'utf8');
     expect(all).toMatch(/^===== 01-global-CLAUDE\.md \(/);
     expect(all).toContain('I row on the lake');

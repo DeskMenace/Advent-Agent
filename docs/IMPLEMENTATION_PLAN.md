@@ -26,7 +26,7 @@ TypeScript (5.x), ESM, Node ≥ 20 · Hono 4 + `@hono/node-server` · Preact 10 
 
 ### 0. Repo skeleton and docs (this step)
 - Copy handoff + spec, `CLAUDE.md`, `PROGRESS.md`, `IMPLEMENTATION_PLAN.md`, `KNOWN_LIMITATIONS.md` (empty), `AGENT_COMPAT.md` (verified table above).
-- `package.json`, tsconfig, vitest, playwright, vite configs, CI workflow (macOS/Ubuntu/Windows × Node 20/22/24), `.gitignore`.
+- `package.json`, tsconfig, vitest, playwright, vite configs, CI workflow (macOS/Ubuntu/Windows × Node 22/24), `.gitignore`.
 
 ### 1. Shared contracts (`src/shared/`)
 - zod schemas: `gift.json` manifest (AGENT_CONNECTIONS §5), door state, season, config, profile, settings, idea frontmatter, promo, API responses (spoiler-free projections).

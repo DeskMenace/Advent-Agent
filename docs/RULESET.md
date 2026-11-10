@@ -3,7 +3,7 @@
 `.github/rulesets/main.json` describes the protection we want on `main`:
 
 - pull request required, with 1 approving review and review from the code owner (`.github/CODEOWNERS`), stale approvals dismissed on push, conversations resolved
-- required status checks: the `test` matrix (3 operating systems x Node 20, 22, 24) and `e2e` from `.github/workflows/ci.yml`, plus `dco` from `.github/workflows/dco.yml`; branches must be up to date
+- required status checks: the `test` matrix (3 operating systems x Node 22, 24) and `e2e` from `.github/workflows/ci.yml`, plus `dco` from `.github/workflows/dco.yml`; branches must be up to date
 - no force-push (`non_fast_forward`) and no deletion of `main`
 - no bypass actors
 

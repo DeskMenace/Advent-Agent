@@ -194,3 +194,9 @@ The gift origin sends `Cross-Origin-Resource-Policy: same-site`, which Chromium 
 - The list check spreads over several projects and areas: at most 5 agent lines per source (user lines are never cut). If the material covers only one project, the list says so in a first line instead of padding.
 - D10 enforced in code: lines about Gary, gary.js and Desk Menace never reach the list or the brief (the workshop stays free of them, per the hygiene test). The lab flags a pitch or gift centred on them (title or first sentence, or two mentions) and `plan-season` exits non-zero; `compare` reports the count and the share of pitches about the most-shared subject.
 - Measured before the change (previous round): 17 of 24 Claude Code pitches were about Gary (14 centred), and 23 of 24 Codex pitches were about FEA Copilot (a single-project list).
+
+## D33 (2026-11-10): Node 22+, a 64 KB list read cap, major-version bumps paused
+- **Node 22 or newer.** Node 20 reached end of life in April 2026. `engines` is `>=22`, the CI matrix is Node 22 and 24 on Linux, macOS and Windows, and the README says so. (`puppeteer-core` 25 needs Node >= 22.12, which now becomes possible; see D-note on pinning 24.x.)
+- **List read cap 64 KB** (was 48 KB, D31): 48 KB reached only 20 of 31 project folders on the maintainer's machine; 64 KB reaches all 31. Measured: about $0.18 and 118k tokens per check on Claude Code (was $0.13 and 74k), inside the $0.25 hard cap.
+- **Dependabot ignores semver-major updates until 2027-01-15** (npm and GitHub Actions). Ignore rules cannot expire: remove them on or after that date.
+- Gary: right-click and "Remove Gary" removes him until the next day; Settings has "Show Gary on the calendar". There is no one-click dismiss, so the README says exactly that.

@@ -17,7 +17,7 @@ The list check lets the Secret Santa learn about the user. The app, not the agen
 Read (copied):
 - the global agent instruction file (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, `~/.gemini/GEMINI.md`);
 - per-project memory folders (`.md` and `.txt`, two levels deep) and per-project instruction files (`CLAUDE.md`, `AGENTS.md`);
-- at most 40 files, 6 KB per file, 48 KB in total (`FILE_CAP`, `TOTAL_CAP`, `MAX_FILES`).
+- at most 40 files, 6 KB per file, 64 KB in total (`FILE_CAP`, `TOTAL_CAP`, `MAX_FILES`).
 
 Never read:
 - session transcripts, source code, `.env` files, keys and credentials, the calendar's own folder and the lab folder (`ownRoots`, `isOwnProject`, `isOwnFolder`);

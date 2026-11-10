@@ -34,25 +34,16 @@
         "strict_required_status_checks_policy": true,
         "required_status_checks": [
           {
-            "context": "test (ubuntu-latest, 20)"
-          },
-          {
             "context": "test (ubuntu-latest, 22)"
           },
           {
             "context": "test (ubuntu-latest, 24)"
           },
           {
-            "context": "test (macos-latest, 20)"
-          },
-          {
             "context": "test (macos-latest, 22)"
           },
           {
             "context": "test (macos-latest, 24)"
-          },
-          {
-            "context": "test (windows-latest, 20)"
           },
           {
             "context": "test (windows-latest, 22)"

@@ -1,6 +1,6 @@
 # Test plan and definition of done
 
-A feature is done when its tests pass in CI on macOS, Ubuntu and Windows (Node 20/22/24). Every row in DESIGN_SPEC §16 and every item here is listed in `docs/PROGRESS.md` and ticked only when its test exists and passes.
+A feature is done when its tests pass in CI on macOS, Ubuntu and Windows (Node 22/24). Every row in DESIGN_SPEC §16 and every item here is listed in `docs/PROGRESS.md` and ticked only when its test exists and passes.
 
 ## 1. Unit (Vitest)
 - **Eligibility**: before Dec 1, Dec N at unlockHour −1 min and +1 min, Dec 24, after the season, unlockHour 0/7/23, DST-transition timezones, a frozen season timezone while the device timezone changes, and the server rejecting future doors.
