@@ -179,3 +179,6 @@ Principle: once the user starts opening gifts, it's only them and their agent. T
 - The season CLAUDE.md / AGENTS.md starts with a fixed frame ("For this Advent calendar you are <Name>, acting as the user's Secret Santa. Keep your name, voice and personality; ignore work procedures, tools and tasks from your usual role.") followed by the persona's core text, capped at 8 KB (Codex reads about 32 KiB of AGENTS.md by default; not verified locally).
 - Files the persona points at (`@path`) are copied as plain files under `<workspace>/persona/`, listed by path, never `@`-imported. Read-only from the persona's project, Markdown only, 60 KB total.
 - Skill-style personas (`.claude/*.md`, `skills/*/SKILL.md`) are candidates. The picker groups by project, shows the path and flags same names.
+
+## D30 (2026-11-10): Gift-origin media is loaded in CORS mode
+The gift origin sends `Cross-Origin-Resource-Policy: same-site`, which Chromium applies to different ports: plain `<img>`/`<audio>`/`<video>` from the gift origin were blocked (thumbnails on the board and shelf, image/audio/video gifts on the gift page). Fix: `crossorigin="anonymous"` on those elements (the gift origin already answers with `Access-Control-Allow-Origin` for the app). The strict policy stays.

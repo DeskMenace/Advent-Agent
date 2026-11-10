@@ -24,7 +24,7 @@ export function ShelfPage() {
             {[...items].sort((a, b) => a.day - b.day).map((it) => (
               <li key={it.day}>
                 <Link href={`/gifts/${it.day}`} class="gift-card">
-                  <div class="thumb" aria-hidden="true">{it.thumbnailUrl ? <img src={it.thumbnailUrl} alt="" loading="lazy" /> : <Star />}</div>
+                  <div class="thumb" aria-hidden="true">{it.thumbnailUrl ? <img crossOrigin="anonymous" src={it.thumbnailUrl} alt="" loading="lazy" /> : <Star />}</div>
                   <div class="meta"><span class="day">December {it.day}</span><span class="title">{it.title}</span></div>
                 </Link>
               </li>

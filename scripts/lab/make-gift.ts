@@ -1,5 +1,5 @@
 /**
- * lab make-gift --idea <id> | --free --harness cc|codex --model <m> [--day N] [--label L] [--port P]
+ * lab make-gift --idea <id> | --free --harness cc|codex --model <m> [--persona NAME [--persona-from PATH-PART]] [--day N] [--label L] [--port P]
  * Quality test: the full production workflow (launched agent → gate → seal) into a fresh lab calendar, then the
  * automated checks. --idea adds "make this idea" to the brief; --free adds nothing. The tier follows production rules.
  */
@@ -32,7 +32,7 @@ export async function makeGift(argv: string[]): Promise<number> {
   // D28: --persona "<name>" picks one of the user's personas the way the setup picker would (a scan, then a choice).
   if (typeof f.persona === 'string') {
     const wanted = f.persona.toLowerCase();
-    const found = service.personaCandidates().find((c) => c.name.toLowerCase() === wanted);
+    const found = service.personaCandidates().find((c) => c.name.toLowerCase() === wanted && (typeof f["persona-from"] !== "string" || c.sourcePath.includes(f["persona-from"])));
     if (!found) { console.error(`No persona named "${f.persona}". Found: ${service.personaCandidates().map((c) => c.name).join(', ') || 'none'}`); return 2; }
     service.setPersona({ candidateId: found.id });
     console.log(`[${label}] persona: ${found.name} (${found.sourcePath})`);

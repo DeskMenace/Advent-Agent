@@ -95,7 +95,7 @@ export function Board(props: BoardProps) {
                     {look === 'opened' && (
                       <>
                         <span class="inside" />
-                        <span class="peek">{d.thumbnailUrl ? <img src={d.thumbnailUrl} alt="" loading="lazy" /> : <Star />}</span>
+                        <span class="peek">{d.thumbnailUrl ? <img crossOrigin="anonymous" src={d.thumbnailUrl} alt="" loading="lazy" /> : <Star />}</span>
                         <span class="pocket" />
                       </>
                     )}

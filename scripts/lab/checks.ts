@@ -30,7 +30,8 @@ function watch(page: Page, errors: string[], outside: string[]): void {
   page.on('console', (m) => { if (m.type() === 'error' && !/^Failed to load resource/.test(m.text())) errors.push(m.text().slice(0, 200)); });
   page.on('pageerror', (e) => errors.push(`pageerror: ${e.message.slice(0, 200)}`));
   page.on('request', (r) => { if (!LOCAL.test(r.url())) outside.push(r.url().slice(0, 120)); });
-  page.on('requestfailed', (r) => errors.push(`request failed (${r.failure()?.errorText ?? '?'}): ${r.url().replace(/\/g\/[^/]+\//, '/g/…/').slice(0, 140)}`));
+  // The calendar's own live-update stream is closed whenever the page is left; that is not an error.
+  page.on('requestfailed', (r) => { if (r.failure()?.errorText === 'net::ERR_ABORTED' && /\/api\/events(\?|$)/.test(r.url())) return; errors.push(`request failed (${r.failure()?.errorText ?? '?'}): ${r.url().replace(/\/g\/[^/]+\//, '/g/…/').slice(0, 140)}`); });
 }
 
 async function giftFrame(page: Page): Promise<Frame | undefined> {
@@ -110,9 +111,18 @@ export async function runChecks(ctx: Ctx): Promise<{ checks: CheckResult[]; scre
       const el = p2.locator('iframe.gift-frame');
       await el.scrollIntoViewIfNeeded();
       const box = await el.boundingBox();
+      // Tap what the gift offers (its first visible button or link); a gift with nothing to tap is tapped in the middle.
+      const target = await f2.evaluate(() => {
+        const el = [...document.querySelectorAll<HTMLElement>('button, [role="button"], a[href], summary, [onclick]')].find((e) => { const r = e.getBoundingClientRect(); return r.width > 8 && r.height > 8; });
+        if (!el) return null;
+        el.scrollIntoView({ block: 'center' });
+        const r = el.getBoundingClientRect();
+        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+      }).catch(() => null);
+      await p2.waitForTimeout(300);
       const a = await el.screenshot();
       if (box) {
-        await p2.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+        await p2.touchscreen.tap(box.x + (target?.x ?? box.width / 2), box.y + (target?.y ?? box.height / 2));
         await p2.waitForTimeout(400);
         // A short swipe via CDP touch events (drag, shake, peel).
         const cdp = await phone.newCDPSession(p2);

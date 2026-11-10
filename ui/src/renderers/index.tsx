@@ -89,7 +89,7 @@ function ImageView(props: RendererProps) {
   const [zoom, setZoom] = useState(false);
   return (
     <div class="media-inner">
-      <img class="gift-image" src={props.url(primary)} alt={art?.alt ?? props.gift.gift.manifest.title} style={zoom ? 'max-height:none;cursor:zoom-out' : 'cursor:zoom-in'} onClick={() => setZoom(!zoom)} />
+      <img class="gift-image" crossOrigin="anonymous" src={props.url(primary)} alt={art?.alt ?? props.gift.gift.manifest.title} style={zoom ? 'max-height:none;cursor:zoom-out' : 'cursor:zoom-in'} onClick={() => setZoom(!zoom)} />
     </div>
   );
 }
@@ -101,7 +101,7 @@ function AudioView(props: RendererProps) {
   return (
     <div class="media-inner">
       <div class="player">
-        <audio controls preload="metadata" src={props.url(primary)}>Your browser cannot play this audio. Use the download below.</audio>
+        <audio controls crossOrigin="anonymous" preload="metadata" src={props.url(primary)}>Your browser cannot play this audio. Use the download below.</audio>
       </div>
     </div>
   );
@@ -115,7 +115,7 @@ function VideoView(props: RendererProps) {
   const captions = props.gift.gift.manifest.artifacts.filter((a) => a.role === 'caption' || a.path.endsWith('.vtt'));
   return (
     <div class="media-inner media-edge">
-      <video controls playsInline preload="metadata" poster={poster ? props.url(poster) : undefined} aria-label={props.gift.gift.manifest.title}>
+      <video controls crossOrigin="anonymous" playsInline preload="metadata" poster={poster ? props.url(poster) : undefined} aria-label={props.gift.gift.manifest.title}>
         <source src={props.url(primary)} />
         {captions.map((c) => <track key={c.path} kind="captions" src={props.url(c.path)} label={c.title ?? 'Captions'} default />)}
         Your browser cannot play this video. Use the download below.
@@ -170,7 +170,7 @@ function CardView(props: RendererProps) {
   const art = props.gift.gift.manifest.artifacts.find((a) => a.path === primary);
   if (primary.toLowerCase().endsWith('.pdf')) return <div class="media-inner media-edge"><iframe class="gift-frame" title={props.gift.gift.manifest.title} src={props.url(primary)} sandbox="allow-scripts allow-downloads" referrerPolicy="no-referrer" /></div>;
   if (/\.(md|txt)$/i.test(primary)) return <DocumentView {...props} />;
-  return <div class="media-inner"><img class="card-svg" src={props.url(primary)} alt={art?.alt ?? props.gift.gift.manifest.title} /></div>;
+  return <div class="media-inner"><img class="card-svg" crossOrigin="anonymous" src={props.url(primary)} alt={art?.alt ?? props.gift.gift.manifest.title} /></div>;
 }
 async function printImage(url: string, title: string): Promise<void> {
   const w = window.open('', '_blank', 'noopener,width=900,height=700');
@@ -291,7 +291,7 @@ function RealWorldView(props: RendererProps) {
   const primary = props.gift.gift.manifest.primary;
   return (
     <div class="real-world">
-      {primary && /\.(png|jpe?g|webp|svg|gif)$/i.test(primary) && <img class="gift-image" src={props.url(primary)} alt={props.gift.gift.manifest.artifacts.find((a) => a.path === primary)?.alt ?? ''} style="margin-bottom:18px" />}
+      {primary && /\.(png|jpe?g|webp|svg|gif)$/i.test(primary) && <img class="gift-image" crossOrigin="anonymous" src={props.url(primary)} alt={props.gift.gift.manifest.artifacts.find((a) => a.path === primary)?.alt ?? ''} style="margin-bottom:18px" />}
       {rw.items.map((item, i) => (
         <article class="rw-item" key={i}>
           <h3>{item.name}</h3>
