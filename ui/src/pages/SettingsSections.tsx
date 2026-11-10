@@ -82,12 +82,20 @@ export function PersonaPicker(props: { persona?: Persona; onPersona: (p: Persona
           {candidates?.length === 0 && <p class="muted-line">No personas found. Choose a file instead.</p>}
           {candidates && candidates.length > 0 && (
             <div class="choice-stack" role="radiogroup" aria-label="Your personas">
-              {candidates.map((c) => (
-                <button key={c.id} type="button" role="radio" class="choice persona-option" aria-checked={props.persona?.sourcePath === c.sourcePath} disabled={busy} onClick={() => pick({ candidateId: c.id })}>
-                  <span class="choice-name">{c.name}</span>
-                  <span class="choice-copy">{folderName(c.project)} · {KIND_LABEL[c.kind]}</span>
-                  <span class="choice-copy">{c.preview}</span>
-                </button>
+              {groupByProject(candidates).map((g) => (
+                <div key={g.project ?? 'user'} class="persona-group" role="group" aria-label={g.project ? folderName(g.project) : 'Your own agents'}>
+                  <p class="muted-line small" style="margin:10px 0 4px"><strong>{g.project ? folderName(g.project) : 'Your own agents'}</strong></p>
+                  {g.items.map((c) => {
+                    const twins = candidates.filter((o) => o.id !== c.id && o.name.trim().toLowerCase() === c.name.trim().toLowerCase());
+                    return (
+                      <button key={c.id} type="button" role="radio" class="choice persona-option" aria-checked={props.persona?.sourcePath === c.sourcePath} disabled={busy} onClick={() => pick({ candidateId: c.id })}>
+                        <span class="choice-name">{c.name}{twins.length > 0 && <span class="muted-line small"> · same name in {twins.map((t) => folderName(t.project)).join(', ')}</span>}</span>
+                        <span class="choice-copy small" title={c.sourcePath}>{c.project ?? 'Your Claude setup'} · {KIND_LABEL[c.kind]}</span>
+                        <span class="choice-copy">{c.preview}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               ))}
             </div>
           )}
@@ -104,6 +112,12 @@ export function PersonaPicker(props: { persona?: Persona; onPersona: (p: Persona
       )}
     </div>
   );
+}
+
+function groupByProject(list: PersonaCandidate[]): Array<{ project: string | undefined; items: PersonaCandidate[] }> {
+  const groups = new Map<string | undefined, PersonaCandidate[]>();
+  for (const c of list) groups.set(c.project, [...(groups.get(c.project) ?? []), c]);
+  return [...groups.entries()].map(([project, items]) => ({ project, items })).sort((a, b) => (a.project === undefined ? -1 : b.project === undefined ? 1 : 0));
 }
 
 /** Settings: the persona that is set, with Change and Refresh. */

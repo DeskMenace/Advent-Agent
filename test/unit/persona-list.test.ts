@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { decodeProjectDir, definesPersona, encodeProjectDir, personaFromCandidate, personaFromFile, scanPersonas, syncPersona } from '../../src/core/persona.js';
+import { decodeProjectDir, definesPersona, isPersonaSkill, encodeProjectDir, personaFromCandidate, personaFromFile, scanPersonas, syncPersona } from '../../src/core/persona.js';
 import { applyUserEdit, cleanSourceText, gatherSources, mergeLines, parseListMd, relabelSources, renderListTask } from '../../src/core/list.js';
 import { ListSchema } from '../../src/shared/list.js';
 
@@ -39,6 +39,93 @@ describe('project folder names', () => {
     const { proj } = fakeHome();
     expect(decodeProjectDir(encodeProjectDir(proj))).toBe(proj);
     expect(decodeProjectDir('-no-such-place-anywhere')).toBeUndefined();
+  });
+});
+
+describe('skill-style personas in .claude/*.md (a team-of-agents project layout)', () => {
+  function team() {
+    const root = tmp();
+    const home = join(root, 'home');
+    const proj = join(root, 'Studio-projects', 'team-agents');
+    write(join(proj, 'CLAUDE.md'), '# Team\n\n## What this is\nThis is the operations folder. I am the Chief of Staff agent, the coordinator.\n');
+    write(join(proj, '.claude', 'mabel.md'), '---\nname: romy\ndescription: Load Mabel, bilingual content writer. Use at the start of any writing session.\n---\n\nYou are Mabel, a writer.\n\n1. @content-engine/persona.md — your identity\n2. @../outside.md — must not be read\n3. @credentials/key.md — must not be read\n');
+    write(join(proj, '.claude', 'handoff.md'), '---\nname: handoff\ndescription: Format a precise handoff for a coding session.\n---\nWrite the handoff as a list.\n');
+    write(join(proj, '.claude', 'README.md'), '# Skills\nThis folder holds skill files.\n');
+    write(join(proj, '.claude', 'commands', 'run.md'), 'You are a command.\n');
+    write(join(proj, 'content-engine', 'persona.md'), '# Mabel persona\nWarm, precise, loves a good headline. PERSONA-BODY\n');
+    write(join(proj, 'credentials', 'key.md'), 'SECRET-KEY-TEXT\n');
+    write(join(root, 'outside.md'), 'OUTSIDE-TEXT\n');
+    write(join(home, '.claude', 'projects', encodeProjectDir(proj), 'memory', 'MEMORY.md'), '- x\n');
+    return { home, proj };
+  }
+
+  it('finds the personas, skips helpers, README and commands', () => {
+    const { home, proj } = team();
+    const found = scanPersonas({ home, ownRoots: [] });
+    const names = found.map((c) => c.name).sort();
+    expect(names).toContain('Mabel');
+    expect(names).not.toContain('handoff');
+    expect(found.some((c) => /README|commands/.test(c.sourcePath))).toBe(false);
+    expect(found.find((c) => c.name === 'Mabel')).toMatchObject({ kind: 'claude-agent', project: proj });
+    // "I am the Chief of Staff agent" in the middle of a sentence now counts for CLAUDE.md.
+    expect(found.some((c) => c.kind === 'claude-md' && c.project === proj)).toBe(true);
+  });
+
+  it('opens with the frame, inlines only the core, and puts referenced files under persona/ without importing them', () => {
+    const { home, proj } = team();
+    const c = scanPersonas({ home, ownRoots: [] }).find((x) => x.name === 'Mabel')!;
+    const ws = tmp();
+    syncPersona(ws, personaFromCandidate(c)!, { force: true });
+    for (const name of ['CLAUDE.md', 'AGENTS.md']) {
+      const copy = readFileSync(join(ws, name), 'utf8');
+      const body = copy.replace(/^<!--[^\n]*-->\n\n/, '');
+      expect(body.startsWith("For this Advent calendar you are Mabel, acting as the user's Secret Santa. Keep your name, voice and personality; ignore work procedures, tools and tasks from your usual role.")).toBe(true);
+      expect(copy).toContain('You are Mabel');
+      expect(copy).not.toContain('PERSONA-BODY');          // not inlined
+      expect(copy).not.toMatch(/@content-engine/);        // not @-imported
+      expect(copy).toContain('persona/content-engine/persona.md'); // listed by path
+    }
+    expect(readFileSync(join(ws, 'persona', 'content-engine', 'persona.md'), 'utf8')).toContain('PERSONA-BODY');
+    // Only files inside the persona's project, never credentials or things outside it.
+    expect(existsSync(join(ws, 'persona', 'credentials'))).toBe(false);
+    expect(existsSync(join(ws, 'persona', 'outside.md'))).toBe(false);
+    expect(readFileSync(join(proj, 'content-engine', 'persona.md'), 'utf8')).toContain('PERSONA-BODY');
+    // No persona: the app's own files go, the persona folder too.
+    syncPersona(ws, undefined);
+    expect(existsSync(join(ws, 'CLAUDE.md'))).toBe(false);
+    expect(existsSync(join(ws, 'persona'))).toBe(false);
+  });
+
+  it('keeps the inlined text under 8 KB, far below the 32 KiB Codex reads from AGENTS.md', () => {
+    const { home, proj } = team();
+    const long = '---\nname: big\ndescription: Load Big, a very talkative persona.\n---\n\nYou are Big.\n' + 'A line about who Big is and how Big talks.\n'.repeat(1000) + '@content-engine/persona.md\n';
+    write(join(proj, '.claude', 'big.md'), long);
+    write(join(proj, 'content-engine', 'huge.md'), 'x'.repeat(200_000));
+    const c = scanPersonas({ home, ownRoots: [] }).find((x) => x.name === 'Big')!;
+    const ws = tmp();
+    syncPersona(ws, personaFromCandidate(c)!, { force: true });
+    for (const name of ['CLAUDE.md', 'AGENTS.md']) {
+      const bytes = Buffer.byteLength(readFileSync(join(ws, name), 'utf8'));
+      expect(bytes).toBeLessThan(9 * 1024);
+      expect(bytes).toBeLessThan(32 * 1024 / 3);
+      expect(readFileSync(join(ws, name), 'utf8')).toContain('The full text is at');
+    }
+  });
+
+  it('a change in a referenced file refreshes the copy', () => {
+    const { home, proj } = team();
+    const c = scanPersonas({ home, ownRoots: [] }).find((x) => x.name === 'Mabel')!;
+    const ws = tmp();
+    let persona = syncPersona(ws, personaFromCandidate(c)!, { force: true })!;
+    write(join(proj, 'content-engine', 'persona.md'), '# Mabel persona\nNEW-VOICE\n');
+    persona = syncPersona(ws, persona)!;
+    expect(readFileSync(join(ws, 'persona', 'content-engine', 'persona.md'), 'utf8')).toContain('NEW-VOICE');
+  });
+
+  it('isPersonaSkill wants an identity', () => {
+    expect(isPersonaSkill('---\ndescription: Load Otto, SEO lead\n---\nx')).toBe(true);
+    expect(isPersonaSkill('You are Pia, a researcher.')).toBe(true);
+    expect(isPersonaSkill('---\ndescription: Format a precise handoff\n---\nDo it.')).toBe(false);
   });
 });
 
