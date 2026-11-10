@@ -40,9 +40,21 @@ export async function testCompanion(opts: TestCompanionOptions = {}): Promise<Te
   const home = mkdtempSync(join(tmpdir(), 'aa-home-'));
   process.env.ADVENT_AGENT_FAKE_NOW = opts.now ?? '2026-12-08T12:00:00Z';
   if (opts.scenario) process.env.FAKE_AGENT_SCENARIO = opts.scenario;
-  const appPort = await freePort();
-  const giftPort = await freePort();
-  const companion = await startCompanion({ homeRoot: home, appPort, giftPort, allowRealAgents: opts.allowRealAgents ?? true, schedulerIntervalMs: opts.schedulerIntervalMs ?? 3_600_000 });
+  // Test files run in parallel and a "free" port can be taken between looking and listening: pick again when that happens.
+  let appPort = 0;
+  let giftPort = 0;
+  let companion!: Companion;
+  for (let attempt = 1; ; attempt++) {
+    appPort = await freePort();
+    giftPort = await freePort();
+    if (giftPort === appPort) continue;
+    try {
+      companion = await startCompanion({ homeRoot: home, appPort, giftPort, allowRealAgents: opts.allowRealAgents ?? true, schedulerIntervalMs: opts.schedulerIntervalMs ?? 3_600_000 });
+      break;
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException).code !== 'EADDRINUSE' || attempt >= 8) throw e;
+    }
+  }
   const store = companion.service.store;
   store.saveConfig({
     setupComplete: true,
