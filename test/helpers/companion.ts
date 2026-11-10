@@ -78,7 +78,7 @@ export async function testCompanion(opts: TestCompanionOptions = {}): Promise<Te
     },
     async close() {
       await companion.close();
-      rmSync(home, { recursive: true, force: true });
+      rmSync(home, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
       delete process.env.FAKE_AGENT_SCENARIO;
     },
   };

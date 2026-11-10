@@ -7,8 +7,8 @@ import { applyUserEdit, limitPerSource, bundleSources, cleanSourceText, gatherSo
 import { ListSchema } from '../../src/shared/list.js';
 
 const dirs: string[] = [];
-const tmp = () => { const d = realpathSync(mkdtempSync(join(tmpdir(), 'aa-pl-'))); dirs.push(d); return d; };
-afterEach(() => { for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true }); });
+const tmp = () => { const d = realpathSync.native(mkdtempSync(join(tmpdir(), 'aa-pl-'))); dirs.push(d); return d; };
+afterEach(() => { for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 }); });
 
 function write(file: string, text: string) { mkdirSync(join(file, '..'), { recursive: true }); writeFileSync(file, text); }
 

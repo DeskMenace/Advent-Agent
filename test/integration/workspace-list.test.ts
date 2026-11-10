@@ -11,7 +11,7 @@ import type { AgentContext } from '../../src/shared/api.js';
 let t: TestCompanion;
 let userHome: string;
 beforeEach(() => {
-  userHome = realpathSync(mkdtempSync(join(tmpdir(), 'aa-uh-')));
+  userHome = realpathSync.native(mkdtempSync(join(tmpdir(), 'aa-uh-')));
   process.env.ADVENT_AGENT_USER_HOME = userHome;
 });
 afterEach(async () => {
@@ -63,8 +63,8 @@ describe('one workspace per season (D28 §3)', () => {
     expect((await waitFor(door(5), settled)).jobState).toBe('ready');
     const seen3 = JSON.parse(readFileSync(join(ws(), 'seen-3.json'), 'utf8')) as { cwd: string };
     const seen5 = JSON.parse(readFileSync(join(ws(), 'seen-5.json'), 'utf8')) as { cwd: string; doors: string[]; earlierGifts: string[] };
-    expect(realpathSync(seen3.cwd)).toBe(realpathSync(ws()));
-    expect(realpathSync(seen5.cwd)).toBe(realpathSync(ws()));
+    expect(realpathSync.native(seen3.cwd)).toBe(realpathSync.native(ws()));
+    expect(realpathSync.native(seen5.cwd)).toBe(realpathSync.native(ws()));
     expect(seen5.earlierGifts).toContain('03');
     expect(existsSync(join(ws(), 'doors', '03', 'gift', 'gift.json'))).toBe(true);
     // The copy of the sealed gift never carries our internal folder.
