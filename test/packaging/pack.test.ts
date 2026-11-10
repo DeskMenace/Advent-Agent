@@ -9,9 +9,9 @@ const root = process.cwd();
 
 describe('packaging', () => {
   it('P1 + P2 + P3: pack, install clean, doctor and start work; first run asks for setup; ≤ 15 MB; no Chromium/ffmpeg inside', async () => {
-    if (!existsSync(join(root, 'dist', 'ui', 'index.html'))) execFileSync('npm', ['run', 'build'], { cwd: root, stdio: 'inherit' });
+    if (!existsSync(join(root, 'dist', 'ui', 'index.html'))) execFileSync('npm', ['run', 'build'], { cwd: root, stdio: 'inherit', shell: process.platform === 'win32' });
     const packDir = mkdtempSync(join(tmpdir(), 'aa-pack-'));
-    const out = execFileSync('npm', ['pack', '--pack-destination', packDir, '--json'], { cwd: root, encoding: 'utf8' });
+    const out = execFileSync('npm', ['pack', '--pack-destination', packDir, '--json'], { cwd: root, encoding: 'utf8', shell: process.platform === 'win32' });
     const info = JSON.parse(out)[0] as { filename: string; size: number; files: Array<{ path: string }> };
     const tgz = join(packDir, info.filename);
     expect(statSync(tgz).size).toBeLessThanOrEqual(15 * 1024 * 1024);
@@ -23,8 +23,8 @@ describe('packaging', () => {
     expect(paths.some((p) => p.startsWith('docs/') || p.startsWith('test/') || p.startsWith('src/') || p.startsWith('ui/'))).toBe(false);
 
     const installDir = mkdtempSync(join(tmpdir(), 'aa-install-'));
-    execFileSync('npm', ['init', '-y'], { cwd: installDir, stdio: 'ignore' });
-    execFileSync('npm', ['install', '--no-audit', '--no-fund', tgz], { cwd: installDir, stdio: 'inherit' });
+    execFileSync('npm', ['init', '-y'], { cwd: installDir, stdio: 'ignore', shell: process.platform === 'win32' });
+    execFileSync('npm', ['install', '--no-audit', '--no-fund', tgz], { cwd: installDir, stdio: 'inherit', shell: process.platform === 'win32' });
     const bin = join(installDir, 'node_modules', '.bin', process.platform === 'win32' ? 'advent-agent.cmd' : 'advent-agent');
     expect(existsSync(bin)).toBe(true);
     const home = mkdtempSync(join(tmpdir(), 'aa-home-pack-'));
