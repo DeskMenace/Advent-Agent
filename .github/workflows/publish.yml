@@ -1,0 +1,34 @@
+name: Publish
+# Publishes to npm with trusted publishing (OIDC): no NPM_TOKEN secret exists or is needed.
+# Requires, on npmjs.com (package settings > Trusted publisher): repository DeskMenace/Advent-Agent,
+# workflow filename publish.yml, environment npm. All fields are case-sensitive.
+# Trusted publishing needs npm >= 11.5.1 and Node >= 22.14 (https://docs.npmjs.com/trusted-publishers).
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Check npm version (trusted publishing needs >= 11.5.1)
+        run: |
+          node -e 'const [a,b,c]=process.argv[1].split(".").map(Number); if (a<11||(a===11&&(b<5||(b===5&&c<1)))) { console.error("npm "+process.argv[1]+" is too old; need >= 11.5.1"); process.exit(1); }' "$(npm --version)"
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm publish --provenance --access public

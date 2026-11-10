@@ -1,0 +1,18 @@
+name: Dependency review
+# NOTE: the dependency graph / dependency review on a PRIVATE repository needs GitHub Advanced Security.
+# Until the repository is public this job fails or is skipped; that is expected.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high

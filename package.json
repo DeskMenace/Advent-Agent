@@ -1,7 +1,7 @@
 {
   "name": "advent-agent",
   "version": "1.0.0-rc.0",
-  "description": "A local-first advent calendar where your own AI agent makes the gift behind each of the 24 doors. Your AI agent is your Secret Santa.",
+  "description": "Your AI coding agent is your Secret Santa: 24 handmade gifts, Dec 1–24. Runs locally.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -14,33 +14,36 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/suchipizza/Advent-Agent.git"
+    "url": "git+https://github.com/DeskMenace/Advent-Agent.git"
   },
-  "homepage": "https://github.com/suchipizza/Advent-Agent#readme",
+  "homepage": "https://github.com/DeskMenace/Advent-Agent#readme",
   "bugs": {
-    "url": "https://github.com/suchipizza/Advent-Agent/issues"
+    "url": "https://github.com/DeskMenace/Advent-Agent/issues"
   },
   "keywords": [
-    "advent",
-    "calendar",
-    "ai",
-    "agent",
-    "claude",
-    "codex",
-    "gemini",
-    "gift",
+    "advent-calendar",
     "christmas",
-    "local-first"
+    "secret-santa",
+    "claude-code",
+    "codex",
+    "gemini-cli",
+    "ai-agents",
+    "creative-coding",
+    "local-first",
+    "advent",
+    "cli"
   ],
   "files": [
     "bin/",
     "dist/",
+    "!dist/**/*.map",
     "schema/",
     "workshop/",
     "gift-library/",
     "README.md",
+    "LICENSE",
     "THIRD_PARTY.md",
-    "LICENSE"
+    "TRADEMARKS.md"
   ],
   "scripts": {
     "dev": "tsx src/cli/main.ts dev",
@@ -58,7 +61,9 @@
     "test:packaging": "vitest run test/packaging --config vitest.packaging.config.ts",
     "e2e": "playwright test",
     "ci": "npm run typecheck && npm run library:index -- --check && npm test && npm run build && npm run e2e",
-    "lab": "tsx scripts/lab/cli.ts"
+    "lab": "tsx scripts/lab/cli.ts",
+    "hooks:install": "bash scripts/install-hooks.sh",
+    "test:hooks": "bash test/hooks/denylist.test.sh"
   },
   "dependencies": {
     "@hono/node-server": "^2.1.6",
@@ -88,5 +93,9 @@
     "typescript": "^5.9.3",
     "vite": "^7.3.7",
     "vitest": "^5.1.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

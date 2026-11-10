@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# advent-agent denylist hook (commit-msg)
+#
+# Companion of pre-commit: checks the commit message against ~/.config/advent-agent/denylist.txt
+# (one extended regex per line, case-insensitive, # comments). Missing file: passes silently (pre-commit already warned).
+# It NEVER prints the matched term: only "commit message:<line> matches denylist entry #<n>".
+
+DENYLIST="${ADVENT_AGENT_DENYLIST:-${HOME}/.config/advent-agent/denylist.txt}"
+msgfile="$1"
+[ -f "$DENYLIST" ] && [ -n "$msgfile" ] && [ -f "$msgfile" ] || exit 0
+
+tmp="$(mktemp "${TMPDIR:-/tmp}/aa-denylist-msg.XXXXXX")" || exit 0
+trap 'rm -f "$tmp"' EXIT
+# git drops lines starting with # from the message; do the same, but keep line numbers.
+sed -e 's/^#.*$//' "$msgfile" > "$tmp"
+
+blocked=0
+entry=0
+while IFS= read -r raw || [ -n "$raw" ]; do
+  entry=$((entry + 1))
+  pat="${raw%$'\r'}"
+  case "$pat" in ''|'#'*) continue ;; esac
+  printf '' | grep -Eiq -e "$pat" 2>/dev/null
+  if [ $? -eq 2 ]; then
+    echo "advent-agent: denylist entry #$entry is not a valid extended regex; fix or remove it." >&2
+    blocked=1
+    continue
+  fi
+  for ln in $(grep -Eian -e "$pat" "$tmp" 2>/dev/null | cut -d: -f1); do
+    echo "blocked: commit message:$ln matches denylist entry #$entry" >&2
+    blocked=1
+  done
+done < "$DENYLIST"
+
+if [ "$blocked" -ne 0 ]; then
+  echo "advent-agent: commit message blocked by your private denylist (terms are not printed on purpose)." >&2
+  exit 1
+fi
+exit 0

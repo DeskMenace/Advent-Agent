@@ -1,0 +1,76 @@
+# gitleaks configuration (generic patterns only; nothing private belongs in this file).
+# Private, maintainer-specific terms are NOT listed here: they live in ~/.config/advent-agent/denylist.txt
+# and are enforced by the local git hooks (scripts/install-hooks.sh).
+title = "Advent Agent gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Generated or untracked directories and lockfiles"
+paths = [
+  '''(^|/)node_modules/''',
+  '''(^|/)package-lock\.json$''',
+  # Git-ignored build output, only relevant to local scans of a working tree (CI scans a clean checkout).
+  '''^dist/''',
+  '''^test-results/''',
+  '''^\.scratch/''',
+  '''^lab/out/''',
+]
+
+# --- Absolute home-directory paths -------------------------------------------------------------------
+# A path like /Users/<name>/ , /home/<name>/ or C:\Users\<name>\ reveals the OS account name of whoever wrote it.
+[[rules]]
+id = "absolute-home-path"
+description = "Absolute home-directory path (reveals an OS username)"
+regex = '''(?i)(?:/Users/|/home/)[A-Za-z0-9._-]+/|\b[A-Za-z]:\\{1,2}Users\\{1,2}[A-Za-z0-9._ -]+\\{1,2}'''
+keywords = ["/users/", "/home/", "\\users\\"]
+tags = ["privacy", "path"]
+
+  # The invented placeholder user, and generic placeholders, are fine anywhere.
+  [[rules.allowlists]]
+  description = "Placeholder users"
+  regexTarget = "match"
+  regexes = [
+    '''(?i)(?:/Users/|/home/|\\Users\\{1,2})(?:alex|user|username|yourname|you|name)(?:/|\\)''',
+  ]
+
+  # Test fixtures and docs legitimately contain fake paths to prove that paths are detected, redacted or documented.
+  # (e.g. test/unit/intake-security.test.ts, test/unit/persona-list.test.ts, test/integration/service.test.ts)
+  [[rules.allowlists]]
+  description = "Fake paths in tests and docs"
+  paths = [
+    '''^test/''',
+    '''^docs/''',
+  ]
+
+# --- Personal e-mail addresses ------------------------------------------------------------------------
+# Anything that looks like an address is flagged unless it is a GitHub noreply address, a reserved example/test domain,
+# or the documented Anthropic co-author address.
+[[rules]]
+id = "personal-email"
+description = "E-mail address that is not a noreply or reserved example address"
+regex = '''[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}'''
+keywords = ["@"]
+tags = ["privacy", "email"]
+
+  [[rules.allowlists]]
+  description = "Noreply and reserved example addresses"
+  regexTarget = "match"
+  regexes = [
+    '''(?i)@users\.noreply\.github\.com$''',
+    '''(?i)@(?:[a-z0-9-]+\.)*example\.(?:com|org|net)$''',
+    '''(?i)@(?:[a-z0-9-]+\.)*[a-z0-9-]+\.(?:invalid|test|example|localhost)$''',
+    '''(?i)^noreply@anthropic\.com$''',
+    # file names such as poster@2x.png
+    '''(?i)@[0-9a-z-]+\.(?:png|jpe?g|gif|webp|avif|svg|css|js|mjs|json|mp3|mp4|webm|wav|ogg|woff2?)$''',
+    # scp-style git remotes are not people
+    '''(?i)^git@(?:github|gitlab)\.com$''',
+  ]
+
+# --- Known test fixtures for the default rules ----------------------------------------------------------
+# The secret scanner's own tests feed it fake secret-looking lines on purpose.
+[[allowlists]]
+description = "Fake secret-looking strings in the scanner's own tests"
+targetRules = ["generic-api-key"]
+paths = ['''^test/unit/(?:persona-list|intake-security)\.test\.ts$''']

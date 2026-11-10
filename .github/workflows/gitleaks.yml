@@ -1,0 +1,37 @@
+name: gitleaks
+# Secret and privacy scan over the full git history, using the official gitleaks binary pinned to a version and
+# verified against its published SHA-256 checksum (the gitleaks-action needs a paid licence for organisation repos).
+# Config: .gitleaks.toml (generic patterns only). To update: change GITLEAKS_VERSION and GITLEAKS_SHA256 together,
+# using gitleaks_<version>_checksums.txt from the release page.
+on:
+  push: { branches: [main] }
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GITLEAKS_VERSION: "8.30.1"
+  GITLEAKS_SHA256: "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb" # gitleaks_8.30.1_linux_x64.tar.gz
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install gitleaks (pinned, checksum verified)
+        run: |
+          set -euo pipefail
+          archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfL -o "$RUNNER_TEMP/$archive" "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${archive}"
+          echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/$archive" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/gitleaks"
+          tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP/gitleaks" gitleaks
+      - name: Scan history
+        run: '"$RUNNER_TEMP/gitleaks/gitleaks" git . --config .gitleaks.toml --redact --no-banner --verbose'
+      - name: Scan working tree
+        run: '"$RUNNER_TEMP/gitleaks/gitleaks" dir . --config .gitleaks.toml --redact --no-banner --verbose'

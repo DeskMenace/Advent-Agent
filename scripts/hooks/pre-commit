@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+# advent-agent denylist hook (pre-commit)
+#
+# Blocks a commit when a staged file NAME or a staged ADDED line matches an entry of your private denylist.
+# The denylist lives outside the repo: ~/.config/advent-agent/denylist.txt
+#   - one extended regular expression per line (grep -E), matched case-insensitively
+#   - blank lines and lines starting with # are ignored
+# If the file is missing the hook warns once and lets the commit through.
+#
+# The hook NEVER prints the matched term or the content of a line. It prints only the file path, the line number
+# in that file, and the number of the denylist entry (its line number in denylist.txt).
+
+DENYLIST="${ADVENT_AGENT_DENYLIST:-${HOME}/.config/advent-agent/denylist.txt}"
+
+if [ ! -f "$DENYLIST" ]; then
+  gitdir="$(git rev-parse --git-dir 2>/dev/null || echo .git)"
+  marker="$gitdir/advent-agent-denylist-warned"
+  if [ ! -e "$marker" ]; then
+    echo "advent-agent: no private denylist found; skipping the denylist check. Create one at ~/.config/advent-agent/denylist.txt (one regex per line)." >&2
+    : > "$marker" 2>/dev/null || true
+  fi
+  exit 0
+fi
+
+tmp="$(mktemp -d "${TMPDIR:-/tmp}/aa-denylist.XXXXXX")" || exit 0
+trap 'rm -rf "$tmp"' EXIT
+
+# Added lines of the staged diff -> two parallel files: meta (path<TAB>line number) and content.
+git -c core.quotepath=off diff --cached -U0 --no-color --no-prefix --no-ext-diff --no-textconv --diff-filter=ACMR |
+  awk -v meta="$tmp/meta" -v content="$tmp/content" '
+    /^diff --git / { inhunk = 0; next }
+    !inhunk && /^\+\+\+ / { p = substr($0, 5); sub(/\t.*$/, "", p); if (p == "/dev/null") p = ""; path = p; next }
+    /^@@ / {
+      inhunk = 1
+      if (match($0, /\+[0-9]+/)) n = substr($0, RSTART + 1, RLENGTH - 1) + 0
+      next
+    }
+    inhunk && /^\+/ { if (path != "") { print path "\t" n > meta; print substr($0, 2) > content }; n++; next }
+  '
+: >> "$tmp/meta"; : >> "$tmp/content"
+git -c core.quotepath=off diff --cached --name-only --diff-filter=ACMR > "$tmp/names"
+
+blocked=0
+entry=0
+while IFS= read -r raw || [ -n "$raw" ]; do
+  entry=$((entry + 1))
+  pat="${raw%$'\r'}"
+  case "$pat" in ''|'#'*) continue ;; esac
+  # Probe the regex first so a broken entry is reported by number only.
+  printf '' | grep -Eiq -e "$pat" 2>/dev/null
+  if [ $? -eq 2 ]; then
+    echo "advent-agent: denylist entry #$entry is not a valid extended regex; fix or remove it." >&2
+    blocked=1
+    continue
+  fi
+  # file names
+  while IFS= read -r hit; do
+    echo "blocked: $hit (file name) matches denylist entry #$entry" >&2
+    blocked=1
+  done < <(grep -Eia -e "$pat" "$tmp/names" 2>/dev/null)
+  # added lines (grep prints the line numbers only; they are mapped back to path:line via the meta file)
+  for ln in $(grep -Eian -e "$pat" "$tmp/content" 2>/dev/null | cut -d: -f1); do
+    loc="$(sed -n "${ln}p" "$tmp/meta")"
+    echo "blocked: ${loc%$'\t'*}:${loc##*$'\t'} matches denylist entry #$entry" >&2
+    blocked=1
+  done
+done < "$DENYLIST"
+
+if [ "$blocked" -ne 0 ]; then
+  echo "advent-agent: commit blocked by your private denylist. Edit the lines named above (the terms are not printed on purpose)." >&2
+  exit 1
+fi
+exit 0
