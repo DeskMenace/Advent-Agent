@@ -14,6 +14,7 @@ import { Store } from '../core/store.js';
 import { CompanionClient, LAB_PORTS } from './client.js';
 import { parseArgs, type Parsed } from './args.js';
 import { doctor as doctorReport } from '../server/app.js';
+import { formatDoctor } from './doctor.js';
 import { CalendarService } from '../jobs/service.js';
 import { installDemoFixtures } from '../demo/fixtures.js';
 import { readIdea } from '../core/workshop.js';
@@ -258,16 +259,7 @@ async function cmdImport(p: Parsed): Promise<number> {
 
 async function cmdDoctor(): Promise<number> {
   const service = new CalendarService({ allowRealAgents: false });
-  const r = await doctorReport(service);
-  console.log(`advent-agent ${r.version} · node ${r.node} · ${r.platform}`);
-  console.log(`home: ${r.home}`);
-  console.log(`ports: app ${r.ports.app}, gift ${r.ports.gift}`);
-  console.log(`setup: ${r.setupComplete ? 'complete' : 'not finished'} · mode: ${r.connection.mode}${r.connection.adapter ? ` (${r.connection.adapter})` : ''}`);
-  console.log('agents:');
-  for (const a of r.adapters) console.log(`  ${a.label.padEnd(20)} ${a.detection.installed ? `found ${a.detection.version ?? ''} ${a.detection.path ?? ''}` : 'not found'}${a.capabilities.verified ? '' : '  (flags unverified)'}`);
-  console.log(`browser for gift test drive: ${r.browser ?? 'none (enable in Settings)'}`);
-  console.log(`ffprobe: ${r.ffprobe ?? 'not found (media decode check skipped)'}`);
-  console.log(`gary.js: ${r.gary} · UI built: ${r.uiBuilt} · workshop: ${r.workshop} · library: ${r.library} · keychain: ${r.keychain}`);
+  console.log(formatDoctor(await doctorReport(service)));
   return 0;
 }
 
@@ -291,7 +283,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
   const p = parseArgs(argv);
   // Developer-only: pretend a date (same as ADVENT_PRETEND_DATE). Deliberately absent from `help` and the UI.
   if (typeof p.flags['pretend-date'] === 'string') process.env.ADVENT_PRETEND_DATE = p.flags['pretend-date'];
-  const cmd = p.command ?? 'start';
+  const cmd = p.command ?? (p.flags.version || p.flags.v ? 'version' : p.flags.help || p.flags.h ? 'help' : 'start');
   try {
     switch (cmd) {
       case 'start': await cmdStart(p, { open: !p.flags['no-open'] }); return 0;

@@ -229,7 +229,7 @@ test.describe('home copy (handoff §1.1, D26)', () => {
     await expect(steps.nth(0)).toContainText('Wait for your day.A new envelope unlocks at local midnight.');
     await expect(steps.nth(2).getByRole('link', { name: 'Your Gifts' })).toHaveAttribute('href', '/gifts');
     await expect(page.locator('.desk-only .footnote')).toHaveText('Fully local. Nothing leaves your device.');
-    await expect(page.getByRole('link', { name: 'Advent Agent on GitHub' })).toHaveAttribute('href', 'https://github.com/suchipizza/Advent-Agent');
+    await expect(page.getByRole('link', { name: 'Advent Agent on GitHub' })).toHaveAttribute('href', 'https://github.com/DeskMenace/Advent-Agent');
     await expect(page.getByRole('link', { name: /Archive/ })).toHaveCount(0);
     expect(await page.locator('main').innerText()).not.toMatch(/\b(game|card|song|poem|sticker|wallpaper|illustration|interactive|3D)\b/i);
   });

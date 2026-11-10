@@ -63,7 +63,7 @@ test.describe('share sheet (handoff §1.6, D26)', () => {
     const dl = page.waitForEvent('download');
     await page.getByRole('menuitem').first().click();
     const html = readFileSync((await (await dl).path())!, 'utf8');
-    expect(html).not.toMatch(/Made by my Advent Agent|deskmenace|data-advent-mark|github\.com\/suchipizza/);
+    expect(html).not.toMatch(/Made by my Advent Agent|deskmenace|data-advent-mark|github\.com\/DeskMenace/);
   });
 });
 

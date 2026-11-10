@@ -464,7 +464,23 @@ export async function doctor(service: CalendarService) {
     workshop: existsSync(WORKSHOP_DIR),
     library: existsSync(join(LIBRARY_DIR, 'INDEX.json')),
     keychain: await keychainAvailable(),
+    list: (() => { const l = service.list(); return { lines: l.lines.length, checks: l.checks.length, personaSet: Boolean(cfg.persona) }; })(),
+    recentErrors: recentDoorErrors(service),
   };
+}
+
+/** The last few door failures (day, code, short message). The calendar's own text, no gift content. */
+function recentDoorErrors(service: CalendarService): Array<{ day: number; code: string; message: string }> {
+  const season = service.season();
+  if (!season) return [];
+  const out: Array<{ day: number; code: string; message: string }> = [];
+  for (let day = 1; day <= 24; day++) {
+    try {
+      const f = service.store.doors(season.year).read(day).failure;
+      if (f) out.push({ day, code: f.code, message: f.userMessage });
+    } catch { /* unreadable door: skip */ }
+  }
+  return out.slice(-5);
 }
 
 function loginHelpPage(): string {

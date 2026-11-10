@@ -8,7 +8,7 @@ export function buildGiftJsonSchema(): Record<string, unknown> {
   const json = z.toJSONSchema(GiftManifestSchema, { target: 'draft-2020-12', io: 'input' }) as Record<string, unknown>;
   return {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
-    $id: 'https://raw.githubusercontent.com/suchipizza/Advent-Agent/main/schema/gift.schema.json',
+    $id: 'https://raw.githubusercontent.com/DeskMenace/Advent-Agent/main/schema/gift.schema.json',
     title: 'Advent Agent gift manifest (gift.json)',
     description:
       'Manifest of a gift package submitted to an Advent Agent calendar. See the gift-director skill. The agent never purchases or books anything; realWorld entries are proposals.',
