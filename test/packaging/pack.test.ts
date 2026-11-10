@@ -63,9 +63,8 @@ describe('packaging', () => {
       expect(demo.stderr + demo.stdout).toMatch(/Unknown command: demo/);
     } finally {
       try { child.kill('SIGTERM'); } catch { /* gone */ }
-      rmSync(packDir, { recursive: true, force: true });
-      rmSync(installDir, { recursive: true, force: true });
-      rmSync(home, { recursive: true, force: true });
+      // A folder the started companion still holds (Windows) must not fail the test.
+      for (const d of [packDir, installDir, home]) { try { rmSync(d, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 }); } catch { /* leave it for the OS temp cleaner */ } }
     }
   }, 600_000);
 
