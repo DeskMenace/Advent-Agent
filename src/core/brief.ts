@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import type { AgentContext, GateProblem } from '../shared/api.js';
 import type { Config, Profile, Season } from '../shared/config.js';
 import { GIFT_KINDS } from '../shared/gift.js';
+import { MASCOT } from '../shared/list.js';
 import type { ConnectionMode } from '../shared/door.js';
 import type { Persona, ListLine } from '../shared/list.js';
 import type { HistoryRecord } from '../shared/config.js';
@@ -128,11 +129,11 @@ export function buildAgentContext(input: BriefInput): AgentContext {
     timeZone: season.timeZone,
     mode,
     recipient: sharedProfile(profile),
-    list: (input.list ?? []).map((l) => ({ text: l.text, source: l.source })),
+    list: (input.list ?? []).filter((l) => !MASCOT.test(l.text)).map((l) => ({ text: l.text, source: l.source })),
     persona: input.persona ? { name: input.persona.name, sourcePath: input.persona.sourcePath } : undefined,
     history: earlier
       .sort((a, b) => a.day - b.day)
-      .map((h) => ({ day: h.day, title: h.title, kind: h.kind, category: h.category, ideaId: h.ideaId, family: h.family, emotion: h.emotion, interaction: h.interaction, collection: h.collection, motifs: h.motifs, thread: h.thread, followUp: h.followUp, feedback: h.feedback, opened: h.opened })),
+      .map((h) => ({ day: h.day, title: h.title, kind: h.kind, category: h.category, ideaId: h.ideaId, family: h.family, emotion: h.emotion, interaction: h.interaction, collection: h.collection, motifs: h.motifs, thread: h.thread, followUp: h.followUp, detailsUsed: h.detailsUsed, feedback: h.feedback, opened: h.opened })),
     collections: [...sets.values()].map((c) => ({ ...c, days: c.days.sort((a, b) => a - b), complete: c.days.length >= c.size })),
     anchorIdeas: anchor ? anchorIdeas(anchor) : undefined,
     budget: { tier: tier.tier, tokens: tier.tokens, note: tier.note },
@@ -212,7 +213,7 @@ export function renderBriefMarkdown(ctx: AgentContext): string {
     lines.push('## What you know about the recipient (your list)');
     for (const l of ctx.list) lines.push(`- ${l.text}${l.source ? ` _(${l.source})_` : ''}`);
     lines.push('');
-    lines.push('Use **at least one real detail from this list** in the gift where it fits naturally: a name, a project, a running joke, a place. Never force it, never say you have a list, and keep sensitive details out of the share frame. Do not invent facts beyond the list and what you really know.');
+    lines.push('Use **one or two real details from this list** in the gift where they fit naturally: a name, a project, a running joke, a place. Vary them from gift to gift: **never reuse a detail that one of the last three gifts used** (shown in the history below), and do not let one project or character be the subject of every gift. Never force a detail, never say you have a list, and keep sensitive details out of the share frame. Record the details you used in `gift.json` as `"detailsUsed": ["…"]` (one or two short phrases). Do not invent facts beyond the list and what you really know.');
     lines.push('');
   }
   if (ctx.recipient) {
@@ -227,9 +228,10 @@ export function renderBriefMarkdown(ctx: AgentContext): string {
   }
   lines.push('## Earlier gifts this season (apply the rotation rules)');
   if (ctx.history.length === 0) lines.push('- None yet. This is the first door you prepare.');
+  const lastThree = new Set(ctx.history.map((h) => h.day).sort((a, b) => a - b).slice(-3));
   for (const h of ctx.history) {
     const bits = [h.kind, h.family, h.emotion, h.interaction?.join('/'), h.collection ? `set ${h.collection.set} ${h.collection.index}/${h.collection.size}` : undefined].filter(Boolean).join(', ');
-    lines.push(`- Door ${h.day}: "${h.title}" (${bits})${h.feedback ? ' feedback: ' + h.feedback.replace('_', ' ') : ''}${h.opened === false ? ' (not opened yet)' : ''}${h.followUp ? ` · you offered: ${h.followUp.offer} (if they ask: "${h.followUp.prompt}")` : ''}`);
+    lines.push(`- Door ${h.day}: "${h.title}" (${bits})${h.feedback ? ' feedback: ' + h.feedback.replace('_', ' ') : ''}${h.opened === false ? ' (not opened yet)' : ''}${h.followUp ? ` · you offered: ${h.followUp.offer} (if they ask: "${h.followUp.prompt}")` : ''}${lastThree.has(h.day) && h.detailsUsed?.length ? ` · details used (do not reuse): ${h.detailsUsed.join('; ')}` : ''}`);
   }
   if (ctx.collections.length) {
     lines.push('');

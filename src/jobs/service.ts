@@ -20,7 +20,7 @@ import type { Config, HistoryRecord, Profile, Season } from '../shared/config.js
 import type { ConnectionMode, DoorState, PublicDoor } from '../shared/door.js';
 import type { DoorPhase } from '../shared/gift.js';
 import { AgentRun, LIST_PROMPT, promptForDoor } from './runner.js';
-import { applyUserEdit, bundleSources, gatherSources, mergeLines, parseListMd, readList, relabelSources, renderListTask, renderSourceIndex, writeList } from '../core/list.js';
+import { applyUserEdit, bundleSources, gatherSources, limitPerSource, mergeLines, parseListMd, readList, relabelSources, renderListTask, renderSourceIndex, writeList } from '../core/list.js';
 import { personaFromCandidate, personaFromFile, scanPersonas, syncPersona } from '../core/persona.js';
 import { resolveHomeRoot } from '../core/paths.js';
 import type { List, Persona, PersonaCandidate } from '../shared/list.js';
@@ -501,7 +501,7 @@ export class CalendarService {
     const outcome = await run.run();
     if (outcome.usage) this.store.appendLedger(season.year, { at: new Date().toISOString(), type: 'usage', tokens: outcome.usage.tokens, usd: outcome.usage.usd, note: `${adapter.label} · checking the list` });
     const file = join(task, 'list.md');
-    const fresh = existsSync(file) ? relabelSources(parseListMd(readFileSync(file, 'utf8'), { avoid: profile.avoid }), sources) : [];
+    const fresh = existsSync(file) ? limitPerSource(relabelSources(parseListMd(readFileSync(file, 'utf8'), { avoid: profile.avoid }), sources)) : [];
     // The copies of the user's files do not stay in the workspace.
     rmSync(join(task, 'sources'), { recursive: true, force: true });
     const before = this.list();
@@ -879,7 +879,7 @@ export function historyRecordFor(day: number, gift: NonNullable<DoorState['gift'
   return {
     day, title: m.title, kind: gift.kind, category: m.category, ideaId: m.ideaId ?? undefined, family: m.family, emotion: m.emotion, interaction,
     collection: m.collection ? { set: m.collection.set, index: m.collection.index, size: m.collection.size } : undefined,
-    motifs: m.continuity?.motifs ?? [], thread: m.continuity?.thread, followUp: m.followUp, revealedAt,
+    motifs: m.continuity?.motifs ?? [], thread: m.continuity?.thread, followUp: m.followUp, detailsUsed: m.detailsUsed, revealedAt,
   };
 }
 

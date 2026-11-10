@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync,
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { decodeProjectDir, definesPersona, isPersonaSkill, encodeProjectDir, personaFromCandidate, personaFromFile, scanPersonas, syncPersona } from '../../src/core/persona.js';
-import { applyUserEdit, bundleSources, cleanSourceText, gatherSources, mergeLines, parseListMd, relabelSources, renderListTask } from '../../src/core/list.js';
+import { applyUserEdit, limitPerSource, bundleSources, cleanSourceText, gatherSources, mergeLines, parseListMd, relabelSources, renderListTask } from '../../src/core/list.js';
 import { ListSchema } from '../../src/shared/list.js';
 
 const dirs: string[] = [];
@@ -126,6 +126,33 @@ describe('skill-style personas in .claude/*.md (a team-of-agents project layout)
     expect(isPersonaSkill('---\ndescription: Load Otto, SEO lead\n---\nx')).toBe(true);
     expect(isPersonaSkill('You are Pia, a researcher.')).toBe(true);
     expect(isPersonaSkill('---\ndescription: Format a precise handoff\n---\nDo it.')).toBe(false);
+  });
+});
+
+describe('a balanced list without the mascot (D32)', () => {
+  it('drops lines about the mascot and its makers, and keeps at most five lines from one source', () => {
+    const md = ['- Works on Gary, a plaid character [source: a]', '- Desk Menace is their studio [source: a]', '- Rows on the lake [source: a]', ...Array.from({ length: 9 }, (_, i) => `- Fact ${i} about project one [source: p1]`), '- Plays the cello [source: p2]'].join('\n');
+    const lines = parseListMd(md);
+    expect(lines.some((l) => /gary|desk menace/i.test(l.text))).toBe(false);
+    const limited = limitPerSource(lines);
+    expect(limited.filter((l) => l.source === 'p1')).toHaveLength(5);
+    expect(limited.map((l) => l.text)).toContain('Plays the cello');
+  });
+
+  it('the honest "only one project" line is never cut, and the user\'s own lines are never cut', () => {
+    const agent = Array.from({ length: 7 }, (_, i) => ({ id: `a${i}`, text: i === 6 ? 'Only one project was found (Foo); nothing else is known.' : `Foo fact ${i}`, source: 'foo', origin: 'agent' as const }));
+    const user = Array.from({ length: 7 }, (_, i) => ({ id: `u${i}`, text: `mine ${i}`, source: 'foo', origin: 'user' as const }));
+    const out = limitPerSource([...agent, ...user]);
+    expect(out.filter((l) => l.origin === 'user')).toHaveLength(7);
+    expect(out.some((l) => /^Only one project/.test(l.text))).toBe(true);
+    expect(out.filter((l) => l.origin === 'agent' && !/^Only/.test(l.text))).toHaveLength(5);
+  });
+
+  it('the list task asks for several projects and an honest note when there is only one', () => {
+    const md = renderListTask({ sources: [], hasPasted: false, existing: [], avoid: [] });
+    expect(md).toMatch(/at most 5 lines from any one project/);
+    expect(md).toMatch(/Only one project was found/);
+    expect(md).toMatch(/never a gift subject/);
   });
 });
 

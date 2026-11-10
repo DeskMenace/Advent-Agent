@@ -9,6 +9,7 @@ import { startCompanion } from '../../src/server/companion.js';
 import { AgentRun, promptForDoor } from '../../src/jobs/runner.js';
 import { GiftManifestSchema, GIFT_KINDS } from '../../src/shared/gift.js';
 import { DoorStateSchema } from '../../src/shared/door.js';
+import { mascotCentred } from './subject.js';
 import { adapterId, freshHome, LAB_HOMES, modelFromLog, outDir, parseFlags, pretend, resolveModel, sleep, useModel, writeJson, YEAR, type Harness } from './common.js';
 
 export const planInstruction = (day: number) => `## Lab instruction: choose only, don't build
@@ -24,7 +25,7 @@ Instead write ./doors/${String(day).padStart(2, '0')}/plan.json (valid JSON, not
   "form": "interactive-html|video|audio|image|print|tool|...",
   "render": "2d|3d|either|terminal",
   "tier": "S|M|L|XL",
-  "personalDetails": ["<each specific thing about this person you used>"],
+  "personalDetails": ["<the one or two list details you used, as short phrases>"],
   "shareFrame": "<the single image or loop that sums it up>",
   "followUp": "<the second-life offer you would make in your note, or null>",
   "collection": { "set": "<set name>", "index": 1, "size": 3 } or null
@@ -75,6 +76,7 @@ export async function planSeason(argv: string[]): Promise<number> {
   const listMd = join(service.store.home.seasonWorkspaceDir(season.year), 'list', 'list.md');
   if (existsSync(listMd)) copyFileSync(listMd, join(out, 'list.md'));
 
+  const mascotDays: number[] = [];
   for (let day = from; day <= to; day++) {
     prepDate(day);
     let plan: Plan | undefined;
@@ -100,12 +102,15 @@ export async function planSeason(argv: string[]): Promise<number> {
       if (!plan && outcome.diagnosis?.code === 'agent_rate_limited') { console.error(`[${label}] day ${day}: rate limited, waiting 5 min`); await sleep(5 * 60_000); }
       if (!plan) console.error(`[${label}] day ${day} attempt ${attempt}: no plan.json (exit ${outcome.exitCode})`);
     }
-    writeJson(join(out, `day-${String(day).padStart(2, '0')}.json`), { ...record, plan: plan ?? null });
+    const centred = mascotCentred(plan?.title, plan?.pitch);
+    if (centred) mascotDays.push(day);
+    writeJson(join(out, `day-${String(day).padStart(2, '0')}.json`), { ...record, plan: plan ?? null, mascotCentred: centred });
     console.log(`[${label}] day ${day}: ${plan ? `${plan.title} (${plan.ideaId ?? 'invented'}, ${plan.family}, ${plan.emotion})` : 'NO PLAN'} · ${record.tokens ?? '?'} tokens · ${Math.round(Number(record.durationMs) / 1000)} s`);
     recordAsDelivered(service, season.year, day, plan);
   }
-  writeJson(join(out, 'meta.json'), { ...meta, endedAt: new Date().toISOString() });
+  writeJson(join(out, 'meta.json'), { ...meta, endedAt: new Date().toISOString(), mascotCentredDays: mascotDays });
   await companion.close();
+  if (mascotDays.length) { console.error(`[${label}] FAIL: pitches centred on the mascot or its makers on day(s) ${mascotDays.join(', ')}`); return 1; }
   return 0;
 }
 
@@ -125,11 +130,12 @@ function recordAsDelivered(service: import('../../src/jobs/service.js').Calendar
     emotion: plan?.emotion, interaction: interaction.length ? interaction : undefined, form: plan?.form?.slice(0, 40), tierUsed: plan?.tier,
     collection: plan?.collection ? { set: String(plan.collection.set).slice(0, 60), index: Math.min(3, Math.max(1, Number(plan.collection.index) || 1)), size: Math.min(3, Math.max(2, Number(plan.collection.size) || 3)) } : null,
     followUp: followUpOf(plan?.followUp),
+    detailsUsed: (plan?.personalDetails ?? []).map((d) => String(d).slice(0, 160)).filter(Boolean).slice(0, 4),
     primary: 'index.html',
   };
   let parsed = GiftManifestSchema.safeParse(candidate);
   // Drop whatever the agent got wrong (an unknown emotion, a bad tier) rather than lose the day.
-  for (const k of ['emotion', 'tierUsed', 'collection', 'followUp', 'interaction', 'form', 'family'] as const) {
+  for (const k of ['emotion', 'tierUsed', 'collection', 'followUp', 'interaction', 'form', 'family', 'detailsUsed'] as const) {
     if (parsed.success) break;
     delete candidate[k];
     parsed = GiftManifestSchema.safeParse(candidate);

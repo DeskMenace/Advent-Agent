@@ -148,6 +148,8 @@ export const GiftManifestSchema = z.object({
   save: z.object({ file: RelativePathSchema, type: z.string().min(1).max(100) }).optional(),
   /** A second life the agent offered in its note (D27). For the agent only: the calendar never shows it. */
   followUp: z.object({ offer: z.string().min(1).max(200), prompt: z.string().min(1).max(2000) }).optional(),
+  /** The one or two personal details from the recipient's list this gift used (short phrases). For the agent only: later briefs show them so they are not reused. */
+  detailsUsed: z.array(z.string().min(1).max(160)).max(4).optional(),
   primary: RelativePathSchema.optional(),
   artifacts: z.array(ArtifactSchema).max(200).default([]),
   song: SongSchema.optional(),

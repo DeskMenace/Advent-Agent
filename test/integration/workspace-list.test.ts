@@ -5,6 +5,8 @@ import { join } from 'node:path';
 import { testCompanion, waitFor, type TestCompanion } from '../helpers/companion.js';
 import type { PublicDoor } from '../../src/shared/index.js';
 import type { List, Persona, PersonaCandidate } from '../../src/shared/list.js';
+import { renderBriefMarkdown } from '../../src/core/brief.js';
+import type { AgentContext } from '../../src/shared/api.js';
 
 let t: TestCompanion;
 let userHome: string;
@@ -22,6 +24,35 @@ afterEach(async () => {
 const door = (day: number) => async () => (await t.api<PublicDoor>('GET', `/api/doors/${day}`)).data;
 const settled = (d: PublicDoor) => d.jobState === 'ready' || d.jobState === 'failed';
 const ws = () => t.companion.service.store.home.seasonWorkspaceDir(2026);
+
+describe('varied details and no mascot (D32)', () => {
+  it('the list never carries the mascot or its makers into the brief, even when a line is added by hand', async () => {
+    t = await testCompanion({ scenario: 'happy', config: { debugKeepWorkspace: true } });
+    process.env.FAKE_AGENT_LIST_FAIL = '1';
+    t.companion.service.saveList({ lines: [{ text: 'Rows on the lake' }, { text: 'Built Gary, a plaid office character, for Desk Menace' }] });
+    await t.api('POST', '/api/doors/2/open');
+    await waitFor(door(2), settled);
+    const brief = readFileSync(join(ws(), 'doors', '02', 'BRIEF.md'), 'utf8');
+    expect(brief).toMatch(/Rows on the lake/);
+    expect(brief).not.toMatch(/Gary|Desk Menace/i);
+  });
+
+  it('the brief asks for one or two varied details and shows the details of the last three gifts only', async () => {
+    t = await testCompanion({ scenario: 'happy', config: { debugKeepWorkspace: true } });
+    t.companion.service.saveList({ lines: [{ text: 'Rows on the lake' }] });
+    process.env.FAKE_AGENT_LIST_FAIL = '1';
+    await t.api('POST', '/api/doors/4/open');
+    await waitFor(door(4), settled);
+    const ctx = JSON.parse(readFileSync(join(ws(), 'doors', '04', 'brief.json'), 'utf8')) as AgentContext;
+    ctx.history = [1, 2, 3, 4, 5].map((day) => ({ day, title: `Gift ${day}`, kind: 'interactive-html', motifs: [], detailsUsed: [`detail-${day}`] })) as AgentContext['history'];
+    const md = renderBriefMarkdown(ctx);
+    expect(md).toMatch(/one or two real details/);
+    expect(md).toMatch(/never reuse a detail that one of the last three gifts used/);
+    expect(md).toMatch(/"detailsUsed"/);
+    for (const d of [3, 4, 5]) expect(md).toContain(`detail-${d}`);
+    for (const d of [1, 2]) expect(md).not.toContain(`detail-${d}`);
+  });
+});
 
 describe('one workspace per season (D28 §3)', () => {
   it('every run starts in the season workspace; doors are subfolders; a later door can read an earlier sealed gift', async () => {
@@ -68,7 +99,7 @@ describe('checking the list (D28 §4)', () => {
     // Day 1's brief carries the list and the "use a real detail" wording.
     const brief = readFileSync(join(ws(), 'doors', '01', 'BRIEF.md'), 'utf8');
     expect(brief).toMatch(/Dog called Biscuit/);
-    expect(brief).toMatch(/at least one real detail from this list/);
+    expect(brief).toMatch(/one or two real details from this list/);
     expect(brief).not.toMatch(/Never invent personal facts/);
     // A second door does not check again.
     await t.api('POST', '/api/doors/4/open');

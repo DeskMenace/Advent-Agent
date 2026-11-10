@@ -120,6 +120,7 @@ export const AgentContextSchema = z.object({
       motifs: z.array(z.string()),
       thread: z.string().optional(),
       followUp: z.object({ offer: z.string(), prompt: z.string() }).optional(),
+      detailsUsed: z.array(z.string()).optional(),
       feedback: z.string().optional(),
       opened: z.boolean().optional(),
     }),

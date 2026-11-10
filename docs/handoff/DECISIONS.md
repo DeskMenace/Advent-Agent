@@ -116,7 +116,7 @@ Agents use everything they legitimately know (memory, profile, history, granted 
   - gift@2 treats remote media as an **error** (not a warning) unless the origin is declared in `network` and the user allowed gift network access, which keeps ARCHITECTURE §8's consent path.
   - The **library index order** is generated: families in the README's order, then Day 1 and finale anchors, then tier, then title. The hand-ordered `INDEX.md` delivered with the library was regenerated in that order.
   - **The 78-idea bank is retired** (D14). None of its ideas were migrated; they remain in `docs/spec/` for anyone who wants to port one in the new format.
-  - The share mark's GitHub link points to `https://github.com/suchipizza/Advent-Agent`. The deskmenace.com link keeps `ref=aa-share`.
+  - The share mark's GitHub link points to `https://github.com/DeskMenace/Advent-Agent`. The deskmenace.com link keeps `ref=aa-share`.
   - The early start for Day 1 and the finale also applies in connected and portable modes: door 1 accepts a gift before December 1, the finale from December 20. Neither can be revealed before its day.
 
 ## D24. No demo mode (8 November 2026, Noémie)
@@ -188,3 +188,9 @@ The gift origin sends `Cross-Origin-Resource-Policy: same-site`, which Chromium 
 - Now: the sources are capped at 6 KB per file and 48 KB in all, and handed over as one `sources/ALL.md` (one Read, one Write). Claude Code runs the list task with `--tools Read,Write,Glob,Grep --disable-slash-commands --strict-mcp-config` (verified against `claude --help`), which drops the user's skills, plugins and MCP servers from the prompt.
 - Enforced: `--max-budget-usd` is always set for the list check, to $0.25 (or half the user's per-gift cap if lower). Adapters without a budget flag (Codex, Gemini, others) rely on the 48 KB read cap.
 - Measured after: 74k tokens, $0.13, 4 turns, 16 lines. A 30k all-in cap is not reachable with Claude Code, because the baseline alone is about 26k. Realistic: about 75k tokens, $0.13.
+
+## D32 (2026-11-10): Varied details, a balanced list, no mascot subject
+- The brief asks for one or two list details per gift (not "at least one"), varied: a detail used by one of the last three gifts is never reused. Gifts record what they used in `gift.json` as `detailsUsed` (optional, at most 4, never shown by the calendar); the brief shows the last three gifts' details.
+- The list check spreads over several projects and areas: at most 5 agent lines per source (user lines are never cut). If the material covers only one project, the list says so in a first line instead of padding.
+- D10 enforced in code: lines about Gary, gary.js and Desk Menace never reach the list or the brief (the workshop stays free of them, per the hygiene test). The lab flags a pitch or gift centred on them (title or first sentence, or two mentions) and `plan-season` exits non-zero; `compare` reports the count and the share of pitches about the most-shared subject.
+- Measured before the change (previous round): 17 of 24 Claude Code pitches were about Gary (14 centred), and 23 of 24 Codex pitches were about FEA Copilot (a single-project list).

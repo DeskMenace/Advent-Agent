@@ -7,7 +7,7 @@
 | `season.isCatchUp` | The door is being caught up after a gap (when present) | Lighter, more varied; never mention the delay |
 | `locale`, `language`, `timeZone` | Recipient's locale, language code, IANA zone | Write in `language`; format dates and prices for `locale`; print services ship to this country |
 | `mode` | `launched`, `submit` | Launched: you are started by the calendar and it submits `./doors/NN/gift` if you exit without submitting |
-| `list` | Lines about the recipient, each with its source | Real details you should use (at least one per gift, where it fits); empty means do not invent facts |
+| `list` | Lines about the recipient, each with its source | Real details you should use (one or two per gift, varied: never one the last three gifts used; record them as `detailsUsed`); empty means do not invent facts |
 | `persona` | Present when the recipient chose a persona | Speak in its voice and sign the note with its name |
 | `cwd`, `workspace` | Your start folder (season workspace) and this door's subfolder | Write only into your door's folder |
 | `recipient` | Optional, only fields they told us directly: hobbies, humour, dislikes, avoid, language, accessibility, people, pets | Facts you may use; `dislikes`/`avoid` are hard rules |

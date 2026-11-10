@@ -3,6 +3,7 @@
  * opens in the pop-up and on its page (console errors, outside network calls), touch and 360 px, share still/loop,
  * Save format, and a random-input play-through for games.
  */
+import { mascotCentred } from './subject.js';
 import { chromium, type Browser, type Frame, type Page } from '@playwright/test';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -19,7 +20,7 @@ interface Ctx {
   token: string;
   loginUrl: (path: string) => string;
   day: number;
-  manifest: { form?: string; family?: string; interaction?: string | string[]; share?: { loop?: unknown }; save?: { type: string }; primary?: string };
+  manifest: { title?: string; subtitle?: string; note?: string; form?: string; family?: string; interaction?: string | string[]; share?: { loop?: unknown }; save?: { type: string }; primary?: string };
   kind: string;
   out: string;
 }
@@ -75,6 +76,7 @@ export async function runChecks(ctx: Ctx): Promise<{ checks: CheckResult[]; scre
     screenshot = join(ctx.out, 'page.png');
     await page.screenshot({ path: screenshot, fullPage: false });
     add('no console errors', errors.length === 0, errors.slice(0, 4).join(' | '));
+    add('not about the mascot or its makers', !mascotCentred(ctx.manifest.title, [ctx.manifest.subtitle, ctx.manifest.note].filter(Boolean).join(' ')), 'the gift (title, subtitle, note) is centred on Gary or Desk Menace');
     add('no network calls', outside.length === 0, [...new Set(outside)].slice(0, 4).join(' | '));
 
     // 5. Games: a random play-through (smoke only).

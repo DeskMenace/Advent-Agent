@@ -7,6 +7,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { OUT, parseFlags, readJsonSafe } from './common.js';
+import { mascotCentred, sameSubjectShare } from './subject.js';
 
 type Day = { day: number; plan: null | { title?: string; pitch?: string; ideaId?: string | null; personalDetails?: string[]; family?: string } };
 
@@ -37,6 +38,21 @@ export async function compare(argv: string[]): Promise<number> {
   for (const x of rows) { const t = x.days.filter((d) => d.plan).length; const u = x.days.filter(used).length; aT += t; aU += u; out.push(`| **After: ${x.l}** | ${t} | ${u} | ${pct(u, t)} |`); }
   out.push(`| **After, both** | ${aT} | ${aU} | ${pct(aU, aT)} |`, '');
 
+  // Variety: how the pitches use details, whether one subject runs through the season, and the mascot rule (D10, D32).
+  const prev = [{ l: String(f['prev-cc'] ?? ''), days: season(String(f['prev-cc'] ?? '')) }, { l: String(f['prev-codex'] ?? ''), days: season(String(f['prev-codex'] ?? '')) }].filter((x) => x.days.length);
+  const variety = (x: { l: string; days: Day[] }) => {
+    const ps = x.days.filter((d) => d.plan).map((d) => ({ day: d.day, title: d.plan!.title, pitch: d.plan!.pitch, n: d.plan!.personalDetails?.length ?? 0 }));
+    const listFile = join(OUT, 'plan', x.l, 'list.md');
+    const subject = sameSubjectShare(ps, existsSync(listFile) ? readFileSync(listFile, 'utf8') : '');
+    const gary = ps.filter((p) => mascotCentred(p.title, p.pitch)).map((p) => p.day);
+    return { n: ps.length, withDetail: ps.filter((p) => p.n > 0).length, avg: ps.length ? ps.reduce((a, p) => a + p.n, 0) / ps.length : 0, subject, gary };
+  };
+  out.push('## Variety and the mascot rule', '', 'Heuristics: "same subject" is the one name from the list that the most pitches mention; "mascot-centred" is a pitch whose title or first sentence names Gary or Desk Menace, or that names them twice or more.', '');
+  out.push('| Run | Pitches | With a detail | Avg details per pitch | Most-shared subject | Pitches about it | Mascot-centred |', '|---|---|---|---|---|---|---|');
+  for (const [tag, list] of [['previous round', prev], ['this round', rows]] as const) {
+    for (const x of list) { const v = variety(x); out.push(`| ${tag}: ${x.l} | ${v.n} | ${v.withDetail} (${pct(v.withDetail, v.n)}) | ${v.avg.toFixed(1)} | ${v.subject.entity || 'n/a'} | ${v.subject.count} (${pct(v.subject.count, v.n)}) | ${v.gary.length}${v.gary.length ? ` (days ${v.gary.join(', ')})` : ''} |`); }
+  }
+  out.push('');
   out.push('## Side by side', '', `| Day | ${cc} | details | ${codex} | details |`, '|---|---|---|---|---|');
   for (let d = 1; d <= 24; d++) {
     const a = rows[0]!.days.find((x) => x.day === d);

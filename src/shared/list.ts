@@ -50,4 +50,6 @@ export const ListSchema = z.object({
 });
 export type List = z.infer<typeof ListSchema>;
 
+/** The calendar's mascot and its makers: never a gift subject (D10, D32), so never on the list that reaches the agent. */
+export const MASCOT = /\bgary\b|gary\.js|desk[ -]?menace/i;
 export const MAX_LIST_LINES = 40;

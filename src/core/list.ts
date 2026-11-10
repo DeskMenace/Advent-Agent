@@ -9,7 +9,7 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { scanText } from '../intake/secrets.js';
-import { ListSchema, MAX_LIST_LINES, type List, type ListLine, type Persona } from '../shared/list.js';
+import { ListSchema, MASCOT, MAX_LIST_LINES, type List, type ListLine, type Persona } from '../shared/list.js';
 import { readJson, writeJsonAtomic } from './fsutil.js';
 import { claudeProjects, codexProjects, encodeProjectDir, isOwnFolder, isOwnProject, userHome } from './persona.js';
 
@@ -135,11 +135,13 @@ export function renderListTask(input: { sources: ListSource[]; hasPasted: boolea
   L.push('## What to write');
   L.push('Write `list.md` in this folder: **10–20 short lines**, one per line, each starting with `- ` and ending with `[source: <where it came from>]`. Cover, as far as you actually know it:');
   L.push('interests and hobbies, sense of humour, people and pets by name, current projects, places, things to avoid, and what they seem to care about this year.');
+  L.push('**Spread the list across several projects and areas of their life**: at most 5 lines from any one project or file. If the material really covers only one project, do not pad: make the first line `- Only one project was found (<its name>); nothing else about them is known. [source: <file>]` and list only what is true.');
   L.push('Each line is one plain fact or leaning in under 25 words, no quotes from private text. Never invent anything; fewer true lines beat many guesses.');
   L.push('');
   L.push('## Leave out');
   L.push('- secrets, credentials, API keys, customer or client names, anything confidential');
   L.push('- health, money, relationships in difficulty, and anything else sensitive');
+  L.push('- Gary, gary.js and Desk Menace (the calendar\'s mascot and its makers: they are never a gift subject)');
   if (input.avoid.length) L.push(`- the person's own avoid list: ${input.avoid.join(', ')}`);
   L.push('');
   if (input.existing.length) {
@@ -185,6 +187,20 @@ export function relabelSources(lines: ListLine[], sources: ListSource[]): ListLi
 export const normaliseLine = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 const lineId = (t: string) => createHash('sha256').update(normaliseLine(t)).digest('hex').slice(0, 10);
 
+/** At most this many agent lines from one source (one project must not fill the list). */
+export const MAX_LINES_PER_SOURCE = 5;
+
+/** Keep at most MAX_LINES_PER_SOURCE agent lines per source; user lines and the "only one project" note are never cut. */
+export function limitPerSource(lines: ListLine[], max = MAX_LINES_PER_SOURCE): ListLine[] {
+  const seen = new Map<string, number>();
+  return lines.filter((l) => {
+    if (l.origin !== 'agent' || /^only (one|a single) (project|area|source)/i.test(l.text)) return true;
+    const n = (seen.get(l.source) ?? 0) + 1;
+    seen.set(l.source, n);
+    return n <= max;
+  });
+}
+
 /** Parse the agent's list.md into lines. Lines that look like secrets or touch the avoid list are dropped. */
 export function parseListMd(md: string, opts: { avoid?: string[]; origin?: ListLine['origin'] } = {}): ListLine[] {
   const avoid = (opts.avoid ?? []).map((a) => a.toLowerCase().trim()).filter(Boolean);
@@ -201,6 +217,8 @@ export function parseListMd(md: string, opts: { avoid?: string[]; origin?: ListL
     if (scanText(text).some((h) => h.kind !== 'home_path')) continue;
     const low = text.toLowerCase();
     if (avoid.some((a) => low.includes(a))) continue;
+    // The calendar's mascot and its makers are never a gift subject (D10), so they never reach the list.
+    if ((opts.origin ?? 'agent') === 'agent' && MASCOT.test(text)) continue;
     out.push({ id: lineId(text), text: text.slice(0, 400), source: source.slice(0, 200), origin: opts.origin ?? 'agent' });
     if (out.length >= 30) break;
   }

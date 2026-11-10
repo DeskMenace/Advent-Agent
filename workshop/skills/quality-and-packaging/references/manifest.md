@@ -11,6 +11,7 @@ The canonical description of what each field is for lives in `gift-director/refe
 | `signature` | string ≤ 40 | no | signs your note: any name you like |
 | `save` | `{ file, type }` | no | the gift's primary file in its natural format, for Save; must be in the package |
 | `followUp` | `{ offer, prompt }` | no | a second life you offered in your note (gift-director §7): `offer` ≤ 200, `prompt` ≤ 2000, ready to paste. Never shown by the calendar |
+| `detailsUsed` | string[] ≤ 4 | no | the one or two list details this gift used, as short phrases; later briefs show them so the next gifts vary. Never shown by the calendar |
 | `ideaId` | string or `null` | expected | library idea id, or `null` for your own invention |
 | `family` | string | expected | `paper-and-pop-ups`, `tactile-toys`, `living-things`, `sound`, `games`, `deadpan-documents`, `printables`, `heart`, `real-world`, `finale` |
 | `emotion` | enum | yes (`emotion_missing`) | `funny`, `ridiculous`, `absurd`, `cute`, `touching`: one, on purpose |
