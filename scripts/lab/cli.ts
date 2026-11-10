@@ -4,6 +4,7 @@ const run = async (): Promise<number> => {
   switch (cmd) {
     case 'plan-season': return (await import('./plan-season.js')).planSeason(rest);
     case 'make-gift': return (await import('./make-gift.js')).makeGift(rest);
+    case 'list-check': return (await import('./list-check.js')).listCheck(rest);
     case 'simulate-season': return (await import('./simulate-season.js')).simulateSeason(rest);
     case 'invalid-gift': return (await import('./invalid-gift.js')).invalidGift(rest);
     case 'keepsake': return (await import('./keepsake.js')).keepsake(rest);

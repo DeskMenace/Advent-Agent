@@ -99,7 +99,7 @@ export function definesPersona(text: string): boolean {
 
 /**
  * Skill-style persona files (`.claude/<name>.md`, `~/.claude/skills/<name>/SKILL.md`): frontmatter with a description such as
- * "Load Mabel, bilingual SEO writer" or a body that opens with "You are …". Helper skills ("Format a precise handoff") do not match.
+ * "Load Mabel, bilingual copy editor" or a body that opens with "You are …". Helper skills ("Format a precise handoff") do not match.
  */
 export function isPersonaSkill(text: string): boolean {
   const { meta, body } = splitFrontmatter(text);

@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync,
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { decodeProjectDir, definesPersona, isPersonaSkill, encodeProjectDir, personaFromCandidate, personaFromFile, scanPersonas, syncPersona } from '../../src/core/persona.js';
-import { applyUserEdit, cleanSourceText, gatherSources, mergeLines, parseListMd, relabelSources, renderListTask } from '../../src/core/list.js';
+import { applyUserEdit, bundleSources, cleanSourceText, gatherSources, mergeLines, parseListMd, relabelSources, renderListTask } from '../../src/core/list.js';
 import { ListSchema } from '../../src/shared/list.js';
 
 const dirs: string[] = [];
@@ -48,7 +48,7 @@ describe('skill-style personas in .claude/*.md (a team-of-agents project layout)
     const home = join(root, 'home');
     const proj = join(root, 'Studio-projects', 'team-agents');
     write(join(proj, 'CLAUDE.md'), '# Team\n\n## What this is\nThis is the operations folder. I am the Chief of Staff agent, the coordinator.\n');
-    write(join(proj, '.claude', 'mabel.md'), '---\nname: romy\ndescription: Load Mabel, bilingual content writer. Use at the start of any writing session.\n---\n\nYou are Mabel, a writer.\n\n1. @content-engine/persona.md — your identity\n2. @../outside.md — must not be read\n3. @credentials/key.md — must not be read\n');
+    write(join(proj, '.claude', 'mabel.md'), '---\nname: mabel\ndescription: Load Mabel, bilingual content writer. Use at the start of any writing session.\n---\n\nYou are Mabel, a writer.\n\n1. @content-engine/persona.md — your identity\n2. @../outside.md — must not be read\n3. @credentials/key.md — must not be read\n');
     write(join(proj, '.claude', 'handoff.md'), '---\nname: handoff\ndescription: Format a precise handoff for a coding session.\n---\nWrite the handoff as a list.\n');
     write(join(proj, '.claude', 'README.md'), '# Skills\nThis folder holds skill files.\n');
     write(join(proj, '.claude', 'commands', 'run.md'), 'You are a command.\n');
@@ -126,6 +126,29 @@ describe('skill-style personas in .claude/*.md (a team-of-agents project layout)
     expect(isPersonaSkill('---\ndescription: Load Otto, SEO lead\n---\nx')).toBe(true);
     expect(isPersonaSkill('You are Pia, a researcher.')).toBe(true);
     expect(isPersonaSkill('---\ndescription: Format a precise handoff\n---\nDo it.')).toBe(false);
+  });
+});
+
+describe('the list check reads a small, single bundle (cost cap)', () => {
+  it('caps each file and the total, and puts everything in one ALL.md under file-name headers', () => {
+    const { home, proj, enc } = fakeHome();
+    for (let i = 0; i < 30; i++) write(join(enc, 'memory', `topic-${i}.md`), '- fact number ' + i + ' ' + 'word '.repeat(2000));
+    const task = tmp();
+    const sources = gatherSources(task, { home, adapter: 'claude-code', ownRoots: [] });
+    const bytes = bundleSources(task, sources);
+    expect(bytes).toBeLessThan(60_000);
+    const all = readFileSync(join(task, 'sources', 'ALL.md'), 'utf8');
+    expect(all).toMatch(/^===== 01-global-CLAUDE\.md \(/);
+    expect(all).toContain('I row on the lake');
+    expect(all).not.toContain('TRANSCRIPT-CONTENT');
+    for (const s of sources) expect(readFileSync(join(task, s.copy), 'utf8').length).toBeLessThanOrEqual(6_000);
+    void proj;
+  });
+
+  it('the task asks for one Read and one Write', () => {
+    const md = renderListTask({ sources: [], hasPasted: false, existing: [], avoid: [] });
+    expect(md).toContain('sources/ALL.md');
+    expect(md).toContain('one Read, one Write');
   });
 });
 

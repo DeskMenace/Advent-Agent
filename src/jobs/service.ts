@@ -20,13 +20,18 @@ import type { Config, HistoryRecord, Profile, Season } from '../shared/config.js
 import type { ConnectionMode, DoorState, PublicDoor } from '../shared/door.js';
 import type { DoorPhase } from '../shared/gift.js';
 import { AgentRun, LIST_PROMPT, promptForDoor } from './runner.js';
-import { applyUserEdit, gatherSources, mergeLines, parseListMd, readList, relabelSources, renderListTask, renderSourceIndex, writeList } from '../core/list.js';
+import { applyUserEdit, bundleSources, gatherSources, mergeLines, parseListMd, readList, relabelSources, renderListTask, renderSourceIndex, writeList } from '../core/list.js';
 import { personaFromCandidate, personaFromFile, scanPersonas, syncPersona } from '../core/persona.js';
-import { TIER_TOKENS } from '../core/tiers.js';
 import { resolveHomeRoot } from '../core/paths.js';
 import type { List, Persona, PersonaCandidate } from '../shared/list.js';
 import { runProvider, ProviderRefused, type GenerateImageParams } from '../providers/index.js';
 import { allProviderKeyValues } from '../providers/keychain.js';
+
+/**
+ * A hard spend limit for one list check, whatever the user's own cap (Claude Code enforces it with --max-budget-usd; adapters
+ * without a budget flag rely on the 48 KB read cap). A normal check costs well under this.
+ */
+export const LIST_USD_CAP = 0.25;
 
 export class ApiError extends Error {
   constructor(public readonly status: number, public readonly code: string, message: string) {
@@ -484,12 +489,13 @@ export class CalendarService {
       sources.push({ copy: 'sources/pasted.md', label: 'pasted' });
     }
     writeFileSync(join(task, 'sources', 'INDEX.md'), renderSourceIndex(sources));
-    writeFileSync(join(task, 'TASK.md'), renderListTask({ sources, hasPasted: Boolean(list.pasted.trim()), existing: list.lines.map((l) => l.text), avoid: profile.avoid, personaName: cfg.persona?.name, tokens: TIER_TOKENS.S }));
+    bundleSources(task, sources);
+    writeFileSync(join(task, 'TASK.md'), renderListTask({ sources, hasPasted: Boolean(list.pasted.trim()), existing: list.lines.map((l) => l.text), avoid: profile.avoid, personaName: cfg.persona?.name }));
     onStart?.();
     const run = new AgentRun({
       adapter, task: 'list', cwd, workspace: task, logFile: this.listLog(season), prompt: LIST_PROMPT, day: 0, year: season.year,
       timeoutMs: Math.min(cfg.timeoutMinutes, 10) * 60_000, apiToken: this.store.apiToken(), apiUrl: `http://127.0.0.1:${this.appPort}`,
-      webResearch: false, inspirationFolders: [], usdCap: cfg.budgets.usdCapPerGift ? cfg.budgets.usdCapPerGift * 0.5 : undefined,
+      webResearch: false, inspirationFolders: [], usdCap: cfg.budgets.usdCapPerGift ? Math.min(cfg.budgets.usdCapPerGift * 0.5, LIST_USD_CAP) : LIST_USD_CAP,
       permissive: season.connection.permissive, customCommand: season.connection.customCommand, onPhase: () => undefined,
     });
     const outcome = await run.run();

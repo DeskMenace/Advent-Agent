@@ -63,7 +63,7 @@ describe('checking the list (D28 §4)', () => {
     expect(phases.has('list')).toBe(true);
     // The agent saw only the copied sources; the copies are gone afterwards.
     const run = JSON.parse(readFileSync(join(ws(), 'list', 'list-run.json'), 'utf8')) as { sources: string[] };
-    expect(run.sources.sort()).toEqual(['INDEX.md', 'pasted.md']);
+    expect(run.sources.sort()).toEqual(['ALL.md', 'INDEX.md', 'pasted.md']);
     expect(existsSync(join(ws(), 'list', 'sources'))).toBe(false);
     // Day 1's brief carries the list and the "use a real detail" wording.
     const brief = readFileSync(join(ws(), 'doors', '01', 'BRIEF.md'), 'utf8');

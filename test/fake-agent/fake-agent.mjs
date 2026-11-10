@@ -31,9 +31,13 @@ if (existsSync(join(cwd, 'TASK.md'))) {
   // "Checking the list": read only the copied sources, write list.md.
   const dir = join(cwd, 'sources');
   const out = [];
-  for (const f of existsSync(dir) ? readdirSync(dir).sort() : []) {
-    if (f === 'INDEX.md') continue;
-    for (const l of readFileSync(join(dir, f), 'utf8').split('\n')) if (/^- /.test(l)) out.push(`${l} [source: ${f}]`);
+  // The task says: read sources/ALL.md once. Every source sits under a "===== <file> (<label>) =====" header.
+  const bundle = existsSync(join(dir, 'ALL.md')) ? readFileSync(join(dir, 'ALL.md'), 'utf8') : '';
+  let current = '';
+  for (const l of bundle.split('\n')) {
+    const h = l.match(/^===== (\S+) \(/);
+    if (h) { current = h[1]; continue; }
+    if (/^- /.test(l)) out.push(`${l} [source: ${current}]`);
   }
   if (process.env.FAKE_AGENT_LIST_FAIL) process.exit(1);
   writeFileSync(join(cwd, 'list.md'), out.join('\n') + '\n');

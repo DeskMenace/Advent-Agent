@@ -20,7 +20,9 @@ export const claudeCode: Adapter = {
     const tools = list ? ['Read', 'Write', 'Glob', 'Grep'] : ['Read', 'Write', 'Edit', 'MultiEdit', 'Glob', 'Grep', 'Bash(advent-agent:*)', 'Bash(node:*)', 'Bash(ls:*)', 'Bash(cat:*)', 'Bash(mkdir:*)', 'Bash(cp:*)', 'Bash(python3:*)', 'Bash(npx:*)', 'TodoWrite'];
     if (ctx.webResearch && !list) tools.push('WebSearch', 'WebFetch');
     const dirs = list ? [] : ['--add-dir', ctx.workshop, ...ctx.inspirationFolders.flatMap((f) => ['--add-dir', f])];
-    const args = ['-p', ctx.prompt, '--output-format', 'stream-json', '--verbose', '--no-session-persistence', ...dirs, '--allowedTools', ...tools];
+    // The list check needs none of the user's skills, plugins or MCP servers: leaving them out keeps the fixed cost of every turn small.
+    const lean = list ? ['--tools', 'Read,Write,Glob,Grep', '--disable-slash-commands', '--strict-mcp-config'] : [];
+    const args = ['-p', ctx.prompt, '--output-format', 'stream-json', '--verbose', '--no-session-persistence', ...dirs, ...lean, '--allowedTools', ...tools];
     if (ctx.permissive) args.push('--permission-mode', 'bypassPermissions');
     else args.push('--permission-mode', 'acceptEdits', '--permission-prompts', 'none');
     if (ctx.usdCap) args.push('--max-budget-usd', String(ctx.usdCap));

@@ -13,9 +13,11 @@ import { ListSchema, MAX_LIST_LINES, type List, type ListLine, type Persona } fr
 import { readJson, writeJsonAtomic } from './fsutil.js';
 import { claudeProjects, codexProjects, encodeProjectDir, isOwnFolder, isOwnProject, userHome } from './persona.js';
 
-const FILE_CAP = 24_000;
-const TOTAL_CAP = 180_000;
-const MAX_FILES = 60;
+// What the list check may read, in total. Every turn of the agent re-reads everything it has read so far, so this is the real cost
+// lever: ~48 KB is about 12k tokens, read once from a single bundle.
+const FILE_CAP = 6_000;
+const TOTAL_CAP = 48_000;
+const MAX_FILES = 40;
 const REFUSED_NAME = /(^|[\\/])\.env|secret|credential|token|\.pem$|\.key$|id_rsa|\.p12$|keychain|password/i;
 
 export interface ListSource {
@@ -121,14 +123,14 @@ export function gatherSources(taskDir: string, opts: GatherOptions): ListSource[
 
 // ---- the task the agent receives --------------------------------------------------------------
 
-export function renderListTask(input: { sources: ListSource[]; hasPasted: boolean; existing: string[]; avoid: string[]; personaName?: string; tokens: number }): string {
+export function renderListTask(input: { sources: ListSource[]; hasPasted: boolean; existing: string[]; avoid: string[]; personaName?: string; tokens?: number }): string {
   const L: string[] = [];
   L.push('# Checking the list');
   L.push('');
   L.push(`You are the Secret Santa${input.personaName ? ` (${input.personaName})` : ''} behind a 24-door advent calendar. Before Door 1, you check your list: what you know about the person you are making gifts for, so the gifts can be specific to them.`);
   L.push('');
   L.push('## What to read');
-  L.push('Read only the files in `sources/` (copies the calendar chose for you; `sources/INDEX.md` says where each came from)' + (input.hasPasted ? ', and `sources/pasted.md`, which the person pasted themselves' : '') + '. Add anything your own memory already tells you about them. Do **not** look anywhere else: no session transcripts, no source code, no `.env` files, no keys or credentials, no other folders, no web.');
+  L.push('Read `sources/ALL.md` once, in a single Read: it has every file the calendar chose for you, each under a header with its file name' + (input.hasPasted ? ' (including `pasted.md`, which the person pasted themselves)' : '') + '. Do not open the other files in `sources/`. Add anything your own memory already tells you about them. Do **not** look anywhere else: no session transcripts, no source code, no `.env` files, no keys or credentials, no other folders, no web.');
   L.push('');
   L.push('## What to write');
   L.push('Write `list.md` in this folder: **10–20 short lines**, one per line, each starting with `- ` and ending with `[source: <where it came from>]`. Cover, as far as you actually know it:');
@@ -145,7 +147,7 @@ export function renderListTask(input: { sources: ListSource[]; hasPasted: boolea
     for (const e of input.existing) L.push(`- ${e}`);
     L.push('');
   }
-  L.push(`Keep it modest: about ${input.tokens.toLocaleString('en-US')} tokens in all. Do not make a gift. When \`list.md\` is written, stop.`);
+  L.push('Keep it quick: one Read, one Write, then stop. Do not make a gift.');
   return L.join('\n') + '\n';
 }
 
@@ -156,6 +158,22 @@ export function renderSourceIndex(sources: ListSource[]): string {
 // ---- parsing and merging ----------------------------------------------------------------------
 
 /** The agent tags lines with the copy it read (`sources/14-memory-….md`); the user should see where it really came from. */
+/**
+ * One file with every source under a header, so the agent reads once instead of making a call (and re-reading its whole context)
+ * per file. The header carries the copy's file name, which the agent cites as the source of a line.
+ */
+export function bundleSources(taskDir: string, sources: ListSource[]): number {
+  const parts: string[] = [];
+  for (const s of sources) {
+    let text = '';
+    try { text = readFileSync(join(taskDir, s.copy), 'utf8'); } catch { continue; }
+    parts.push(`===== ${s.copy.split('/').pop()} (${s.label}) =====\n${text.trim()}\n`);
+  }
+  const bundle = parts.join('\n');
+  writeFileSync(join(taskDir, 'sources', 'ALL.md'), bundle);
+  return Buffer.byteLength(bundle);
+}
+
 export function relabelSources(lines: ListLine[], sources: ListSource[]): ListLine[] {
   return lines.map((l) => {
     const base = (l.source.match(/[^\s/\\,;]+\.(?:md|txt)/i)?.[0] ?? l.source).trim();
