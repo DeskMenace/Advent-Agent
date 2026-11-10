@@ -78,7 +78,8 @@ export async function testCompanion(opts: TestCompanionOptions = {}): Promise<Te
     },
     async close() {
       await companion.close();
-      rmSync(home, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+      // A temp folder that cannot be removed (Windows keeps a folder locked while a process has it as its working folder) must never fail a test.
+      try { rmSync(home, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 }); } catch { /* leave it for the OS temp cleaner */ }
       delete process.env.FAKE_AGENT_SCENARIO;
     },
   };

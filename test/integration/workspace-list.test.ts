@@ -15,10 +15,12 @@ beforeEach(() => {
   process.env.ADVENT_AGENT_USER_HOME = userHome;
 });
 afterEach(async () => {
-  await t?.close();
+  // Reset the environment first: a failing cleanup must not leak a setting into the next test.
   delete process.env.ADVENT_AGENT_USER_HOME;
   delete process.env.FAKE_AGENT_LIST_FAIL;
-  rmSync(userHome, { recursive: true, force: true });
+  try { await t?.close(); } finally {
+    try { rmSync(userHome, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 }); } catch { /* leave it for the OS temp cleaner */ }
+  }
 });
 
 const door = (day: number) => async () => (await t.api<PublicDoor>('GET', `/api/doors/${day}`)).data;
