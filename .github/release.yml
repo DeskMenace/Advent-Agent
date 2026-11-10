@@ -1,0 +1,23 @@
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+      - dependencies
+    authors:
+      - dependabot
+      - dependabot[bot]
+      - github-actions
+      - github-actions[bot]
+  categories:
+    - title: Adapters
+      labels: [agent-adapter]
+    - title: Kit blocks
+      labels: [kit-block]
+    - title: Gift library
+      labels: [gift-idea, candidate, approved]
+    - title: Fixes
+      labels: [bug]
+    - title: Docs
+      labels: [docs]
+    - title: Other
+      labels: ["*"]

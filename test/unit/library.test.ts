@@ -125,6 +125,19 @@ describe('idea library (library@2, D14)', () => {
     expect(() => loadIdeas(dir)).toThrow(/Make it useful/);
   });
 
+  it('credit is optional, validated as a GitHub handle, and shown in the index as "idea by @handle"', () => {
+    const fm = { ...ideas[0]!.frontmatter } as Record<string, unknown>;
+    expect(IdeaFrontmatterSchema.safeParse(fm).success).toBe(true);
+    expect(IdeaFrontmatterSchema.safeParse({ ...fm, credit: 'suchipizza' }).success).toBe(true);
+    for (const bad of ['', '@suchipizza', 'has space', 'a'.repeat(40), 'under_score']) expect(IdeaFrontmatterSchema.safeParse({ ...fm, credit: bad }).success, bad).toBe(false);
+    const credited = [{ ...ideas[0]!, frontmatter: { ...ideas[0]!.frontmatter, credit: 'mabel-w' } }, ...ideas.slice(1)];
+    const index = buildIndex(credited);
+    expect(index.ideas.find((i) => i.id === ideas[0]!.frontmatter.id)!.credit).toBe('mabel-w');
+    expect(index.ideas.filter((i) => 'credit' in i)).toHaveLength(1);
+    expect(renderIndexMarkdown(index)).toContain('idea by @mabel-w');
+    expect(renderIndexMarkdown(buildIndex(ideas))).not.toContain('idea by @');
+  });
+
   it('U6.4 Gary, Desk Menace and vouchers never appear in the library', () => {
     for (const f of [...ideaFiles.map((x) => join(ideasDir, x)), join(libraryDir, 'INDEX.md'), join(libraryDir, 'INDEX.json'), join(libraryDir, 'README.md')]) {
       expect(readFileSync(f, 'utf8'), f).not.toMatch(/gary|desk menace|voucher/i);

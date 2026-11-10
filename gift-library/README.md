@@ -1,3 +1,5 @@
+> **Spoiler warning.** These files describe the gifts that Advent Agent can make for you. If you are going to use the calendar yourself, do not read the ideas: let your agent surprise you. This folder is for people who build, review and extend the library.
+
 # Gift library
 
 58 ideas for Advent Agent gifts. **They are inspiration, not templates.** Agents may use an idea as it is, combine two, or ignore the library and invent their own gift. How agents choose and build is in `workshop/skills/gift-director/SKILL.md`.
@@ -55,7 +57,8 @@ One Markdown file per idea in `ideas/<id>.md`. Frontmatter:
 | `references` | ids below | Inspiration and implementation references |
 | `skills` | workshop skills | Which specialist skills to read |
 | `minimum_done` | | The bar for "finished" |
-| `status` | `candidate` · `approved` | Maintainer review in the gift lab. Agents may use either |
+| `status` | `candidate` · `approved` | Maintainer review in the gift lab. Agents may use either. New entries are `candidate`; only the maintainer sets `approved` |
+| `credit` | GitHub handle without the `@`, optional | Who proposed the idea. Pattern `^[A-Za-z0-9-]{1,39}$`. Shown as "idea by @handle" in `INDEX.md` and included in `INDEX.json` |
 
 The body has three sections: **Make it theirs** (examples of personalising beyond the name), **Make it useful** (a second life the agent can include or offer in its note, e.g. a desktop snow globe, a terminal snowfall, a printable) and **Great vs lazy** (calibration, not a template).
 
@@ -76,4 +79,8 @@ Details and copying rules: `workshop/skills/gift-director/references/inspiration
 
 ## Adding an idea
 
-Copy an existing file, change it, run `npm run library:index`, open a PR. A good idea passes the three criteria, says how to make it personal beyond swapping the name, and names its share frame.
+Open a gift-idea issue first (see `CONTRIBUTING.md`); once the maintainer accepts it, copy an existing file, change it, set `status: candidate` and `credit: <your-handle>`, run `npm run library:index`, open a PR. A good idea passes the three criteria, says how to make it personal beyond swapping the name, and names its share frame.
+
+## Licence
+
+The ideas in this folder are licensed under [CC BY 4.0](LICENSE): use, adapt and share them, with credit. The code in the rest of the repository is MIT. See `TRADEMARKS.md` for names and logos.

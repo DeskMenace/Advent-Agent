@@ -1,0 +1,42 @@
+name: Bug report
+description: Something in Advent Agent does not work as expected.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Never paste `list.md`, your agent's memory files or gift contents.** They are personal and can spoil your own calendar. Describe the problem in words instead.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `advent-agent doctor`
+      description: Run `npx advent-agent doctor` and paste the output here.
+      render: text
+    validations:
+      required: true
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Which agent?
+      options: [Claude Code, Codex CLI, Gemini CLI, OpenCode, Cursor CLI, GitHub Copilot CLI, Goose, Amp, Custom command, Not about an agent]
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system and Node version
+      placeholder: macOS 15, Node 22
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Screenshots are welcome if they do not show gifts you have not opened yet.

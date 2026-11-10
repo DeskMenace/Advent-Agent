@@ -61,7 +61,7 @@ const compare = (a: string, b: string): number => a.localeCompare(b, 'en');
 export function buildIndex(ideas: LoadedIdea[]): IdeaIndex {
   const entries: IdeaIndexEntry[] = ideas.map(({ file, frontmatter: f }) => ({
     id: f.id, title: f.title, family: f.family, anchor: f.anchor, collection: f.collection, emotion: f.emotion, interaction: f.interaction,
-    tier: f.tier, capability: f.capability, render: f.render, summary: f.summary, suitable_if: f.suitable_if, status: f.status, file,
+    tier: f.tier, capability: f.capability, render: f.render, summary: f.summary, suitable_if: f.suitable_if, status: f.status, ...(f.credit ? { credit: f.credit } : {}), file,
   }));
   entries.sort((a, b) =>
     IDEA_FAMILIES.indexOf(a.family) - IDEA_FAMILIES.indexOf(b.family)
@@ -89,10 +89,10 @@ export function renderIndexMarkdown(index: IdeaIndex): string {
   for (const family of IDEA_FAMILIES) {
     const rows = index.ideas.filter((i) => i.family === family);
     if (rows.length === 0) continue;
-    out.push(`## ${family}`, '', '| Idea | Emotion | Interaction | 2D/3D | Tier | Who can make it | Anchor / collection |', '|---|---|---|---|---|---|---|');
+    out.push(`## ${family}`, '', '| Idea | Emotion | Interaction | 2D/3D | Tier | Who can make it | Anchor / collection | Credit |', '|---|---|---|---|---|---|---|---|');
     for (const r of rows) {
       const anchor = r.anchor !== 'none' ? r.anchor : r.collection ? `set: ${r.collection}` : '';
-      out.push(`| [${cell(r.title)}](${r.file}) | ${r.emotion.join(', ')} | ${r.interaction.join(', ')} | ${r.render} | ${r.tier} | ${r.capability === 'chat-ok' ? 'any agent' : 'coding agent'} | ${anchor} |`);
+      out.push(`| [${cell(r.title)}](${r.file}) | ${r.emotion.join(', ')} | ${r.interaction.join(', ')} | ${r.render} | ${r.tier} | ${r.capability === 'chat-ok' ? 'any agent' : 'coding agent'} | ${anchor} | ${r.credit ? `idea by @${r.credit}` : ''} |`);
     }
     out.push('');
   }

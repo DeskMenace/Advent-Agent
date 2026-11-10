@@ -1,0 +1,55 @@
+name: Gift idea
+description: Propose an idea for the gift library. The library is small on purpose; every entry costs tokens for every user every day.
+labels: [gift-idea]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please open this issue first. Send a pull request only after the maintainer has accepted the idea. Accepted ideas are added as `status: candidate` and credit you as "idea by @handle". Do not include anyone's real personal data.
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      placeholder: The Matchbox of Tiny Things
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What is it, and what happens when the recipient opens, touches or plays with it?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why is it a good gift?
+      description: Which feeling does it aim for (funny, ridiculous, absurd, cute, touching), what is the delightful interaction, and what would someone share?
+    validations:
+      required: true
+  - type: dropdown
+    id: tier
+    attributes:
+      label: Budget tier (minimum to make it well)
+      options:
+        - S (small)
+        - M (medium)
+        - L (large)
+        - XL (extra large)
+    validations:
+      required: true
+  - type: input
+    id: credit
+    attributes:
+      label: Credit handle
+      description: Your GitHub handle, without the @, to be credited as "idea by @handle". Leave empty for no credit.
+      placeholder: mabel-w
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: Checks
+      options:
+        - label: The agent never buys or books anything in this idea.
+          required: true
+        - label: I searched the existing ideas in `gift-library/INDEX.md`.
+          required: true

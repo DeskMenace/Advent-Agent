@@ -1,0 +1,39 @@
+name: Agent support
+description: Ask for a new terminal agent, or report that an existing adapter is wrong.
+labels: [agent-adapter]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Adapters start the agent headless. Flags must be checked against the real CLI (`--help`), and recorded in `docs/AGENT_COMPAT.md`. If you can run the agent, a pull request is very welcome.
+  - type: input
+    id: agent
+    attributes:
+      label: Agent name and version
+      description: Output of the agent's `--version`.
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Link to the agent's CLI documentation
+    validations:
+      required: true
+  - type: textarea
+    id: headless
+    attributes:
+      label: How do you run it non-interactively?
+      description: The command and flags for "run this prompt, edit files in this folder, then exit", and how permissions are limited.
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `advent-agent doctor` (if the agent is already listed)
+      render: text
+  - type: checkboxes
+    id: pr
+    attributes:
+      label: Contribution
+      options:
+        - label: I can open a pull request for this adapter.

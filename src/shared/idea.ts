@@ -58,6 +58,8 @@ export const IdeaFrontmatterSchema = z.object({
   skills: z.array(z.enum(SKILL_NAMES)).min(1),
   minimum_done: z.string().min(1).max(600),
   status: z.enum(['candidate', 'approved']).default('candidate'),
+  /** Optional GitHub handle of whoever proposed the idea; rendered as "idea by @handle". */
+  credit: z.string().regex(/^[A-Za-z0-9-]{1,39}$/, 'a GitHub handle without the @').optional(),
 });
 export type IdeaFrontmatter = z.infer<typeof IdeaFrontmatterSchema>;
 
@@ -75,5 +77,6 @@ export interface IdeaIndexEntry {
   summary: string;
   suitable_if: string;
   status: 'candidate' | 'approved';
+  credit?: string;
   file: string;
 }

@@ -1,0 +1,42 @@
+name: DCO
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  dco:
+    name: dco
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check Signed-off-by on every commit
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          failed=0
+          # Merge commits are skipped; every other commit in the PR needs a trailer that matches its author.
+          for sha in $(git rev-list --no-merges "$BASE_SHA..$HEAD_SHA"); do
+            name=$(git log -1 --format='%an' "$sha")
+            email=$(git log -1 --format='%ae' "$sha")
+            subject=$(git log -1 --format='%s' "$sha")
+            case "$email" in
+              *"[bot]@users.noreply.github.com") echo "skip  $sha (bot author)"; continue ;;
+            esac
+            expected="Signed-off-by: $name <$email>"
+            if git log -1 --format='%(trailers:key=Signed-off-by,valueonly=false,unfold)' "$sha" | grep -Fxq "$expected"; then
+              echo "ok    $sha $subject"
+            else
+              echo "::error::Commit $sha ($subject) has no '$expected' line."
+              failed=1
+            fi
+          done
+          if [ "$failed" -ne 0 ]; then
+            echo
+            echo "Sign off your commits with 'git commit -s'. To fix existing ones: git rebase --signoff <base> and force-push."
+            echo "See CONTRIBUTING.md (Sign your commits)."
+            exit 1
+          fi
