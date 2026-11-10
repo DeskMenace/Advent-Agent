@@ -190,8 +190,8 @@ function supportFiles(body: string, file: string): Array<{ rel: string; text: st
   for (const m of body.matchAll(/(?:^|[\s(])@([\w./-]+\.md)\b/g)) {
     const target = resolve(root, m[1]!);
     if (done.has(target) || !target.startsWith(root + sep)) continue;
-    const rel = target.slice(root.length + 1);
-    if (rel.split(sep).some((seg) => seg.startsWith('.') || /^(credentials?|secrets?|node_modules)$/i.test(seg))) continue;
+    const rel = target.slice(root.length + 1).split(sep).join('/'); // forward slashes: it is text in the persona file, not a native path
+    if (rel.split('/').some((seg) => seg.startsWith('.') || /^(credentials?|secrets?|node_modules)$/i.test(seg))) continue;
     done.add(target);
     const text = readText(target, MAX_SUPPORT_TOTAL);
     if (!text?.trim() || total + text.length > MAX_SUPPORT_TOTAL) continue;
