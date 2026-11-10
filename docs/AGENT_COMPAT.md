@@ -37,3 +37,6 @@ ADVENT_REAL_AGENTS=1 ADVENT_REAL_AGENTS_ONLY=claude-code npm run test:agents
 |---|---|---|---|---|---|---|---|---|
 | Claude Code | 2.1.319 | 2026-11-08 | ready | making, testing, wrapping | interactive-html | 55s | ? tokens | `~/.local/bin/claude -p "Read BRIEF.md in the current folder and follow the gift-director skill." --output-format stream-json --verbose --no-session-` |
 | Claude Code | 2.1.319 | 2026-11-08 | ready | wrapping | interactive-html | 110s | 369474 tokens, $0.505 | `~/.local/bin/claude -p "Read BRIEF.md in the current folder and follow the gift-director skill." --output-format stream-json --verbose --no-session-` |
+
+### Checking the list (Claude Code), D31
+`claude -p "<prompt>" --output-format stream-json --verbose --no-session-persistence --tools Read,Write,Glob,Grep --disable-slash-commands --strict-mcp-config --allowedTools Read Write Glob Grep --permission-mode acceptEdits --permission-prompts none --max-budget-usd 0.25`. `--tools`, `--disable-slash-commands`, `--strict-mcp-config` and `--max-budget-usd` verified in `claude --help` (2.1.319). `--bare` is not used: it ignores OAuth, so subscription users could not log in. There is no `--max-turns` flag. Measured: 74k tokens, $0.13, 4 turns.

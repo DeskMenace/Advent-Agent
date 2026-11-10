@@ -182,3 +182,9 @@ Principle: once the user starts opening gifts, it's only them and their agent. T
 
 ## D30 (2026-11-10): Gift-origin media is loaded in CORS mode
 The gift origin sends `Cross-Origin-Resource-Policy: same-site`, which Chromium applies to different ports: plain `<img>`/`<audio>`/`<video>` from the gift origin were blocked (thumbnails on the board and shelf, image/audio/video gifts on the gift page). Fix: `crossorigin="anonymous"` on those elements (the gift origin already answers with `Access-Control-Allow-Origin` for the app). The strict policy stays.
+
+## D31 (2026-11-10): The list check has a real cost cap
+- Measured before: 232k tokens, $0.21, 21 turns (18 separate Reads). The "tier S, about 30k" in the brief was advisory only. The cost was the agent re-reading its growing context on each turn (191k cache-read tokens), on top of a fixed baseline of about 26k tokens per Claude Code session.
+- Now: the sources are capped at 6 KB per file and 48 KB in all, and handed over as one `sources/ALL.md` (one Read, one Write). Claude Code runs the list task with `--tools Read,Write,Glob,Grep --disable-slash-commands --strict-mcp-config` (verified against `claude --help`), which drops the user's skills, plugins and MCP servers from the prompt.
+- Enforced: `--max-budget-usd` is always set for the list check, to $0.25 (or half the user's per-gift cap if lower). Adapters without a budget flag (Codex, Gemini, others) rely on the 48 KB read cap.
+- Measured after: 74k tokens, $0.13, 4 turns, 16 lines. A 30k all-in cap is not reachable with Claude Code, because the baseline alone is about 26k. Realistic: about 75k tokens, $0.13.
