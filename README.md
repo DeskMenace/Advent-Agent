@@ -12,7 +12,7 @@ A local-first advent calendar: twenty-four paper envelopes on a wooden board, an
 
 ## Prerequisites
 
-- **Node.js 20 or newer** (tested on 20, 22 and 24).
+- **Node.js 22 or newer** (tested on 22 and 24).
 - **A supported terminal agent, installed and logged in**: Claude Code, Codex CLI or Gemini CLI (verified), or one of the others listed below. Run it once on its own first, so you know it works.
 - **Chrome, Edge or Chromium** for sharing a gift as a picture or a short video. The calendar finds an installed one; without it, everything else still works.
 - **ffmpeg** (optional): lets Share produce MP4 and GIF. Without it you get WebM.
@@ -58,7 +58,7 @@ We measured real builds with the lab (`advent-agent lab`), on Claude Code with t
 ## Privacy and safety
 
 - **Everything runs on your computer.** The calendar binds to `127.0.0.1`, checks the Host and Origin of every request, makes no network calls of its own, and has no telemetry. Your agent works as it normally does, including with its own model provider.
-- **Checking the list.** Before Door 1 (and again on December 8 and 15), one short run of your own agent reads **copies** of a few files the app chooses: your agent's global instruction file, its per-project memory, and the instruction files of your projects (at most 48 KB in all). It writes a list of short lines, which you can read, edit or delete in Settings. It **never reads** session transcripts, source code, `.env` files, keys or credentials, or the calendar's own folders, and it leaves out secrets, health, money and anything on your avoid list. The list stays on your computer and is not part of exports.
+- **Checking the list.** Before Door 1 (and again on December 8 and 15), one short run of your own agent reads **copies** of a few files the app chooses: your agent's global instruction file, its per-project memory, and the instruction files of your projects (at most 64 KB in all). It writes a list of short lines, which you can read, edit or delete in Settings. It **never reads** session transcripts, source code, `.env` files, keys or credentials, or the calendar's own folders, and it leaves out secrets, health, money and anything on your avoid list. The list stays on your computer and is not part of exports.
 - **The agent never buys or books anything.** If it suggests something, you decide.
 - **Gifts are untrusted.** They run in an isolated, sandboxed frame on a separate origin, with a strict policy and no network by default.
 - **Scheduled mode needs the computer on** at the hour your agent works.
@@ -109,7 +109,7 @@ advent-agent version | help
 
 ## Who makes this
 
-Advent Agent is made by **Noémie Rakotomalala** ([@suchipizza](https://github.com/suchipizza)) at [Desk Menace](https://deskmenace.com/?ref=aa-readme). Gary, Desk Menace's grumpy desktop character, walks across the calendar page; you can send him home (he stays away until the next day) or switch him off in Settings. The project is free, and that is how Desk Menace says hello. Gary is never part of a gift.
+Advent Agent is made by **Noémie Rakotomalala** ([@suchipizza](https://github.com/suchipizza)) at [Desk Menace](https://deskmenace.com/?ref=aa-readme). Gary, Desk Menace's grumpy desktop character, walks across the calendar page. Right-click him and choose "Remove Gary" (he stays away until the next day), or switch him off for good in Settings. The project is free, and that is how Desk Menace says hello. Gary is never part of a gift.
 
 ## Build your own
 

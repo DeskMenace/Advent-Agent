@@ -2,7 +2,7 @@
 
 **What this is:** the reference document for Advent Agent, an advent calendar where your own AI coding agent is your Secret Santa and makes you one gift a day, December 1–24. It explains how the calendar works, what we decided and why, what we learned, and where things stand. It's written for two readers: us, as the basis for development, and anyone who wants to build something similar from scratch.
 
-**Status:** 10 November 2026. Calendar implemented, gift library and agent guide in place, three rounds of lab tests run. Not yet public. Target launch: around 24–27 November.
+**Status:** release candidate (1.0.0-rc.0), not yet released. The calendar, the gift workshop (skills and kit) and the idea library are implemented; the lab rounds on originality, checking the list, personas and rebuilt gifts are done; CI is green on Linux, macOS and Windows (Node 22 and 24). See [CHANGELOG.md](CHANGELOG.md) and §7.
 
 **Keeping it current:** Claude Code updates §7 (status) and adds to §5 (lessons) at the end of every work round, and records each new decision in `docs/handoff/DECISIONS.md` with a one-line summary here. Keep this file free of personal data (no real names, personas, project names or home paths). It may be published with the repo.
 
@@ -229,13 +229,13 @@ Advent Agent is free and open source, made by the team behind Desk Menace (deskm
 
 ## 7. Status and what's left
 
-**Open from the current round:**
-- List-check token cap: 0.23M seen against a tier S target. Is it enforced? Where do the tokens go?
-- Personal-detail rate after checking the list (baseline 25/96) and example pitches.
-- Privacy scan of the repo, decision log, commit messages and fixtures for private names and paths before the first push (rewrite history if needed).
-- Rerun the three rebuilt gifts through the corrected lab checks.
+**Closed in the latest round** (details in `docs/handoff/DECISIONS.md`, D28 to D33):
+- The list check now has a real cost cap (D31, D33): sources capped at 64 KB and read once from a single bundle, a hard spend limit, about $0.18 and 118k tokens a check on Claude Code (it was 0.23M tokens, about $0.21, before).
+- Gifts use one or two details, varied (D32): every pitch in the rerun used a real detail, with 2.0 (Claude Code) and 1.0 (Codex) details per pitch, against 7.8 and 3.0 before. The subject no longer repeats through the season, and no pitch is centred on the mascot or its makers (the lab checks this).
+- The repository, its history and the package were scanned for private names, paths and addresses before the first push.
+- The three rebuilt gifts pass the corrected lab checks.
 
-**Before launch (target ~24–27 November):**
+**Before launch:**
 1. **Gary on the calendar page:** design session (reactions and lines; active, silent and absent days), then build (corner idle, silent actions, walking on and behind the calendar, popping out of an opened envelope). The calendar already emits `door:locked-click`, `gift:preparing`, `gift:ready` and `gift:revealed`.
 2. **Kit blocks:** confirm which of the 10 priority blocks exist (capture/recorder, pop-up card, envelope, snow globe, jelly, bloom, holo card, sticker peel, aquarium/crystal, sound/karaoke/cassette, character rig, confetti/scratch) and build the missing ones.
 3. **deskmenace.com page:** landing, install, FAQ (supported agents, budget and rough tokens per season, never buys, runs locally, scheduled needs the computer on).
