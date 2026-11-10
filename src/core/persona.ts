@@ -26,6 +26,9 @@ export function encodeProjectDir(path: string): string {
  * Returns the folder only if it exists.
  */
 export function decodeProjectDir(name: string, root: string = sep): string | undefined {
+  // Windows: "C--Users-x" is C:\Users\x (the drive letter, then ":\" encoded as "--").
+  const drive = name.match(/^([A-Za-z])--(.*)$/);
+  if (drive && process.platform === 'win32' && root === sep) return decodeProjectDir('-' + drive[2], `${drive[1]!.toUpperCase()}:\\`);
   if (!name.startsWith('-')) return undefined;
   const walk = (dir: string, rest: string): string | undefined => {
     if (rest === '') return dir;

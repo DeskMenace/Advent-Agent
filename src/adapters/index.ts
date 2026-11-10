@@ -110,7 +110,8 @@ export function splitCommand(s: string): string[] {
     const c = s[i]!;
     if (quote) {
       if (c === quote) quote = null;
-      else if (c === '\\' && quote === '"' && i + 1 < s.length) cur += s[++i];
+      // Only \" is an escape inside double quotes: every other backslash is kept, so Windows paths survive.
+      else if (c === '\\' && quote === '"' && s[i + 1] === '"') cur += s[++i];
       else cur += c;
     } else if (c === '"' || c === "'") { quote = c; has = true; }
     else if (/\s/.test(c)) { if (has || cur) { out.push(cur); cur = ''; has = false; } }

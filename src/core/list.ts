@@ -35,7 +35,8 @@ export interface GatherOptions {
   ownRoots: string[];
 }
 
-const tilde = (p: string, home: string) => (p.startsWith(home) ? '~' + p.slice(home.length) : p);
+/** A path as shown in the list: home shortened to `~`, always with forward slashes (the label is text, not a path to open). */
+const tilde = (p: string, home: string) => (p.startsWith(home) ? '~' + p.slice(home.length) : p).replace(/\\/g, '/');
 
 /** Remove lines that look like secrets; returns undefined when nothing is left worth reading. */
 export function cleanSourceText(text: string): string {

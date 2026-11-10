@@ -6,7 +6,7 @@ const input = { nodePath: '/usr/local/bin/node', binPath: '/opt/advent-agent/bin
 describe('service definitions (file output only)', () => {
   it('I5.1 launchd plist', () => {
     const d = serviceDefinition({ ...input, platform: 'darwin' });
-    expect(d.path).toBe('/Users/test/Library/LaunchAgents/com.deskmenace.advent-agent.plist');
+    expect(d.path.replace(/\\/g, '/')).toBe('/Users/test/Library/LaunchAgents/com.deskmenace.advent-agent.plist');
     expect(d.content).toContain(`<string>${SERVICE_LABEL}</string>`);
     expect(d.content).toContain('<string>/usr/local/bin/node</string>');
     expect(d.content).toContain('<string>/opt/advent-agent/bin/advent-agent.js</string>');
@@ -19,7 +19,7 @@ describe('service definitions (file output only)', () => {
   });
   it('I5.2 systemd --user unit', () => {
     const d = serviceDefinition({ ...input, platform: 'linux' });
-    expect(d.path).toBe('/Users/test/.config/systemd/user/advent-agent.service');
+    expect(d.path.replace(/\\/g, '/')).toBe('/Users/test/.config/systemd/user/advent-agent.service');
     expect(d.content).toMatch(/^\[Unit\]/);
     expect(d.content).toContain('ExecStart=/usr/local/bin/node /opt/advent-agent/bin/advent-agent.js start --no-open');
     expect(d.content).toContain('Environment=ADVENT_AGENT_HOME=/Users/test/.advent-agent');
