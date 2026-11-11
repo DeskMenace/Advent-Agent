@@ -109,7 +109,7 @@ advent-agent version | help
 
 ## Who makes this
 
-Advent Agent is made by **Noémie Rakotomalala** ([@suchipizza](https://github.com/suchipizza)) at [Desk Menace](https://deskmenace.com/?ref=aa-readme). Gary, Desk Menace's grumpy desktop character, walks across the calendar page. Right-click him and choose "Remove Gary" (he stays away until the next day), or switch him off for good in Settings. The project is free, and that is how Desk Menace says hello. Gary is never part of a gift.
+Advent Agent is made by  [@suchipizza](https://github.com/suchipizza) at [Desk Menace](https://deskmenace.com/?ref=aa-readme). Gary, Desk Menace's grumpy desktop character, walks across the calendar page. Right-click him and choose "Remove Gary" (he stays away until the next day), or switch him off for good in Settings. The project is free, and that is how Desk Menace says hello. Gary is never part of a gift.
 
 ## Build your own
 
