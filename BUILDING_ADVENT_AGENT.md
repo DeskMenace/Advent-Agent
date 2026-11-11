@@ -241,7 +241,7 @@ Advent Agent is free and open source, made by the team behind Desk Menace (deskm
 3. **deskmenace.com page:** landing, install, FAQ (supported agents, budget and rough tokens per season, never buys, runs locally, scheduled needs the computer on).
 4. **Voucher:** keep the one-time 20% in one envelope, or drop it.
 5. **Fresh-machine install test** (Mac, plus Windows if supported) with Claude Code and Codex: install → onboarding → list → Day 1.
-6. **Publish:** public repo, npm package, README.
+6. **Publish:** public repo, npm package, README. On launch day, once the repo is public: add yourself as a required reviewer on the GitHub environment `npm` (Settings → Environments → npm → Deployment protection rules; not available on the Free plan while the repo is private), apply the ruleset (`docs/RULESET.md`), and publish through `publish.yml` so the package gets provenance.
 7. **Launch posts** and a spoiler-free demo (the unwrapping, not a gift).
 
 **Known limitations** (`docs/KNOWN_LIMITATIONS.md`):
