@@ -1,6 +1,6 @@
 {
   "name": "advent-agent",
-  "version": "1.0.0-rc.0",
+  "version": "1.0.0-rc.1",
   "description": "Your AI coding agent is your Secret Santa: 24 handmade gifts, Dec 1–24. Runs locally.",
   "license": "MIT",
   "type": "module",
