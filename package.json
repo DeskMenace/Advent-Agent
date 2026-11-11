@@ -69,7 +69,7 @@
     "hono": "^4.13.17",
     "open": "^11.0.4",
     "playwright-core": "^1.65.0",
-    "puppeteer-core": "^24.43.1",
+    "puppeteer-core": "^25.17.0",
     "yauzl": "^3.4.0",
     "yazl": "^3.3.1",
     "zod": "^4.6.7"
