@@ -15,6 +15,7 @@ Hard rules until launch day: the repository stays private, no GitHub release or 
 - [x] Voucher: dropped (D34). The promo config, API field and tests are removed.
 - [x] Hero GIF: not doing one, and no sample gifts anywhere (D34). The README has a clip of Door 1 opening that stops before the gift (`docs/media/door-1-opening.gif`, recorded by `scripts/record-door-gif.ts`).
 - [x] README reworked: step-by-step install, plain-language sections, cost detail moved to `docs/COSTS.md`.
+- [x] deskmenace.com page: step-by-step install and a fuller FAQ, pushed to `main` of the website repository on 19 November. The page's GitHub link gives a 404 until this repository is public.
 - [x] Kit blocks: the 10 priority blocks are all built (32 built in `workshop/kit/INDEX.json`; the 16 marked `planned` are ones the agent builds from scratch).
 - [x] deskmenace.com answers over TLS (HTTP 200 on 19 November). Still worth one look in your own browser.
 - [x] Clean install of the published rc on this Mac: `npx advent-agent@next doctor` from an empty folder with an empty npm cache runs and finds Claude Code, Codex and Gemini CLI. This is not the fresh-machine test below.
@@ -35,13 +36,12 @@ The npm trusted publisher was added on 11 November and will not be validated bef
 
 ## Next week (16–22 November)
 
-- [ ] **deskmenace.com page:** install steps and a fuller FAQ are written and committed in the website repository (branch `purchase-flow-v2`, not pushed). Review, then push to deploy. The page's GitHub link gives a 404 until the repository is public.
 - [ ] **Fresh-machine test** with `npx advent-agent@next` on Mac and Windows, with Claude Code and Codex: install, onboarding, list, Day 1.
 - [ ] **Real-agent test (R1)** for Codex and Gemini CLI, still blocked on 19 November: Codex's config names `gpt-5.4`, which the ChatGPT login cannot use (set another model in `~/.codex/config.toml`); Gemini CLI has no auth method set (run `gemini` once and log in). Then `ADVENT_REAL_AGENTS=1 npm run test:agents`.
 - [ ] **Gift lab:** your first batch (L3) and the scoring of the Day 1 and finale ideas (Q15).
 - [ ] **Social preview image:** upload `docs/assets/social-preview.png` in the repository Settings.
 - [ ] **gary.js:** the public gary.js repo is under the personal account (named DeskMenace). Rename it to gary.js and transfer it to the org. Its GitHub Pages address changes with it, and the website footer links to the old one (`SITE.github.garyJs`): update both together.
-- [ ] **Publish a new rc** (`1.0.0-rc.2`, tag `next`) if you want the fresh-machine test to run the current code; rc.1 predates the voucher removal and the new README.
+- [ ] **Publish `1.0.0-rc.2`:** the version is bumped and the package is built and checked (19 November). It needs your npm login: `npm login`, then `npm publish --tag next`, then `npm dist-tag add advent-agent@1.0.0-rc.2 latest`. The trusted publisher is not involved in a publish from your machine.
 
 ## Launch prep (22–24 November)
 

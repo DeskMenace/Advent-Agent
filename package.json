@@ -1,6 +1,6 @@
 {
   "name": "advent-agent",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.2",
   "description": "Your AI coding agent is your Secret Santa: 24 handmade gifts, Dec 1–24. Runs locally.",
   "license": "MIT",
   "type": "module",
@@ -45,7 +45,8 @@
   ],
   "scripts": {
     "dev": "tsx src/cli/main.ts dev",
-    "build": "npm run build:server && npm run build:ui && npm run schema:gen",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "npm run clean && npm run build:server && npm run build:ui && npm run schema:gen",
     "build:server": "tsc -p tsconfig.build.json",
     "build:ui": "vite build ui",
     "schema:gen": "tsx scripts/gen-schema.ts",
