@@ -89,7 +89,7 @@ window.adventCapture={async prepare(kind){shake();if(kind==='still'){await new P
 </script></body></html>`,
 });
 
-/* ---------- 06 audio (voucher day in the default promo) ---------- */
+/* ---------- 06 audio ---------- */
 gift('06-audio', {
   day: 6, title: 'Chimes from a winter window', category: 'Original audio postcard', subtitle: 'A short, gentle melody that sounds like light falling on a quiet room.',
   note: 'A tiny soundtrack for a tiny pause. Made for listening, not multitasking. Headphones optional; a window with weather in it recommended.',

@@ -1,7 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { api, login, resetDoor, setDemoDay, state } from './helpers.js';
-import { readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { api, login, resetDoor, setDemoDay } from './helpers.js';
 
 test.describe('Gary (E6)', () => {
   test.beforeEach(async () => { await setDemoDay(8); await api('PUT', '/api/settings', { gary: { show: true } }); });
@@ -75,18 +73,15 @@ test.describe('Gary (E6)', () => {
   });
 });
 
-test.describe('voucher (E7, D26)', () => {
-  test('nothing from the makers appears inside a gift: the slip is not shown on any gift page', async ({ page }) => {
+test.describe('nothing from the makers in a gift (D26, D34)', () => {
+  test('a revealed gift carries no voucher: no promo in the API response, no slip on the gift page', async ({ page }) => {
     await setDemoDay(8);
-    const promoFile = join(process.cwd(), 'src', 'promo', 'promo.json');
-    const promo = JSON.parse(readFileSync(promoFile, 'utf8')) as { day: number };
-    await resetDoor(promo.day);
-    const unrevealed = await api<{ promo?: unknown }>('GET', `/api/doors/${promo.day}/gift`);
-    expect(JSON.stringify(unrevealed)).not.toContain('"promo"');
-    await api('POST', `/api/doors/${promo.day}/reveal`);
-    await login(page, `/gifts/${promo.day}`);
+    await resetDoor(6);
+    await api('POST', '/api/doors/6/reveal');
+    const revealed = await api('GET', '/api/doors/6/gift');
+    expect(JSON.stringify(revealed)).not.toMatch(/promo|voucher/i);
+    await login(page, '/gifts/6');
     await expect(page.locator('#gift-title')).toBeVisible();
     await expect(page.locator('.slip')).toHaveCount(0);
-    void state; void writeFileSync;
   });
 });

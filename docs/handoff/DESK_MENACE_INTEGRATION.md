@@ -30,7 +30,7 @@ All links carry a `ref` parameter so website analytics can attribute visits. The
 - Hide him under `prefers-reduced-motion: reduce` unless the user turns him on explicitly.
 - Hide him in screenshots taken by the quality gate and in the demo mode's visual tests (use a flag).
 
-## 4. One-time 20% voucher
+## 4. One-time 20% voucher (dropped on 2026-11-19, see `DECISIONS.md` D34; kept for history)
 - `src/promo/promo.json` (release-time config):
   `{ "enabled": true, "day": 6, "code": "<SET AT RELEASE>", "percent": 20, "expires": "2027-01-31", "url": "https://deskmenace.com/?ref=aa-voucher&code=<code>" }`
 - When the user reveals the gift behind door `day` (any agent, any mode), the gift page shows a **separate paper slip** under the agent's note: "Also in this envelope: a little thank-you from the people who made this calendar. 20% off Gary, the coworker nobody asked for." Show the code and a link.
@@ -42,7 +42,7 @@ All links carry a `ref` parameter so website analytics can attribute visits. The
 ## 5. What not to do
 - No email capture, newsletter, account, analytics, telemetry or remote config.
 - Gary isn't in the idea library, the agent brief or any gift.
-- No Desk Menace content on gift pages except the voucher slip on one day.
+- No Desk Menace content on gift pages (the voucher slip was dropped, D34).
 
 ## 6. Items for the future website FAQ (deskmenace.com/advent)
 Write these down for the website session:

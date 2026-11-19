@@ -156,7 +156,7 @@ Advent Agent is free and open source, made by the team behind Desk Menace (deskm
 - The calendar page has a quiet presence: the footer GitHub mark, and later Gary (Desk Menace's character) walking around the calendar page only.
 - Gifts carry nothing from us.
 - Gary never appears in the library and is never presented as the agent's gift.
-- A one-time voucher in one envelope is **undecided** (§7).
+- There is no voucher or offer in any envelope (dropped, D34).
 
 **Why:** the calendar has to be loved on its own. Anything that feels like an ad inside the experience costs more than it earns.
 
@@ -239,7 +239,7 @@ Advent Agent is free and open source, made by the team behind Desk Menace (deskm
 1. **Gary on the calendar page:** design session (reactions and lines; active, silent and absent days), then build (corner idle, silent actions, walking on and behind the calendar, popping out of an opened envelope). The calendar already emits `door:locked-click`, `gift:preparing`, `gift:ready` and `gift:revealed`.
 2. **Kit blocks:** confirm which of the 10 priority blocks exist (capture/recorder, pop-up card, envelope, snow globe, jelly, bloom, holo card, sticker peel, aquarium/crystal, sound/karaoke/cassette, character rig, confetti/scratch) and build the missing ones.
 3. **deskmenace.com page:** landing, install, FAQ (supported agents, budget and rough tokens per season, never buys, runs locally, scheduled needs the computer on).
-4. **Voucher:** keep the one-time 20% in one envelope, or drop it.
+4. **Voucher:** dropped (D34).
 5. **Fresh-machine install test** (Mac, plus Windows if supported) with Claude Code and Codex: install → onboarding → list → Day 1.
 6. **Publish:** public repo, npm package, README. On launch day, once the repo is public: add yourself as a required reviewer on the GitHub environment `npm` (Settings → Environments → npm → Deployment protection rules; not available on the Free plan while the repo is private), apply the ruleset (`docs/RULESET.md`), and publish through `publish.yml` so the package gets provenance.
 7. **Launch posts** and a spoiler-free demo (the unwrapping, not a gift).

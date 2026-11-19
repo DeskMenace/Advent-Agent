@@ -9,7 +9,6 @@ Things that could not be built or verified as specified, with the reason. Nothin
 | Visual snapshot comparison on CI | Local only | Font rendering differs per OS; CI saves screenshots as artifacts and the comparison runs locally against committed macOS baselines (`test/e2e/*-snapshots/`). |
 | Service install (launchd / systemd / Task Scheduler) | Definitions tested as file output; real install is a manual check | As planned in `TEST_PLAN.md` §2. `advent-agent service install` runs the platform tool and reports its result. |
 | Real-agent smoke tests | **Claude Code passed; Codex and Gemini blocked by accounts** | Claude Code made and sealed a gift on 8 Nov 2026 (55 s). Codex's config names a model the ChatGPT login cannot use; Gemini CLI is not logged in. That run predates gift@2, so it should be repeated now that the gate is stricter. |
-| Voucher code | Unset until release | `src/promo/promo.json` ships with `<SET AT RELEASE>`, so the slip is hidden until Noémie sets a real code (`TEST_PLAN.md` §7). |
 | Clock tampering | Not defended | Date locks prevent accidental spoilers only (DESIGN_SPEC §9.2). Documented in the UI and README. |
 | Budget enforcement for agents without a limit flag | Advisory | Only Claude Code enforces a (dollar) cap; others get an advisory token target, labelled as such. |
 | Provider adapters | One reference adapter | A generic OpenAI-compatible image adapter ships; music, speech and video adapters are interfaces for contributors (`src/providers/index.ts`). |

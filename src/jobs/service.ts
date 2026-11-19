@@ -10,7 +10,6 @@ import { makeClock, readDemoState, type Clock } from '../core/clock.js';
 import { cancelDoor, failDoor, IN_FLIGHT, openDoor, recoverDoor, retryDoor, revealDoor, sealDoor, setPhase, toPublicDoor, transition, type DoorStore } from '../core/doors.js';
 import { CalendarEvents } from '../core/events.js';
 import { writeJsonAtomic } from '../core/fsutil.js';
-import { loadPromo, promoFor } from '../core/promo.js';
 import { Store } from '../core/store.js';
 import { computeEligibility, isDoorEligible, zonedDateString, deviceTimeZone, seasonYearFor, unlockInstant } from '../core/time.js';
 import { APP_PORT, GIFT_PORT } from '../core/paths.js';
@@ -685,15 +684,12 @@ export class CalendarService {
 
   private revealedGift(season: Season, state: DoorState): RevealedGift {
     const gift = state.gift!;
-    const cfg = this.config();
-    const today = zonedDateString(this.clock(season).now(), season.timeZone);
     return {
       day: state.day,
       season: season.year,
       revealedAt: state.revealedAt!,
       gift,
       baseUrl: `http://127.0.0.1:${this.giftPort}/g/${this.giftToken(season.year, state.day)}`,
-      promo: promoFor(loadPromo(), state.day, state.revealed, today),
       bought: state.bought,
       feedback: state.feedback ? { reaction: state.feedback.reaction, note: state.feedback.note } : undefined,
     };

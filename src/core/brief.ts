@@ -1,6 +1,6 @@
 /**
  * The day brief (AGENT_CONNECTIONS §4): the same JSON for every mode, plus a Markdown rendering for launched agents.
- * It never contains unrevealed future gifts, the voucher, Gary, or anything about purchasing on the user's behalf.
+ * It never contains unrevealed future gifts, Gary, or anything about purchasing on the user's behalf.
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';

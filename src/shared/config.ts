@@ -1,5 +1,5 @@
 /**
- * Non-secret settings (config.json), season (season.json), profile (profile.json) and promo config.
+ * Non-secret settings (config.json), season (season.json), and profile (profile.json).
  */
 import { z } from 'zod';
 import { PersonaSchema } from './list.js';
@@ -148,15 +148,6 @@ export const ProfileSchema = z.object({
 });
 export type Profile = z.infer<typeof ProfileSchema>;
 
-export const PromoSchema = z.object({
-  enabled: z.boolean(),
-  day: z.number().int().min(1).max(24),
-  code: z.string(),
-  percent: z.number().int().min(1).max(100),
-  expires: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  url: z.string().url(),
-});
-export type Promo = z.infer<typeof PromoSchema>;
 
 /** Concise record appended to history.jsonl after a reveal (D7, product description §14). */
 export const HistoryRecordSchema = z.object({

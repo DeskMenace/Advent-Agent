@@ -52,11 +52,7 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 - [x] U6.3 78 ideas; titles and groups match `docs/spec/AI_Advent_Calendar_Gift_Idea_Bank.md`
 - [x] U6.4 Gary never appears in the library
 
-### Promo — `test/unit/promo.test.ts`
-- [x] U7.1 Shown only on the configured day
-- [x] U7.2 Shown only after reveal
-- [x] U7.3 Hidden after `expires`
-- [x] U7.4 Hidden when `enabled` is false or the code is unset
+### Promo (removed: the voucher was dropped on 2026-11-19, D34)
 
 ## 2. Integration — TEST_PLAN §2
 
@@ -135,10 +131,7 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 - [x] E6.4 Setting "Show Gary on the calendar" hides him
 - [x] E6.5 Hidden under reduced motion
 
-### Voucher — `test/e2e/voucher.spec.ts`
-- [x] E7.1 Appears on the configured door after reveal
-- [x] E7.2 Never before reveal
-- [x] E7.3 Never on other doors
+### Voucher (removed: dropped on 2026-11-19, D34)
 
 ### Layouts — `test/e2e/layout.spec.ts`
 - [x] E8.1 Screenshots at 320, 390, 768, 1280, 1440 px and 200 % zoom
@@ -226,7 +219,7 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 
 ## 7. Release checklist — TEST_PLAN §7
 - [ ] REL1 Every item above ticked or in `docs/KNOWN_LIMITATIONS.md`
-- [ ] REL2 `promo.json` code set and verified on the website — Noémie
+- [x] REL2 Voucher dropped (D34): `promo.json` and the promo code are removed, nothing to set
 - [x] REL3 README with envelope GIF, quick start, modes table, FAQ, credits, licence notes
 - [x] REL4 `AGENT_GUIDE.md` removed with portable mode (D28)
 - [ ] REL5 npm publish `advent-agent` 1.0.0, GitHub release, tag — Noémie approves

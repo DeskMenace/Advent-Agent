@@ -200,3 +200,8 @@ The gift origin sends `Cross-Origin-Resource-Policy: same-site`, which Chromium 
 - **List read cap 64 KB** (was 48 KB, D31): 48 KB reached only 20 of 31 project folders on the maintainer's machine; 64 KB reaches all 31. Measured: about $0.18 and 118k tokens per check on Claude Code (was $0.13 and 74k), inside the $0.25 hard cap.
 - **Dependabot ignores semver-major updates until 2027-01-15** (npm and GitHub Actions). Ignore rules cannot expire: remove them on or after that date.
 - Gary: right-click and "Remove Gary" removes him until the next day; Settings has "Show Gary on the calendar". There is no one-click dismiss, so the README says exactly that.
+
+## D34 (2026-11-19, Noémie): No voucher, no hero GIF of a gift
+- **The one-time 20% voucher is dropped.** This closes decision 7 and replaces the voucher part of the Desk Menace decision above and of `DESK_MENACE_INTEGRATION.md` §4. The slip was already off the gift page (D26); the server config (`src/promo/promo.json`), `src/core/promo.ts`, the `promo` field of the revealed-gift response and the U7 tests are removed. Gifts and gift pages carry nothing from the makers.
+- **No hero GIF, and no sample gifts anywhere** (README, website, social preview, launch posts): what is inside a door is the surprise. The README shows one GIF of Door 1 opening that stops before the gift (`docs/media/door-1-opening.gif`). `docs/DEMO_SHOTLIST.md` is kept only for that clip.
+- **Gary as ambassador** lives on deskmenace.com (the Advent Agent page), done outside this repository. In the calendar he stays as decided in D33.

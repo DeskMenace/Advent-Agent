@@ -37,9 +37,6 @@ export const RevealedGiftSchema = z.object({
   gift: SealedGiftSchema,
   /** Base URL of this gift's files on the gift origin (includes the per-gift token path). */
   baseUrl: z.string(),
-  promo: z
-    .object({ code: z.string(), percent: z.number(), url: z.string(), expires: z.string() })
-    .optional(),
   bought: z.object({ at: z.string(), note: z.string().optional() }).optional(),
   feedback: z.object({ reaction: z.string().optional(), note: z.string().optional() }).optional(),
 });
