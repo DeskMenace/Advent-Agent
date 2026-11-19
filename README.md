@@ -1,32 +1,71 @@
 # Advent Agent
 
-**Your AI coding agent is your Secret Santa: 24 handmade gifts, Dec 1–24. Runs locally.**
+**Your AI coding agent is your Secret Santa.**
 
-<!-- HERO GIF (to record): npx → onboarding → door click → the present wobbles → the lid pops → cut before the gift. Shot list: docs/DEMO_SHOTLIST.md -->
+![Door 1 opens: the envelope flips, a present wobbles, the lid pops. The clip stops before the gift.](docs/media/door-1-opening.gif)
+
+Advent Agent is an advent calendar that lives on your computer. Twenty-four paper envelopes on a wooden board, and behind each one a small gift that your *own* AI agent (Claude Code, Codex, Gemini CLI…) made for you.
+
+What is inside? We won't tell you, and neither will the calendar. That is the whole point.
 
 ```sh
 npx advent-agent
 ```
 
-A local-first advent calendar: twenty-four paper envelopes on a wooden board, and behind each one a gift your *own* AI agent makes for you. What it makes is the surprise. The calendar keeps it wrapped; the agent does the rest. No account, no API keys, no tracking.
+Free, open source, and local: no account, no API keys, no tracking. Your agent never buys or books anything.
 
-## Prerequisites
+## Install
 
-- **Node.js 22 or newer** (tested on 22 and 24).
-- **A supported terminal agent, installed and logged in**: Claude Code, Codex CLI or Gemini CLI (verified), or one of the others listed below. Run it once on its own first, so you know it works.
-- **Chrome, Edge or Chromium** for sharing a gift as a picture or a short video. The calendar finds an installed one; without it, everything else still works.
+You need two things first.
+
+**1. Node.js 22 or newer.** Check with `node -v`. If it is missing or older, get it from [nodejs.org](https://nodejs.org).
+
+**2. A terminal AI agent, installed and logged in.** Any one of these:
+
+| Agent | Get it |
+|---|---|
+| Claude Code | [claude.com/claude-code](https://claude.com/claude-code) |
+| Codex CLI | [github.com/openai/codex](https://github.com/openai/codex) |
+| Gemini CLI | [github.com/google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) |
+
+Open it once in a terminal and ask it anything, so you know it works and is logged in. More agents are listed [below](#works-with).
+
+**3. Start the calendar.**
+
+```sh
+npx advent-agent
+```
+
+Your browser opens on the calendar. That's it: nothing to clone, nothing to configure by hand.
+
+> Not sure everything is in place? `npx advent-agent doctor` lists what it found: Node, your agents, a browser for sharing.
+
+## Use it
+
+1. **Answer a few questions.** Which agent is your Secret Santa (or which of your own personas), when it should work (when you open a door, or the night before), and how generous it should be.
+2. **Let it wrap Door 1.** Your Secret Santa checks its list to learn who it is giving to, then makes the first gift, so it opens instantly on December 1.
+3. **Come back each day.** Run `npx advent-agent` again, click the day's envelope, and unwrap. Door N unlocks on December N.
+
+Missed a few days? The doors wait for you; nothing expires. Started late? The doors that are already due are made for you.
+
+## How it works
+
+- **The calendar** is a small program on your computer with a page in your browser. It keeps the doors locked until their day and never shows what is inside before you open one. Locked doors shake; they do not spoil.
+- **Your agent** does the making. The calendar starts it quietly in a folder of its own, hands it a brief, and waits. You only see spoiler-free steps: thinking, making, testing, wrapping.
+- **Every gift is checked** before it is sealed, and opens in an isolated frame, so a gift cannot touch the calendar or your files.
+- **The season has a shape.** Day 1 is ready at setup, December 24 is the big one.
+- **Keep what you like.** *Save* gives you the gift in its own format. *Share* exports a picture or a short video, with a preview and a way to blur anything private. Nothing is uploaded.
+
+## Requirements
+
+- **Node.js 22 or newer** (tested on 22 and 24), on macOS, Linux or Windows.
+- **A supported terminal agent**, installed and logged in.
+- **Chrome, Edge or Chromium**, only for sharing a gift as a picture or a short video. Everything else works without it.
 - **ffmpeg** (optional): lets Share produce MP4 and GIF. Without it you get WebM.
 
-## What happens
+## Works with
 
-1. **Setup.** `npx advent-agent` opens the calendar in your browser. A short wizard asks which agent is your Secret Santa (or which of your own personas), when it should work, and how generous it should be.
-2. **Day 1 is wrapped at setup.** Before wrapping, your Secret Santa checks its list: a short run of your own agent over its own memory and a few instruction files, to learn who it is giving to. Then Door 1 is made, so it opens instantly.
-3. **Nothing opens before December 1.** Door N unlocks on December N. Locked doors shake; they do not spoil. If you install late, doors that are already due are made for you, and missed doors wait: nothing expires.
-4. **Each day, your agent makes a gift.** On demand when you open the door, or on a schedule the night before. You only see spoiler-free phases (thinking, making, testing, wrapping). A quality gate checks every gift before it reaches you, and December 24 is the big one.
-
-## Supported agents
-
-The calendar starts your agent itself, headless, in a workspace of its own. All agents run in launched mode and can be scheduled (a login service for launchd, systemd or Task Scheduler; the computer has to be on).
+The calendar starts your agent itself, in a workspace of its own. Every agent can also be scheduled to work the night before (the computer has to be on).
 
 | Agent | Status | Notes |
 |---|---|---|
@@ -40,22 +79,27 @@ Any local script can also hand a gift in with `advent-agent submit`.
 
 ## What it costs
 
-Your agent uses its normal plan or billing; the calendar sends nothing anywhere else. Setup offers **Light, Standard** and **Generous**, which tell the agent to aim for gifts of tier S, M or L (December 1 and 24 get a bigger one, tier XL). The tiers are advisory (the agent is told, not stopped), except that Claude Code can enforce a dollar cap.
+Advent Agent is free. Your agent uses its normal plan or billing, and the calendar sends nothing anywhere else.
 
-We measured real builds with the lab (`advent-agent lab`), on Claude Code with the default model, one gift at a time through the full workflow (brief, build, test, seal):
+Setup offers three sizes: **Light**, **Standard** and **Generous**. As a rough guide, measured on Claude Code with API billing:
 
-| Tier the agent used | Gifts measured | Typical cost per gift | Range |
-|---|---|---|---|
-| S (light) | 3 | about $0.55 | $0.44 – $0.95 |
-| M (standard) | 8 | about $0.80 | $0.27 – $2.21 |
-| L (generous) | 1 | $3.92 (one sample) | n/a |
-| XL (December 24) | 1 | $1.20 (one sample) | n/a |
+| Size | A whole season, roughly |
+|---|---|
+| Light | about **$14** |
+| Standard | about **$20** |
+| Generous | more: tens of dollars (not measured well enough to give a number) |
 
-- **Per season, roughly:** about **$14** on Light, **$20** on Standard (22 daily gifts, Day 1 and December 24 at XL), plus about $0.13 for each list check (three in a season). Generous is not measured well enough to give a number; expect more, in the tens of dollars.
-- **Tokens:** the same builds used a median of about 0.6 million tokens each on Claude Code and about 1.75 million on Codex. These counts include the agent re-reading its own context on every turn (mostly cheap cached reads), so they are far above the advisory 30k / 100k / 300k. Dollars are the better yardstick on API billing; on a subscription, expect each gift to use a noticeable slice of your usage limit, and a bigger slice on Generous.
-- **How measured:** the usage and cost Claude Code reported for each run (Codex reports tokens only), in 19 real builds. Small samples; your agent, model and the ideas it picks change the numbers a lot. A smaller budget or model makes smaller gifts. You can change the budget in Settings at any time.
+On a subscription, expect each gift to use a noticeable slice of your usage limit. You can change the size in Settings at any time. How we measured, per-gift numbers and token counts: [docs/COSTS.md](docs/COSTS.md).
 
 ## Privacy and safety
+
+- **Everything runs on your computer.** No account, no telemetry, no network calls of its own. Your agent talks to its usual model provider, as it always does.
+- **The agent never buys or books anything.** If it suggests something, you decide.
+- **"Checking the list" reads little, and you can see it.** Before Door 1 (and again on December 8 and 15), your agent reads copies of a few of its own instruction and memory files, at most 64 KB, and writes a short list about you. You can read, edit or delete that list in Settings. It never reads session transcripts, source code, `.env` files, keys or credentials.
+- **Gifts are untrusted.** They run in a sandboxed frame on a separate origin, with no network by default.
+
+<details>
+<summary>The details</summary>
 
 - **Everything runs on your computer.** The calendar binds to `127.0.0.1`, checks the Host and Origin of every request, makes no network calls of its own, and has no telemetry. Your agent works as it normally does, including with its own model provider.
 - **Checking the list.** Before Door 1 (and again on December 8 and 15), one short run of your own agent reads **copies** of a few files the app chooses: your agent's global instruction file, its per-project memory, and the instruction files of your projects (at most 64 KB in all). It writes a list of short lines, which you can read, edit or delete in Settings. It **never reads** session transcripts, source code, `.env` files, keys or credentials, or the calendar's own folders, and it leaves out secrets, health, money and anything on your avoid list. The list stays on your computer and is not part of exports.
@@ -65,19 +109,23 @@ We measured real builds with the lab (`advent-agent lab`), on Claude Code with t
 
 The details, with the files that implement each claim, are in [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md). Report a vulnerability through the repository's private vulnerability reporting: see [SECURITY.md](SECURITY.md).
 
+</details>
+
 ## FAQ
+
+**Will I see what the gifts are before I open them?** No. Not in the app, not in this README, not on the website. Locks prevent accidental spoilers. They are not a vault: changing your computer's clock opens doors.
 
 **Does my agent buy things?** No. Advent Agent never makes purchases or bookings.
 
 **Do I need API keys or paid services?** No. Optional advanced settings let you add your own image provider, stored in your OS keychain and used with a spend cap.
 
-**How does my Secret Santa know me?** Through the list above. You can also choose one of your own personas (a Claude Code agent or output style, or a project instruction file that gives your agent a name and voice) as your Secret Santa; its notes are signed with its name.
-
-**Can I peek?** Locks prevent accidental spoilers. They are not a vault: changing your computer's clock opens doors.
-
-**Can I share my gifts?** Yes. Share exports a picture or a short video, with a preview first and a way to blur anything private. Nothing is uploaded. Save downloads the gift itself in its own format.
+**How does my Secret Santa know me?** Through its list (see above). You can also choose one of your own personas (a Claude Code agent or output style, or a project instruction file that gives your agent a name and voice) as your Secret Santa; its notes are signed with its name.
 
 **Do I need to come back every day?** No. Missed doors wait for you and pile up. Settings offers an optional calendar file (`.ics`) with a daily reminder.
+
+**Does the calendar have to stay open?** No. Run `npx advent-agent` when you want to open a door. If you chose scheduled gifts, `advent-agent service install` starts it at login so your agent can work the night before.
+
+**Can I share my gifts?** Yes. Share exports a picture or a short video, with a preview first and a way to blur anything private. Nothing is uploaded. Save downloads the gift itself in its own format.
 
 **What if I want a gift again, or as a tool?** Your agent sometimes offers a second life in its note (a desktop version, a terminal command). Say yes and it builds it then; it never installs anything unasked.
 
@@ -107,15 +155,21 @@ advent-agent export | import  your seasons as a zip, without secrets
 advent-agent version | help
 ```
 
-## Who makes this
+## What's in this repo
 
-Advent Agent is made by  [@suchipizza](https://github.com/suchipizza) at [Desk Menace](https://deskmenace.com/?ref=aa-readme). Gary, Desk Menace's grumpy desktop character, walks across the calendar page. Right-click him and choose "Remove Gary" (he stays away until the next day), or switch him off for good in Settings. The project is free, and that is how Desk Menace says hello. Gary is never part of a gift.
+- `src/`, `ui/`: the companion and the calendar page.
+- `workshop/`: the Gift Workshop, the skills and building blocks agents use to make gifts.
+- `gift-library/`: the idea library. **Spoilers** if you plan to use the calendar yourself.
+- `schema/`: the gift package format (`gift@2`) as a JSON schema.
+- [BUILDING_ADVENT_AGENT.md](BUILDING_ADVENT_AGENT.md): how and why it is built, the fifteen rules, and the lessons from the lab.
 
-## Build your own
+## Credits
 
-How and why it is built, the fifteen rules, and the lessons from the lab are in [BUILDING_ADVENT_AGENT.md](BUILDING_ADVENT_AGENT.md). The Gift Workshop (`workshop/`) holds the skills and building blocks agents use, and the idea library (`gift-library/`) holds the ideas: spoilers if you plan to use the calendar yourself.
+Advent Agent is made by [@suchipizza](https://github.com/suchipizza) at [Desk Menace](https://deskmenace.com/?ref=aa-readme). Gary, Desk Menace's grumpy desktop character, walks across the calendar page. Right-click him and choose "Remove Gary" (he stays away until the next day), or switch him off for good in Settings. The project is free, and that is how Desk Menace says hello. Gary is never part of a gift.
 
-Want to help? See [CONTRIBUTING.md](CONTRIBUTING.md), [GOVERNANCE.md](GOVERNANCE.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Development basics:
+## Contributing
+
+Ideas, kit blocks, agent adapters and fixes are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md), [GOVERNANCE.md](GOVERNANCE.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Development basics:
 
 ```
 npm install
