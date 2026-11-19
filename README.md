@@ -113,7 +113,9 @@ The details, with the files that implement each claim, are in [docs/THREAT_MODEL
 
 ## FAQ
 
-**Will I see what the gifts are before I open them?** No. Not in the app, not in this README, not on the website. Locks prevent accidental spoilers. They are not a vault: changing your computer's clock opens doors.
+**What will the gifts be?** We don't know. Your agent decides what each gift is. The idea library gives it suggestions, but it does not have to follow them: the choice is always your agent's.
+
+**Will I see what a gift is before I open it?** No. Not in the app, not in this README, not on the website. Locks prevent accidental spoilers. They are not a vault: changing your computer's clock opens doors.
 
 **Does my agent buy things?** No. Advent Agent never makes purchases or bookings.
 
