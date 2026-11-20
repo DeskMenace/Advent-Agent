@@ -5,7 +5,7 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { appendFileSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { detectAll } from '../../src/adapters/index.js';
 import { startCompanion, type Companion } from '../../src/server/companion.js';
@@ -44,7 +44,9 @@ describe.skipIf(!enabled)('real agents (opt-in)', () => {
 
   afterAll(async () => {
     await companion?.close();
-    rmSync(home, { recursive: true, force: true });
+    // ADVENT_REAL_AGENTS_KEEP=1 keeps the home (door logs included) for a post-mortem.
+    if (process.env.ADVENT_REAL_AGENTS_KEEP === '1') console.log(`kept: ${home}`);
+    else rmSync(home, { recursive: true, force: true });
   });
 
   it('found at least one agent to test (set ADVENT_REAL_AGENTS_ONLY to narrow)', () => {
@@ -67,7 +69,8 @@ describe.skipIf(!enabled)('real agents (opt-in)', () => {
       const duration = Math.round((Date.now() - started) / 1000);
       const usage = final.attempts.at(-1)?.usage;
       const log = existsSync(companion.service.store.home.logFile(2026, day)) ? readFileSync(companion.service.store.home.logFile(2026, day), 'utf8') : '';
-      const flags = log.match(/^\$ (.*)$/m)?.[1] ?? '';
+      // The command line goes into a tracked file: never with the home path in it.
+      const flags = (log.match(/^\$ (.*)$/m)?.[1] ?? '').split(homedir()).join('~');
       const line = `| ${agent.label} | ${agent.version ?? '?'} | ${new Date().toISOString().slice(0, 10)} | ${final.jobState}${final.failure ? ` (${final.failure.code})` : ''} | ${[...phases].join(', ') || 'none'} | ${final.gift?.kind ?? '-'} | ${duration}s | ${usage?.tokens ?? '?'} tokens${usage?.usd ? `, $${usage.usd.toFixed(3)}` : ''} | \`${flags.replace(/\|/g, '\\|').slice(0, 160)}\` |\n`;
       appendFileSync(compatFile, line);
       expect(final.jobState, final.failure?.userMessage).toBe('ready');

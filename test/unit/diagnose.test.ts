@@ -7,6 +7,13 @@ describe('agent failure diagnosis', () => {
     expect(diagnoseAgentOutput('{"error":"rate_limit","api_error_status":429,"api_error":"model_requires_usage_credits"}')?.code).toBe('agent_rate_limited');
     expect(diagnoseAgentOutput(`{"message":"The 'gpt-5.4' model is not supported when using Codex with a ChatGPT account.","code":"model_not_found"}`)?.code).toBe('agent_model_unavailable');
     expect(diagnoseAgentOutput('Please set an Auth method in your ~/.gemini/settings.json or specify GEMINI_API_KEY')?.code).toBe('agent_not_authenticated');
+    // A healthy Claude Code stream: the routine rate-limit event and numbers that happen to contain 429.
+    const healthy = '{"type":"rate_limit_event","rate_limit_info":{"status":"allowed","resetsAt":1795185429,"rateLimitType":"five_hour","overageStatus":"rejected"}}\n{"type":"assistant","usage":{"input_tokens":14290}}';
+    expect(diagnoseAgentOutput(healthy)).toBeUndefined();
+    // The spend cap is its own problem, not a rate limit, even with that routine event in the same output.
+    expect(diagnoseAgentOutput(`${healthy}\n{"type":"result","subtype":"error_max_budget_usd","errors":["Reached maximum budget ($0.5)"]}`)?.code).toBe('agent_budget_reached');
+    // A real limit is still recognised.
+    expect(diagnoseAgentOutput('{"type":"rate_limit_event","rate_limit_info":{"status":"rejected","rateLimitType":"five_hour"}}')?.code).toBe('agent_rate_limited');
     expect(diagnoseAgentOutput('all good, wrote gift.json')).toBeUndefined();
   });
   it('messages are fixed phrases, never raw agent output', () => {

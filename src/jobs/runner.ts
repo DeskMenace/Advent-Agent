@@ -38,8 +38,11 @@ export interface RunInput {
  * instead of "exit code 1". Only fixed phrases are returned; the agent's raw output never reaches the UI.
  */
 export function diagnoseAgentOutput(output: string): { code: string; message: string } | undefined {
-  const o = output.toLowerCase();
-  if (/rate_limit|rate limit|usage limit|requires_usage_credits|overage|quota|429/.test(o)) return { code: 'agent_rate_limited', message: 'has reached a usage or rate limit on its account. Try again later, or check its plan.' };
+  // Claude Code's stream prints a routine `rate_limit_event` with status "allowed" on healthy runs (it also carries
+  // the word "overage"): those lines say nothing is wrong, so they are left out before looking for a limit.
+  const o = output.toLowerCase().split('\n').filter((l) => !/"type":\s*"rate_limit_event".*"status":\s*"allowed/.test(l)).join('\n');
+  if (/error_max_budget_usd|reached maximum budget/.test(o)) return { code: 'agent_budget_reached', message: 'stopped at the spend cap set for one gift before it could finish. Raise or remove the cap in Settings, then try again.' };
+  if (/rate_limit|rate limit|usage limit|requires_usage_credits|overage|quota|\b429\b/.test(o)) return { code: 'agent_rate_limited', message: 'has reached a usage or rate limit on its account. Try again later, or check its plan.' };
   if (/not logged in|please log ?in|login required|unauthori[sz]ed|invalid api key|authentication|set an auth method|401/.test(o)) return { code: 'agent_not_authenticated', message: 'is not signed in on this computer. Run it once in a terminal and log in, then try again.' };
   if (/model[^\n]{0,80}not (supported|found|available)|model_not_found|unknown model|invalid model/.test(o)) return { code: 'agent_model_unavailable', message: 'is configured with a model your account cannot use. Change the model in its own settings, then try again.' };
   if (/not trusted|trust this folder|workspace trust/.test(o)) return { code: 'agent_untrusted_folder', message: 'refused to work in the gift folder because it is not trusted.' };
