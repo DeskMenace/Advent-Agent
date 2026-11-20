@@ -31,7 +31,7 @@ The rule behind the order: test first, trusted publisher last. A trusted publish
 ### 2. Publish `1.0.0-rc.2` (so the tests run on the real package)
 - [x] `1.0.0-rc.2` published on 20 November; `latest` and `next` both point to it (checked).
 - [x] `1.0.0-rc.3` (Antigravity CLI, the clearer Gemini message, retry of an interrupted Door 1) published on 20 November; `latest` and `next` both point to it (checked).
-- [ ] npm package settings: "Require two-factor authentication and disallow tokens" (Publishing access).
+- [x] npm package settings: "Require two-factor authentication and disallow tokens" (Publishing access), 20 November.
 
 ### 3. Unblock the agents
 - [x] Codex: the model in `~/.codex/config.toml` is changed (20 November).
@@ -55,14 +55,14 @@ The rule behind the order: test first, trusted publisher last. A trusted publish
 ## Launch day (in this order)
 
 1. [x] Make the repository public (done on 20 November, before the release; the launch itself is the `v1.0.0` release and the posts).
-2. [ ] Wait for CI; confirm the DCO workflow, dependency review and CodeQL run (they have never run on GitHub because the repository was private).
+2. [x] Wait for CI; confirm the DCO workflow, dependency review and CodeQL run (they have never run on GitHub because the repository was private).
 3. [x] Switch off GitHub's default CodeQL setup (it conflicts with our workflow). Done on 20 November.
-4. [ ] Apply the ruleset: `gh api repos/DeskMenace/Advent-Agent/rulesets --method POST --input .github/rulesets/main.json` (see `docs/RULESET.md`; decide first whether to keep "1 approving review" with one maintainer).
+4. [x] (20 November, with 0 required approvals) Apply the ruleset: `gh api repos/DeskMenace/Advent-Agent/rulesets --method POST --input .github/rulesets/main.json` (see `docs/RULESET.md`; decide first whether to keep "1 approving review" with one maintainer).
 5. [x] Turn on private vulnerability reporting (`SECURITY.md` depends on it). On since 20 November.
 6. [x] `scripts/labels.sh` run and the social preview image uploaded on 20 November. Was: upload the social preview image (`docs/assets/social-preview.png`, repository Settings).
-7. [ ] Set up the npm trusted publisher (it expires if unused, so not earlier). On npmjs.com, package settings, Trusted Publisher, GitHub Actions: Organization `DeskMenace`, Repository `Advent-Agent`, Workflow `publish.yml`, Environment `npm` (case must match exactly). Tick "Allow npm publish"; leave "Allow npm dist-tag" unchecked; click "Set up connection".
+7. [x] (20 November) Set up the npm trusted publisher (it expires if unused, so not earlier). On npmjs.com, package settings, Trusted Publisher, GitHub Actions: Organization `DeskMenace`, Repository `Advent-Agent`, Workflow `publish.yml`, Environment `npm` (case must match exactly). Tick "Allow npm publish"; leave "Allow npm dist-tag" unchecked; click "Set up connection".
 8. [ ] Add yourself as a required reviewer on the `npm` environment (Settings, Environments, npm, Deployment protection rules; not available on the Free plan while the repository is private).
-9. [ ] Create the `v1.0.0` release: `publish.yml` publishes with provenance (needs the public repository, npm 11.5.1 or later).
+9. [x] (20 November) Create the `v1.0.0` release: `publish.yml` publishes with provenance (needs the public repository, npm 11.5.1 or later).
 10. [ ] Check: `npm view advent-agent dist-tags`, then `npx advent-agent doctor` from another folder.
 11. [ ] Pin the repos and update the profile README.
 12. [ ] Post, and stay online.
