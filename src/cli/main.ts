@@ -71,6 +71,7 @@ async function cmdStart(p: Parsed, opts: { open: boolean; path?: string }): Prom
     companion.service.store.saveConfig({ firstRunShown: true });
   }
   console.log(`Advent Agent is running on http://127.0.0.1:${companion.appPort} (data in ${companion.service.store.home.root}).`);
+  console.log(dim('Keep this terminal open: closing it stops the calendar and any gift being wrapped. Closing the browser page is fine. Ctrl+C stops the calendar.'));
   if (opts.open) await openBrowser(companion.loginUrl(opts.path ?? (cfg.setupComplete ? '/' : '/setup')));
   else console.log(dim('Open the calendar with: npx advent-agent'));
   await new Promise(() => undefined); // run until a signal

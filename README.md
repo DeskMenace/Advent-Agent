@@ -40,6 +40,8 @@ npx advent-agent
 
 Your browser opens on the calendar. That's it: nothing to clone, nothing to configure by hand.
 
+Keep the terminal open while you use the calendar. You can close the browser page at any time, but closing the terminal stops the calendar, and a gift that was being wrapped has to be started again.
+
 > Not sure everything is in place? `npx advent-agent doctor` lists what it found: Node, your agents, a browser for sharing.
 
 ## Use it

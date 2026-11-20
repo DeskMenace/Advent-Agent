@@ -284,7 +284,7 @@ export class CalendarService {
 
   retry(day: number) {
     const season = this.requireSeason();
-    this.assertEligible(season, day);
+    this.assertPreparable(season, day); // an early-wrapped door (Day 1, the finale) that failed can be retried before its day
     const doors = this.doorsOf(season);
     const current = doors.read(day);
     if (current.jobState !== 'failed' && current.jobState !== 'cancelled') throw new ApiError(409, 'not_retryable', 'This door is not in a state that can be retried.');

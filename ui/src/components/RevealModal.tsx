@@ -101,7 +101,8 @@ export function RevealModal(props: { day: number; cal: CalendarResponse; onClose
   };
 
   const failed = door.jobState === 'failed' || door.jobState === 'cancelled';
-  const sealedEarly = !door.eligible && !door.wrapping; // wrapped before its day (Day 1, the finale)
+  const sealedEarly = !door.eligible && !door.wrapping && !failed; // wrapped before its day (Day 1, the finale)
+  const working = !failed && !sealedEarly && door.jobState !== 'ready' && door.jobState !== 'waiting_for_permission';
   const line = failed ? (door.failure?.userMessage ?? 'Your Secret Santa got tangled in the ribbon.')
     : sealedEarly ? `Wrapped. It opens on December ${day}.`
     : door.jobState === 'waiting_for_permission' ? (door.permission?.message ?? 'Waiting for your permission.')
@@ -118,7 +119,8 @@ export function RevealModal(props: { day: number; cal: CalendarResponse; onClose
             {stage === 'loading' && (
               <>
                 <p class="reveal-line" aria-live="polite">{line}</p>
-                {failed && door.eligible && door.failure?.canRetry !== false && <button type="button" class="primary-button" disabled={busy} onClick={() => act(() => api.retry(day))}>Try again</button>}
+                {working && <p class="reveal-note">You can close this page. Keep the terminal that runs the calendar open: closing it stops the wrapping.</p>}
+                {failed && (door.eligible || door.failure?.code === 'interrupted') && door.failure?.canRetry !== false && <button type="button" class="primary-button" disabled={busy} onClick={() => act(() => api.retry(day))}>Try again</button>}
               </>
             )}
           </div>

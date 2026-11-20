@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { testCompanion, waitFor, type TestCompanion } from '../helpers/companion.js';
 import { Scheduler } from '../../src/jobs/scheduler.js';
 import { tierFor } from '../../src/core/tiers.js';
+import { recoverDoor } from '../../src/core/doors.js';
 import type { AgentContext, CalendarResponse } from '../../src/shared/api.js';
 
 let t: TestCompanion;
@@ -69,6 +70,16 @@ describe('season shape', () => {
     const pub = (await t.api<CalendarResponse>('GET', '/api/calendar')).data.doors[23]!;
     expect(pub.envelope).toBe('locked');
     expect((await t.api('POST', '/api/doors/24/reveal')).status).toBe(423);
+  });
+
+  it('an early-wrapped Door 1 that was interrupted can be retried before December; another locked door cannot', async () => {
+    t = await testCompanion({ now: '2026-11-20T12:00:00Z', config: { connection: { mode: 'submit', permissive: false } } });
+    const doors = t.companion.service.store.doors(2026);
+    for (const day of [1, 2]) doors.write(recoverDoor({ ...doors.read(day), jobState: 'preparing' }));
+    expect(doors.read(1).failure?.code).toBe('interrupted');
+    expect((await t.api('POST', '/api/doors/1/retry')).status).toBe(200);
+    expect(doors.read(1).jobState).not.toBe('failed');
+    expect((await t.api('POST', '/api/doors/2/retry')).status).toBe(423);
   });
 
   it('D18 catch-up: a missed door is flagged in the brief; history lists earlier gifts with family, emotion and interaction', async () => {
