@@ -76,6 +76,7 @@ Details and example token ranges: `references/budget-tiers.md`.
 - The gift must work offline in the calendar: no network requests, no CDN. Vendored libraries from the kit only.
 - Desktop and touch, keyboard where it makes sense, `prefers-reduced-motion` respected, sound never autoplays.
 - Every gift with audio offers mute. Every gift with a game offers restart.
+- **Test without opening anything on their screen.** You work unattended, often inside a sandbox. Never start a browser or any other application with a window (Chrome, Safari, `open`, a GUI viewer): in a sandbox it crashes, and the person gets a crash report on their screen. Test with Node, by reading your own code, and with `advent-agent check`. A browser is acceptable only in headless mode, and only once: if it fails to start, do not try again.
 - **Every game is fully playable** from start to end: real rules, a way to win or finish, no dead ends, tested by you. A game that is only a title screen or a picture of a game is a broken gift.
 - **Songs** can be any genre that suits the person: rap, power ballad, sea shanty, synth-pop, lullaby. Write real rhyme and rhythm (for rap, the stressed syllables land on the beat). Song gifts use the karaoke player: lyrics highlight in time with the music, plus the render-it-yourself sheet.
 - **Small tools** (scripts, terminal themes, little utilities) are real software running on their computer, so:
