@@ -4,7 +4,7 @@
 
 ![Door 1 opens: the envelope flips, a present wobbles, the lid pops. The clip stops before the gift.](docs/media/door-1-opening.gif)
 
-Advent Agent is an advent calendar that lives on your computer. Twenty-four paper envelopes on a wooden board, and behind each one a small gift that your *own* AI agent (Claude Code, Codex, Gemini CLI…) made for you.
+Advent Agent is an advent calendar that lives on your computer. Twenty-four paper envelopes on a wooden board, and behind each one a small gift that your *own* AI agent (Claude Code, Codex…) made for you.
 
 What is inside? We won't tell you, and neither will the calendar. That is the whole point.
 
@@ -20,13 +20,12 @@ You need two things first.
 
 **1. Node.js 22 or newer.** Check with `node -v`. If it is missing or older, get it from [nodejs.org](https://nodejs.org).
 
-**2. A terminal AI agent, installed and logged in.** Any one of these:
+**2. A terminal AI agent, installed and logged in.** Either of these:
 
 | Agent | Get it |
 |---|---|
 | Claude Code | [claude.com/claude-code](https://claude.com/claude-code) |
 | Codex CLI | [github.com/openai/codex](https://github.com/openai/codex) |
-| Gemini CLI | [github.com/google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) |
 
 Open it once in a terminal and ask it anything, so you know it works and is logged in. More agents are listed [below](#works-with).
 
@@ -69,9 +68,9 @@ The calendar starts your agent itself, in a workspace of its own. Every agent ca
 
 | Agent | Status | Notes |
 |---|---|---|
-| **Claude Code** | Flags verified | Spend limit enforced (`--max-budget-usd`) when you set one |
-| **Codex CLI** | Flags verified | Runs in its workspace-write sandbox; no token-limit flag, so the budget is advisory |
-| **Gemini CLI** | Flags verified | File edits allowed, shell commands denied; the calendar submits the gift when it exits; budget advisory |
+| **Claude Code** | Tested: made and sealed a gift on 20 November 2026 | Spend limit enforced (`--max-budget-usd`) when you set one |
+| **Codex CLI** | Tested: made and sealed a gift on 20 November 2026 | Runs in its workspace-write sandbox; no token-limit flag, so the budget is advisory |
+| **Gemini CLI** | Flags verified, gift not tested | On 20 November 2026, with a personal Google login, Gemini CLI 0.70 answered that this client is no longer supported and pointed to another product. It may still work with other ways of signing in; we could not test one. File edits allowed, shell commands denied; budget advisory |
 | **OpenCode**, **Cursor CLI**, **Copilot CLI**, **Goose**, **Amp** | Built from documented flags, not yet verified on every machine | Marked as such in setup. See [docs/AGENT_COMPAT.md](docs/AGENT_COMPAT.md) |
 | **Custom command** | You are responsible for what it does | Any agent you can start from a command line |
 

@@ -12,6 +12,8 @@ describe('agent failure diagnosis', () => {
     expect(diagnoseAgentOutput(healthy)).toBeUndefined();
     // The spend cap is its own problem, not a rate limit, even with that routine event in the same output.
     expect(diagnoseAgentOutput(`${healthy}\n{"type":"result","subtype":"error_max_budget_usd","errors":["Reached maximum budget ($0.5)"]}`)?.code).toBe('agent_budget_reached');
+    // Gemini CLI with a personal Google login, 20 November 2026.
+    expect(diagnoseAgentOutput('An unexpected critical error occurred: This client is no longer supported for Gemini Code Assist for individuals. To continue using Gemini, please migrate to the Antigravity suite of products')?.code).toBe('agent_discontinued');
     // A real limit is still recognised.
     expect(diagnoseAgentOutput('{"type":"rate_limit_event","rate_limit_info":{"status":"rejected","rateLimitType":"five_hour"}}')?.code).toBe('agent_rate_limited');
     expect(diagnoseAgentOutput('all good, wrote gift.json')).toBeUndefined();

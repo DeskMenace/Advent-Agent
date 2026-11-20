@@ -34,11 +34,11 @@ The rule behind the order: test first, trusted publisher last. A trusted publish
 
 ### 3. Unblock the agents
 - [x] Codex: the model in `~/.codex/config.toml` is changed (20 November).
-- [ ] Gemini CLI: no auth method is set. Run `gemini` in a terminal, choose "Login with Google", finish in the browser, then `/quit`.
+- [x] Gemini CLI: logged in on 20 November.
 
 ### 4. Test (anything found here becomes rc.3, then test again)
 - [x] **Real-agent test, Claude Code and Codex:** both made and sealed a gift on 20 November. It found two bugs first, both fixed: a list check could not finish under the fixed $0.25 cap on Claude Code's current default model (now the user's own spend limit, D36), and a reached spend cap was reported as a rate limit.
-- [ ] **Real-agent test, Gemini CLI:** `ADVENT_REAL_AGENTS=1 ADVENT_REAL_AGENTS_ONLY=gemini npm run test:agents`, after the login. If it cannot be run before launch, the README must not call Gemini CLI's gift path tested.
+- [x] **Real-agent test, Gemini CLI:** run on 20 November. Gemini CLI 0.70 with a personal Google login stops with "This client is no longer supported for Gemini Code Assist for individuals". The README no longer recommends it for install and says its gift path is untested; the calendar shows a clear message.
 - [ ] **Fresh-machine test** with `npx advent-agent@next` on Mac and Windows, with Claude Code and Codex: install, onboarding (the new spend-limit choice), list, Day 1.
 - [ ] **Gift lab:** your first batch (L3) and the scoring of the Day 1 and finale ideas (Q15); rework ideas under 3.5.
 
