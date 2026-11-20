@@ -30,6 +30,7 @@ The rule behind the order: test first, trusted publisher last. A trusted publish
 
 ### 2. Publish `1.0.0-rc.2` (so the tests run on the real package)
 - [x] `1.0.0-rc.2` published on 20 November; `latest` and `next` both point to it (checked).
+- [ ] `1.0.0-rc.3` (adds Antigravity CLI and the clearer Gemini message): version bumped, built and checked. To publish: `npm publish --tag next`, then `npm dist-tag add advent-agent@1.0.0-rc.3 latest`.
 - [ ] npm package settings: "Require two-factor authentication and disallow tokens" (Publishing access).
 
 ### 3. Unblock the agents
@@ -45,7 +46,7 @@ The rule behind the order: test first, trusted publisher last. A trusted publish
 
 ### 5. Before the repository goes public
 - [ ] Pick the launch date. Door 1 opens on 1 December and is wrapped during setup, so people need a few days before then.
-- [ ] GitHub account settings, Emails: "Keep my email addresses private" and "Block command line pushes that expose my email".
+- [x] GitHub account settings, Emails: "Keep my email addresses private" and "Block command line pushes that expose my email" (on, 20 November).
 - [x] History: the root commit carries a personal email address as its author; accepted as it is (D36). Nothing else was found: no home paths or personal addresses in tracked files, no tags on the remote.
 - [ ] **gary.js:** the public gary.js repo is under the personal account (named DeskMenace). Rename it to gary.js and transfer it to the org. Its GitHub Pages address changes with it, and the website footer links to the old one (`SITE.github.garyJs`): update both together, with whoever is working on the website.
 - [ ] Posts: first drafts exist outside the repository (`Advent-Agent-launch-posts.md`, next to this folder). Edit them in your voice and choose the Show HN angle.
@@ -53,12 +54,12 @@ The rule behind the order: test first, trusted publisher last. A trusted publish
 
 ## Launch day (in this order)
 
-1. [ ] Make the repository public.
+1. [x] Make the repository public (done on 20 November, before the release; the launch itself is the `v1.0.0` release and the posts).
 2. [ ] Wait for CI; confirm the DCO workflow, dependency review and CodeQL run (they have never run on GitHub because the repository was private).
-3. [ ] Switch off GitHub's default CodeQL setup (it conflicts with our workflow).
+3. [x] Switch off GitHub's default CodeQL setup (it conflicts with our workflow). Done on 20 November.
 4. [ ] Apply the ruleset: `gh api repos/DeskMenace/Advent-Agent/rulesets --method POST --input .github/rulesets/main.json` (see `docs/RULESET.md`; decide first whether to keep "1 approving review" with one maintainer).
-5. [ ] Turn on private vulnerability reporting (`SECURITY.md` depends on it).
-6. [ ] Run `scripts/labels.sh`, and upload the social preview image (`docs/assets/social-preview.png`, repository Settings).
+5. [x] Turn on private vulnerability reporting (`SECURITY.md` depends on it). On since 20 November.
+6. [ ] `scripts/labels.sh` was run on 20 November. Still to do: upload the social preview image (`docs/assets/social-preview.png`, repository Settings).
 7. [ ] Set up the npm trusted publisher (it expires if unused, so not earlier). On npmjs.com, package settings, Trusted Publisher, GitHub Actions: Organization `DeskMenace`, Repository `Advent-Agent`, Workflow `publish.yml`, Environment `npm` (case must match exactly). Tick "Allow npm publish"; leave "Allow npm dist-tag" unchecked; click "Set up connection".
 8. [ ] Add yourself as a required reviewer on the `npm` environment (Settings, Environments, npm, Deployment protection rules; not available on the Free plan while the repository is private).
 9. [ ] Create the `v1.0.0` release: `publish.yml` publishes with provenance (needs the public repository, npm 11.5.1 or later).

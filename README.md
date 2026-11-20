@@ -1,12 +1,14 @@
 # Advent Agent
 
-**Your AI coding agent is your Secret Santa.**
+**The Advent Calendar Where Every Gift Is Chosen and Created by Your AI Agent**
 
 ![Door 1 opens: the envelope flips, a present wobbles, the lid pops. The clip stops before the gift.](docs/media/door-1-opening.gif)
 
 Advent Agent is an advent calendar that lives on your computer. Twenty-four paper envelopes on a wooden board, and behind each one a small gift that your *own* AI agent (Claude Code, Codex…) made for you.
 
 What is inside? We won't tell you, and neither will the calendar. That is the whole point.
+
+Unwrap the Magic with one command:
 
 ```sh
 npx advent-agent
@@ -20,7 +22,7 @@ You need two things first.
 
 **1. Node.js 22 or newer.** Check with `node -v`. If it is missing or older, get it from [nodejs.org](https://nodejs.org).
 
-**2. A terminal AI agent, installed and logged in.** Either of these:
+**2. A terminal AI agent, installed and logged in.** Any one of these:
 
 | Agent | Get it |
 |---|---|

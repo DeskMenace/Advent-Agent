@@ -62,6 +62,8 @@ tags = ["privacy", "email"]
     '''(?i)@(?:[a-z0-9-]+\.)*example\.(?:com|org|net)$''',
     '''(?i)@(?:[a-z0-9-]+\.)*[a-z0-9-]+\.(?:invalid|test|example|localhost)$''',
     '''(?i)^noreply@anthropic\.com$''',
+    # the project's public contact address (Code of Conduct, security)
+    '''(?i)^contact@deskmenace\.com$''',
     # file names such as poster@2x.png
     '''(?i)@[0-9a-z-]+\.(?:png|jpe?g|gif|webp|avif|svg|css|js|mjs|json|mp3|mp4|webm|wav|ogg|woff2?)$''',
     # scp-style git remotes are not people
