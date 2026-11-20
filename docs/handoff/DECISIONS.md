@@ -205,3 +205,7 @@ The gift origin sends `Cross-Origin-Resource-Policy: same-site`, which Chromium 
 - **The one-time 20% voucher is dropped.** This closes decision 7 and replaces the voucher part of the Desk Menace decision above and of `DESK_MENACE_INTEGRATION.md` §4. The slip was already off the gift page (D26); the server config (`src/promo/promo.json`), `src/core/promo.ts`, the `promo` field of the revealed-gift response and the U7 tests are removed. Gifts and gift pages carry nothing from the makers.
 - **No hero GIF, and no sample gifts anywhere** (README, website, social preview, launch posts): what is inside a door is the surprise. The README shows one GIF of Door 1 opening that stops before the gift (`docs/media/door-1-opening.gif`). `docs/DEMO_SHOTLIST.md` is kept only for that clip.
 - **Gary as ambassador** lives on deskmenace.com (the Advent Agent page), done outside this repository. In the calendar he stays as decided in D33.
+
+## D35 (2026-11-20, Noémie): The package stays `advent-agent`
+- The npm package keeps its unscoped name, so the command stays `npx advent-agent` (already on the live website, the README and the posts). An unscoped package cannot be moved into a scope; a scope would mean a new package.
+- The npm org `deskmenace` is created only to reserve the name and to give team access later.

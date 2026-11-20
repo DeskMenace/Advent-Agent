@@ -24,16 +24,17 @@ Hard rules until launch day: the repository stays private, no GitHub release or 
 
 The rule behind the order: test first, trusted publisher last. A trusted publisher that is not used by a publish expired after two days last time (added 11 November, gone on the 13th), and it is only used by the `v1.0.0` release. So it is set up on launch day, just before the release, once everything else is proven. Publishing a release candidate from your own machine does not need it.
 
-### 1. Decide the package name (blocks everything else)
-- [ ] Keep the unscoped `advent-agent`, or move to `@deskmenace/advent-agent`. An unscoped package cannot be moved, so a scope means a new package and a new command in the README, the website and the posts. `npx advent-agent` is already on the live website. If you keep it: create the npm org `deskmenace` only to reserve the name. Team access, once the org exists: `npm access grant read-write deskmenace:developers <package>`; your personal account stays an owner.
+### 1. Package name: decided (D35)
+- [x] The package stays `advent-agent`.
+- [ ] Create the npm org `deskmenace` to reserve the name (npmjs.com, "Add organization", free plan). Team access, once it exists: `npm access grant read-write deskmenace:developers advent-agent`; your personal account stays an owner.
 
 ### 2. Publish `1.0.0-rc.2` (so the tests run on the real package)
 - [ ] `npm login`, then `npm publish --tag next`, then `npm dist-tag add advent-agent@1.0.0-rc.2 latest` (moves `latest` off the rc with the old dependency). The version is bumped, built and checked.
 - [ ] npm package settings: "Require two-factor authentication and disallow tokens" (Publishing access).
 
 ### 3. Unblock the agents
-- [ ] Codex: its config names `gpt-5.4`, which the ChatGPT login cannot use. Set another model in `~/.codex/config.toml`.
-- [ ] Gemini CLI: no auth method is set. Run `gemini` once and log in.
+- [ ] Codex: in `~/.codex/config.toml`, change the first line from `model = "gpt-5.4"` to `model = "gpt-6.2-sol"`. Checked on 20 November: `gpt-6.2-sol` and `gpt-6.2-astra` both answer with the ChatGPT login; `gpt-5.4` is refused.
+- [ ] Gemini CLI: no auth method is set. Run `gemini` in a terminal, choose "Login with Google", finish in the browser, then `/quit`.
 
 ### 4. Test (anything found here becomes rc.3, then test again)
 - [ ] **Real-agent test (R1):** `ADVENT_REAL_AGENTS=1 npm run test:agents` for Claude Code, Codex and Gemini CLI. Costs tokens.
