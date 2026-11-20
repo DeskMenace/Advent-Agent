@@ -209,3 +209,11 @@ The gift origin sends `Cross-Origin-Resource-Policy: same-site`, which Chromium 
 ## D35 (2026-11-20, Noémie): The package stays `advent-agent`
 - The npm package keeps its unscoped name, so the command stays `npx advent-agent` (already on the live website, the README and the posts). An unscoped package cannot be moved into a scope; a scope would mean a new package.
 - The npm org `deskmenace` is created only to reserve the name and to give team access later.
+
+## D36 (2026-11-20, Noémie): The user decides the model and the cost
+- **Found on 20 November:** Claude Code's default model had changed since the measurements of 8 to 10 November (Sonnet 5.5 and Opus 5.5). On the new default, a list check reached its fixed $0.25 cap after three turns and wrote nothing, on every run.
+- **The calendar never changes the agent's model.** It is the user's agent; the model is set in the agent's own settings, and the UI says so in setup and in Settings.
+- **One spend limit, chosen by the user:** "No limit" (the default, for people who trust their agent) or an amount in dollars per gift. It is in the second onboarding step and in Settings, Budget. Claude Code enforces it; other agents are told. This replaces the fixed $0.25 list cap of D31 and D33: a list check now runs under the user's limit, or under none. It stays small by construction (one read of at most 64 KB).
+- **A reached limit says so.** The door reports "stopped at the spend cap" instead of "rate limit" (Claude Code prints a routine `rate_limit_event` on healthy runs, which was misread).
+- **Cost numbers are a dated snapshot, for information only:** the README, `docs/COSTS.md` and the website give the dates and models of the measurement and say that models and prices change. We do not re-measure.
+- **Personal email in the root commit:** accepted as it is (option C); the history is not rewritten.

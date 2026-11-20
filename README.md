@@ -69,7 +69,7 @@ The calendar starts your agent itself, in a workspace of its own. Every agent ca
 
 | Agent | Status | Notes |
 |---|---|---|
-| **Claude Code** | Flags verified | Spend cap enforced (`--max-budget-usd`) when you set one |
+| **Claude Code** | Flags verified | Spend limit enforced (`--max-budget-usd`) when you set one |
 | **Codex CLI** | Flags verified | Runs in its workspace-write sandbox; no token-limit flag, so the budget is advisory |
 | **Gemini CLI** | Flags verified | File edits allowed, shell commands denied; the calendar submits the gift when it exits; budget advisory |
 | **OpenCode**, **Cursor CLI**, **Copilot CLI**, **Goose**, **Amp** | Built from documented flags, not yet verified on every machine | Marked as such in setup. See [docs/AGENT_COMPAT.md](docs/AGENT_COMPAT.md) |
@@ -81,7 +81,12 @@ Any local script can also hand a gift in with `advent-agent submit`.
 
 Advent Agent is free. Your agent uses its normal plan or billing, and the calendar sends nothing anywhere else.
 
-Setup offers three sizes: **Light**, **Standard** and **Generous**. As a rough guide, measured on Claude Code with API billing:
+**You decide the cost.** Two things set it:
+
+- **Your agent's model.** It is the one set in your agent's own settings, and it decides most of the cost. The calendar never changes it. A larger or newer model can cost several times more for the same gift.
+- **Your choices in setup** (you can change them in Settings at any time): a gift size (**Light**, **Standard** or **Generous**) and a spend limit, either **No limit** (the default: you trust your agent) or an amount in dollars per gift. Claude Code stops at the limit; other agents are told the limit but cannot be stopped.
+
+For information only, here is what we measured between 8 and 10 November 2026, on Claude Code with Claude Sonnet 5.5 and Opus 5.5, with API billing:
 
 | Size | A whole season, roughly |
 |---|---|
@@ -89,13 +94,13 @@ Setup offers three sizes: **Light**, **Standard** and **Generous**. As a rough g
 | Standard | about **$20** |
 | Generous | more: tens of dollars (not measured well enough to give a number) |
 
-On a subscription, expect each gift to use a noticeable slice of your usage limit. You can change the size in Settings at any time. How we measured, per-gift numbers and token counts: [docs/COSTS.md](docs/COSTS.md).
+Models and prices change, and we do not re-measure: take these as an order of magnitude from that week, not a quote. On a subscription, expect each gift to use a noticeable slice of your usage limit. Per-gift numbers and token counts: [docs/COSTS.md](docs/COSTS.md).
 
 ## Privacy and safety
 
 - **Everything runs on your computer.** No account, no telemetry, no network calls of its own. Your agent talks to its usual model provider, as it always does.
 - **The agent never buys or books anything.** If it suggests something, you decide.
-- **"Checking the list" reads little, and you can see it.** Before Door 1 (and again on December 8 and 15), your agent reads copies of a few of its own instruction and memory files, at most 64 KB, and writes a short list about you. You can read, edit or delete that list in Settings. It never reads session transcripts, source code, `.env` files, keys or credentials.
+- **"Checking the list" reads little, and you can see it.** Before Door 1 (and again on December 8 and 15), your agent reads copies of a few of its own instruction and memory files, at most 64 KB, and writes a short list about you. It counts against your spend limit like a gift does. You can read, edit or delete that list in Settings. It never reads session transcripts, source code, `.env` files, keys or credentials.
 - **Gifts are untrusted.** They run in a sandboxed frame on a separate origin, with no network by default.
 
 <details>

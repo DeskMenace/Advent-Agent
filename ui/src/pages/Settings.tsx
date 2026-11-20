@@ -4,7 +4,7 @@ import type { CalendarResponse } from '../../../src/shared/api.js';
 import type { Config, Profile } from '../../../src/shared/config.js';
 import { api, saveBlob } from '../api.js';
 import { Footer, Header } from '../components/Header.js';
-import { BudgetChoice, DeliveryChoice } from '../components/Onboarding.js';
+import { BudgetChoice, DeliveryChoice, SpendLimit } from '../components/Onboarding.js';
 import { toast } from '../lib/ui.js';
 import { BudgetSection, ConnectionSection, ExtrasSection, InspirationSection, ListSection, PersonaSettings, ServiceNotice, TimeSection, type Detect } from './SettingsSections.js';
 
@@ -46,6 +46,7 @@ export function SettingsPage() {
           <h2 class="settings-h">Budget</h2>
           <p class="settings-q">How generous is your Secret Santa?</p>
           <BudgetChoice value={cfg.budgets.generosity} onChange={(g) => patch({ budgets: { ...cfg.budgets, generosity: g } })} />
+          <SpendLimit value={cfg.budgets.usdCapPerGift} onChange={(usd) => patch({ budgets: { ...cfg.budgets, usdCapPerGift: usd } })} />
         </div>
         <div class="paper settings-block"><ListSection profile={profile} onProfile={(p) => { setProfile(p); setDirty(true); }} /></div>
         <div class="paper settings-block"><PersonaSettings persona={cfg.persona} onPersona={(persona) => setCfg((cur) => (cur ? { ...cur, persona } : cur))} /></div>

@@ -69,12 +69,45 @@ export function BudgetChoice(props: { value: Generosity; onChange: (g: Generosit
   );
 }
 
+/**
+ * Who decides the cost (D36): the user. The calendar never changes the agent's model; the only lever it has is a
+ * spend limit per gift, off by default ("No limit").
+ */
+export function SpendLimit(props: { value: number | undefined; onChange: (usd: number | undefined) => void }) {
+  const limited = props.value !== undefined;
+  const last = useRef(props.value ?? 2);
+  if (props.value !== undefined) last.current = props.value;
+  return (
+    <div class="choice-stack spend-limit">
+      <p class="spend-limit-title">Who decides the cost? You do.</p>
+      <p class="muted-line">Your agent uses the model set in its own settings. The model decides most of the cost, and the calendar never changes it.</p>
+      <div class="choices two" role="radiogroup" aria-label="Spend limit">
+        <button type="button" role="radio" class="choice" aria-checked={!limited} onClick={() => props.onChange(undefined)}>
+          <span class="choice-name">No limit</span>
+          <span class="choice-copy">You trust your agent. It spends what it needs.</span>
+        </button>
+        <button type="button" role="radio" class="choice" aria-checked={limited} onClick={() => props.onChange(last.current)}>
+          <span class="choice-name">Set a limit</span>
+          <span class="choice-copy">Stop when a gift reaches an amount.</span>
+        </button>
+      </div>
+      {limited && (
+        <div class="time-row">
+          <label>Stop at (USD)<input type="number" min={0.25} step={0.25} value={props.value} onChange={(e) => { const v = Number((e.target as HTMLInputElement).value); if (v > 0) props.onChange(v); }} /></label>
+        </div>
+      )}
+      {limited && <p class="muted-line small">Claude Code stops at the limit, and the door tells you so. Other agents are told the limit but cannot be stopped. Day 1 and December 24 get extra room.</p>}
+    </div>
+  );
+}
+
 export function Onboarding(props: { mode: ConnectionMode; unlockHour: number; onDone: () => void }) {
   const [step, setStep] = useState(0);
   const [delivery, setDelivery] = useState<Delivery>('on_demand');
   const [scheduleTime, setScheduleTime] = useState('03:00');
   const [unlockHour, setUnlockHour] = useState(props.unlockHour);
   const [generosity, setGenerosity] = useState<Generosity>('standard');
+  const [usdCap, setUsdCap] = useState<number | undefined>(undefined);
   const [busy, setBusy] = useState(false);
   const dialog = useRef<HTMLDivElement>(null);
 
@@ -82,7 +115,7 @@ export function Onboarding(props: { mode: ConnectionMode; unlockHour: number; on
     if (busy) return;
     setBusy(true);
     try {
-      await api.completeOnboarding(useDefaults ? {} : { deliveryMode: delivery, scheduleTime, unlockHour, generosity });
+      await api.completeOnboarding(useDefaults ? {} : { deliveryMode: delivery, scheduleTime, unlockHour, generosity, usdCapPerGift: usdCap ?? null });
     } catch (e) { toast((e as Error).message); }
     props.onDone();
   };
@@ -111,6 +144,7 @@ export function Onboarding(props: { mode: ConnectionMode; unlockHour: number; on
           <>
             <h2 id="onboard-title" class="onboard-title">How generous is your Secret Santa?</h2>
             <BudgetChoice value={generosity} onChange={setGenerosity} />
+            <SpendLimit value={usdCap} onChange={setUsdCap} />
             <p class="muted-line small">Before wrapping, your Secret Santa checks its list. Nothing leaves your computer.</p>
           </>
         )}

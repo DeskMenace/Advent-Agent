@@ -13,6 +13,9 @@ The first public release.
 - Gifts render in a sandboxed frame on a separate origin; every gift passes a quality gate (manifest, files, media decode, secret scan, optional headless test drive) before it is sealed.
 - Share exports a picture or a short video with a privacy preview; Save gives the gift in its own format. Nothing is uploaded.
 
+### Cost
+- You decide: the calendar never changes your agent's model, and setup offers a spend limit per gift ("No limit" by default, or an amount). Cost figures in the README are a dated snapshot.
+
 ### Agents
 - Launched terminal agents: Claude Code, Codex CLI and Gemini CLI (flags verified); OpenCode, Cursor CLI, Copilot CLI, Goose and Amp (built from documented flags, unverified); a custom-command adapter.
 - `advent-agent submit` and the authenticated localhost API for local scripts.

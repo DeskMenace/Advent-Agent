@@ -160,6 +160,8 @@ export function createApp({ service, auth, onShutdown }: AppDeps): Hono {
       scheduleTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
       unlockHour: z.number().int().min(0).max(23).optional(),
       generosity: z.enum(['light', 'standard', 'generous']).optional(),
+      /** Spend limit per gift in USD; null or absent = no limit (D36). */
+      usdCapPerGift: z.number().positive().nullable().optional(),
     }).parse(await c.req.json().catch(() => ({})));
     const cfg = service.store.saveConfig((cur) => {
       const schedulable = cur.connection.mode === 'launched';
@@ -168,7 +170,7 @@ export function createApp({ service, auth, onShutdown }: AppDeps): Hono {
         deliveryMode: schedulable ? (raw.deliveryMode ?? 'on_demand') : 'on_demand',
         scheduleTime: raw.scheduleTime ?? cur.scheduleTime,
         unlockHour: raw.unlockHour ?? cur.unlockHour,
-        budgets: { ...cur.budgets, generosity: raw.generosity ?? 'standard' },
+        budgets: { ...cur.budgets, generosity: raw.generosity ?? 'standard', usdCapPerGift: raw.usdCapPerGift ?? undefined },
         onboardingDone: true,
       });
     });

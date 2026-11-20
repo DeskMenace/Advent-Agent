@@ -26,11 +26,6 @@ import type { List, Persona, PersonaCandidate } from '../shared/list.js';
 import { runProvider, ProviderRefused, type GenerateImageParams } from '../providers/index.js';
 import { allProviderKeyValues } from '../providers/keychain.js';
 
-/**
- * A hard spend limit for one list check, whatever the user's own cap (Claude Code enforces it with --max-budget-usd; adapters
- * without a budget flag rely on the 64 KB read cap). A normal check costs well under this.
- */
-export const LIST_USD_CAP = 0.25;
 
 export class ApiError extends Error {
   constructor(public readonly status: number, public readonly code: string, message: string) {
@@ -494,7 +489,9 @@ export class CalendarService {
     const run = new AgentRun({
       adapter, task: 'list', cwd, workspace: task, logFile: this.listLog(season), prompt: LIST_PROMPT, day: 0, year: season.year,
       timeoutMs: Math.min(cfg.timeoutMinutes, 10) * 60_000, apiToken: this.store.apiToken(), apiUrl: `http://127.0.0.1:${this.appPort}`,
-      webResearch: false, inspirationFolders: [], usdCap: cfg.budgets.usdCapPerGift ? Math.min(cfg.budgets.usdCapPerGift * 0.5, LIST_USD_CAP) : LIST_USD_CAP,
+      webResearch: false, inspirationFolders: [], // D36: the user decides. Their spend limit applies to a list check as it does to a gift; with no limit, none here either
+      // (the check stays small by construction: one read of at most 64 KB).
+      usdCap: cfg.budgets.usdCapPerGift,
       permissive: season.connection.permissive, customCommand: season.connection.customCommand, onPhase: () => undefined,
     });
     const outcome = await run.run();

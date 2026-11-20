@@ -31,7 +31,7 @@ describe.skipIf(!enabled)('real agents (opt-in)', () => {
     companion.service.store.saveConfig({
       setupComplete: true,
       timeZone: 'Europe/Zurich',
-      budgets: { generosity: 'light', tokenTarget: 10_000, realWorldSuggestions: true, usdCapPerGift: 0.5 },
+      budgets: { generosity: 'light', tokenTarget: 10_000, realWorldSuggestions: true, usdCapPerGift: 5 }, // a safety limit, not a target: what a gift costs depends on the agent's own model (D36)
       permissions: { webResearch: false, inspirationFolders: [], giftNetwork: false },
       timeoutMinutes: 12,
       connection: { mode: 'launched', permissive: false },

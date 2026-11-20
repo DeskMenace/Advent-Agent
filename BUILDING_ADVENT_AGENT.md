@@ -230,7 +230,7 @@ Advent Agent is free and open source, made by the team behind Desk Menace (deskm
 ## 7. Status and what's left
 
 **Closed in the latest round** (details in `docs/handoff/DECISIONS.md`, D28 to D33):
-- The list check now has a real cost cap (D31, D33): sources capped at 64 KB and read once from a single bundle, a hard spend limit, about $0.18 and 118k tokens a check on Claude Code (it was 0.23M tokens, about $0.21, before).
+- (Superseded on 20 November by D36: the fixed list cap is gone, the user's own spend limit applies.) The list check now has a real cost cap (D31, D33): sources capped at 64 KB and read once from a single bundle, a hard spend limit, about $0.18 and 118k tokens a check on Claude Code (it was 0.23M tokens, about $0.21, before).
 - Gifts use one or two details, varied (D32): every pitch in the rerun used a real detail, with 2.0 (Claude Code) and 1.0 (Codex) details per pitch, against 7.8 and 3.0 before. The subject no longer repeats through the season, and no pitch is centred on the mascot or its makers (the lab checks this).
 - The repository, its history and the package were scanned for private names, paths and addresses before the first push.
 - The three rebuilt gifts pass the corrected lab checks.

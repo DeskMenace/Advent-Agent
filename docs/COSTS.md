@@ -1,5 +1,9 @@
 # What a season costs
 
+**You decide the cost.** Your agent uses the model set in its own settings, and the model decides most of the cost: a larger or newer model can cost several times more for the same gift. The calendar never changes your agent's model. In setup and in Settings you choose a gift size (Light, Standard, Generous) and a spend limit: **No limit** (the default, for people who trust their agent) or an amount in dollars per gift.
+
+**The numbers below are a snapshot, for information only.** They were measured between 8 and 10 November 2026, on Claude Code with Claude Sonnet 5.5 and Claude Opus 5.5, at the prices of those days. Models and prices change, and we do not re-measure. On 20 November 2026, Claude Code's default model on our machine had become a larger one, and the same work cost several times more.
+
 Your agent uses its normal plan or billing; the calendar sends nothing anywhere else. Setup offers **Light, Standard** and **Generous**, which tell the agent to aim for gifts of tier S, M or L (December 1 and 24 get a bigger one, tier XL). The tiers are advisory (the agent is told, not stopped), except that Claude Code can enforce a dollar cap.
 
 We measured real builds with the lab (`advent-agent lab`), on Claude Code with the default model, one gift at a time through the full workflow (brief, build, test, seal):

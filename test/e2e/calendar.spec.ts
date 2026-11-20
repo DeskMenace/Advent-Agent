@@ -26,11 +26,17 @@ test.describe('onboarding (handoff §0)', () => {
     // No questions about the user, no gift examples.
     const text = await budget.innerText();
     expect(text).not.toMatch(/name|hobb|pet|game|card|song|world|character|illustration/i);
+    // D36: the user decides the cost. No limit by default; the model line is always there.
+    await expect(budget).toContainText('Your agent uses the model set in its own settings.');
+    await expect(budget.getByRole('radio', { name: /No limit/ })).toHaveAttribute('aria-checked', 'true');
+    await budget.getByRole('radio', { name: /Set a limit/ }).click();
+    await budget.getByLabel('Stop at (USD)').fill('3');
     await budget.getByRole('radio', { name: /Generous/ }).click();
     await budget.getByRole('button', { name: 'Start wrapping' }).click();
     await expect(page.locator('.onboard')).toHaveCount(0);
-    const cfg = await api<{ onboardingDone: boolean; budgets: { generosity: string } }>('GET', '/api/settings');
-    expect(cfg).toMatchObject({ onboardingDone: true, budgets: { generosity: 'generous' } });
+    const cfg = await api<{ onboardingDone: boolean; budgets: { generosity: string; usdCapPerGift?: number } }>('GET', '/api/settings');
+    expect(cfg).toMatchObject({ onboardingDone: true, budgets: { generosity: 'generous', usdCapPerGift: 3 } });
+    await api('PUT', '/api/settings', { budgets: { ...cfg.budgets, usdCapPerGift: undefined } });
     await page.reload();
     await expect(page.locator(env(1))).toBeVisible();
     await expect(page.locator('.onboard')).toHaveCount(0);

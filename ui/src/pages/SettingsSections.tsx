@@ -269,10 +269,8 @@ export function BudgetSection(props: { cfg: Config; onChange: (p: Partial<Config
   const set = (p: Partial<Config['budgets']>) => props.onChange({ budgets: { ...b, ...p } });
   return (
     <section class="section" style="margin-top:0">
-      <div class="eyebrow">Spending</div>
-      <h1 class="page-title">Caps.</h1>
-      <div class="field"><label for="usd">Spend cap per gift (USD, optional)</label><input id="usd" type="number" min={0} step={0.5} value={b.usdCapPerGift ?? ''} onChange={(e) => set({ usdCapPerGift: (e.target as HTMLInputElement).value ? Number((e.target as HTMLInputElement).value) : undefined })} /><span class="hint">Enforced by agents that support it; otherwise advisory and labelled as such.</span></div>
-      <h2 class="minor">Buying and booking</h2>
+      <div class="eyebrow">Suggestions</div>
+      <h1 class="page-title">Buying and booking.</h1>
       <label class="check"><input type="checkbox" checked={b.realWorldSuggestions} onChange={(e) => set({ realWorldSuggestions: (e.target as HTMLInputElement).checked })} /><span class="check-text">Allow suggestions to buy or book<small><strong>Your agent never buys or books anything.</strong> You decide.</small></span></label>
       {b.realWorldSuggestions && (
         <div class="card-grid">
