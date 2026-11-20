@@ -20,45 +20,43 @@ Hard rules until launch day: the repository stays private, no GitHub release or 
 - [x] deskmenace.com answers over TLS (HTTP 200 on 19 November). Still worth one look in your own browser.
 - [x] Clean install of the published rc on this Mac: `npx advent-agent@next doctor` from an empty folder with an empty npm cache runs and finds Claude Code, Codex and Gemini CLI. This is not the fresh-machine test below.
 
-## Now
+## In order of priority (rebuilt on 20 November)
 
-- [ ] Move `latest` off the rc that has the old dependency: `npm dist-tag add advent-agent@1.0.0-rc.1 latest`.
+The rule behind the order: test first, trusted publisher last. A trusted publisher that is not used by a publish expired after two days last time (added 11 November, gone on the 13th), and it is only used by the `v1.0.0` release. So it is set up on launch day, just before the release, once everything else is proven. Publishing a release candidate from your own machine does not need it.
+
+### 1. Decide the package name (blocks everything else)
+- [ ] Keep the unscoped `advent-agent`, or move to `@deskmenace/advent-agent`. An unscoped package cannot be moved, so a scope means a new package and a new command in the README, the website and the posts. `npx advent-agent` is already on the live website. If you keep it: create the npm org `deskmenace` only to reserve the name. Team access, once the org exists: `npm access grant read-write deskmenace:developers <package>`; your personal account stays an owner.
+
+### 2. Publish `1.0.0-rc.2` (so the tests run on the real package)
+- [ ] `npm login`, then `npm publish --tag next`, then `npm dist-tag add advent-agent@1.0.0-rc.2 latest` (moves `latest` off the rc with the old dependency). The version is bumped, built and checked.
 - [ ] npm package settings: "Require two-factor authentication and disallow tokens" (Publishing access).
-- [ ] GitHub account settings, Emails: "Keep my email addresses private" and "Block command line pushes that expose my email".
-- [ ] Decide on the org: create the npm org `deskmenace`; if the package should live there, check whether it must become `@deskmenace/advent-agent` (an unscoped package cannot be moved; changing the name means a new package and updating `package.json`, README and docs). Team access command, once the org exists: `npm access grant read-write deskmenace:developers <package>`. Your personal account stays an owner.
 
-## Trusted publisher (expires 13 November, set it up again at launch)
+### 3. Unblock the agents
+- [ ] Codex: its config names `gpt-5.4`, which the ChatGPT login cannot use. Set another model in `~/.codex/config.toml`.
+- [ ] Gemini CLI: no auth method is set. Run `gemini` once and log in.
 
-The npm trusted publisher was added on 11 November and will not be validated before it expires on 13 November, because publishing runs only from a release. Nothing breaks. At launch, on npmjs.com, package settings, Trusted Publisher, GitHub Actions:
-
-- Organization `DeskMenace`, Repository `Advent-Agent`, Workflow `publish.yml`, Environment `npm` (case must match exactly).
-- Tick "Allow npm publish"; leave "Allow npm dist-tag" unchecked; click "Set up connection".
-
-## Next week (16–22 November)
-
+### 4. Test (anything found here becomes rc.3, then test again)
+- [ ] **Real-agent test (R1):** `ADVENT_REAL_AGENTS=1 npm run test:agents` for Claude Code, Codex and Gemini CLI. Costs tokens.
 - [ ] **Fresh-machine test** with `npx advent-agent@next` on Mac and Windows, with Claude Code and Codex: install, onboarding, list, Day 1.
-- [ ] **Real-agent test (R1)** for Codex and Gemini CLI, still blocked on 19 November: Codex's config names `gpt-5.4`, which the ChatGPT login cannot use (set another model in `~/.codex/config.toml`); Gemini CLI has no auth method set (run `gemini` once and log in). Then `ADVENT_REAL_AGENTS=1 npm run test:agents`.
-- [ ] **Gift lab:** your first batch (L3) and the scoring of the Day 1 and finale ideas (Q15).
-- [ ] **Social preview image:** upload `docs/assets/social-preview.png` in the repository Settings.
-- [ ] **gary.js:** the public gary.js repo is under the personal account (named DeskMenace). Rename it to gary.js and transfer it to the org. Its GitHub Pages address changes with it, and the website footer links to the old one (`SITE.github.garyJs`): update both together.
-- [ ] **Publish `1.0.0-rc.2`:** the version is bumped and the package is built and checked (19 November). It needs your npm login: `npm login`, then `npm publish --tag next`, then `npm dist-tag add advent-agent@1.0.0-rc.2 latest`. The trusted publisher is not involved in a publish from your machine.
+- [ ] **Gift lab:** your first batch (L3) and the scoring of the Day 1 and finale ideas (Q15); rework ideas under 3.5. This is the longest item: start it as soon as step 2 is done.
 
-## Launch prep (22–24 November)
-
-- [ ] Pick the launch date.
+### 5. Before the repository goes public
+- [ ] Pick the launch date. Door 1 opens on 1 December and is wrapped during setup, so people need a few days before then.
+- [ ] GitHub account settings, Emails: "Keep my email addresses private" and "Block command line pushes that expose my email".
+- [ ] Check that the history is as intended (the root commit predates the rewrite).
+- [ ] **gary.js:** the public gary.js repo is under the personal account (named DeskMenace). Rename it to gary.js and transfer it to the org. Its GitHub Pages address changes with it, and the website footer links to the old one (`SITE.github.garyJs`): update both together, with whoever is working on the website.
 - [ ] Posts: first drafts exist outside the repository (`Advent-Agent-launch-posts.md`, next to this folder). Edit them in your voice and choose the Show HN angle.
-- [ ] Version decision: `1.0.0` for the first automated publish (`publish.yml` has no `--tag`, and npm refuses a prerelease without one).
-- [ ] `CHANGELOG.md`: the 1.0.0 entry is written and marked "unreleased"; put the date on it.
+- [ ] The day before: set the version to `1.0.0` (`publish.yml` has no `--tag`, and npm refuses a prerelease without one) and put the date on the `CHANGELOG.md` entry.
 
 ## Launch day (in this order)
 
-1. [ ] Make the repository public. (First check that the history is as intended: the root commit predates the rewrite.)
+1. [ ] Make the repository public.
 2. [ ] Wait for CI; confirm the DCO workflow, dependency review and CodeQL run (they have never run on GitHub because the repository was private).
 3. [ ] Switch off GitHub's default CodeQL setup (it conflicts with our workflow).
 4. [ ] Apply the ruleset: `gh api repos/DeskMenace/Advent-Agent/rulesets --method POST --input .github/rulesets/main.json` (see `docs/RULESET.md`; decide first whether to keep "1 approving review" with one maintainer).
 5. [ ] Turn on private vulnerability reporting (`SECURITY.md` depends on it).
-6. [ ] Run `scripts/labels.sh`.
-7. [ ] Set up the npm trusted publisher again (see above).
+6. [ ] Run `scripts/labels.sh`, and upload the social preview image (`docs/assets/social-preview.png`, repository Settings).
+7. [ ] Set up the npm trusted publisher (it expires if unused, so not earlier). On npmjs.com, package settings, Trusted Publisher, GitHub Actions: Organization `DeskMenace`, Repository `Advent-Agent`, Workflow `publish.yml`, Environment `npm` (case must match exactly). Tick "Allow npm publish"; leave "Allow npm dist-tag" unchecked; click "Set up connection".
 8. [ ] Add yourself as a required reviewer on the `npm` environment (Settings, Environments, npm, Deployment protection rules; not available on the Free plan while the repository is private).
 9. [ ] Create the `v1.0.0` release: `publish.yml` publishes with provenance (needs the public repository, npm 11.5.1 or later).
 10. [ ] Check: `npm view advent-agent dist-tags`, then `npx advent-agent doctor` from another folder.
