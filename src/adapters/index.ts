@@ -1,7 +1,9 @@
 /**
- * Launched-mode adapters. Flags for Claude Code, Codex and Gemini were verified on 8 Nov 2026 (docs/AGENT_COMPAT.md).
+ * Launched-mode adapters. Flags for Claude Code, Codex and Gemini were verified on 8 Nov 2026, Antigravity on 20 Nov 2026 (docs/AGENT_COMPAT.md).
  * The others carry the handoff's indicative flags and are marked unverified until the smoke test confirms them.
  */
+import { realpathSync } from 'node:fs';
+import { dirname } from 'node:path';
 import { LAUNCHED_ADAPTERS, type LaunchedAdapterId } from '../shared/config.js';
 import { detectCli, parseUsageGeneric, whichSync } from './detect.js';
 import type { Adapter, AdapterCapabilities, Detection, LaunchContext, LaunchSpec } from './types.js';
@@ -46,6 +48,46 @@ export const codex: Adapter = {
   },
   parseUsage: parseUsageGeneric,
 };
+
+/**
+ * Antigravity CLI (`agy`): Google's terminal agent for personal accounts since Gemini CLI stopped serving them (18 June 2026).
+ * Flags verified against `agy --help` 1.5.13 on 20 Nov 2026 (docs/AGENT_COMPAT.md).
+ * Headless mode cannot ask, and a question nobody can answer ends the run. So the run gets its own settings with --settings
+ * (never saved to the user's settings.json).
+ */
+export const antigravity: Adapter = {
+  id: 'antigravity',
+  label: 'Antigravity CLI',
+  binary: 'agy',
+  detect: async () => detectCli('agy'),
+  capabilities: () => base({ verified: true, notes: ['Runs in its terminal sandbox: commands may write only inside the workspace and have no network.', 'No spend-limit flag: the budget is advisory.', 'Loads ~/.gemini/AGENTS.md and ~/.gemini/GEMINI.md.'] }),
+  launch(ctx) {
+    const list = ctx.task === 'list';
+    const folders = list ? [] : [ctx.workshop, ...ctx.inspirationFolders];
+    const flags = ['--output-format', 'stream-json', ...folders.flatMap((f) => ['--add-dir', f])];
+    if (ctx.permissive) return { command: 'agy', args: ['-p', ctx.prompt, ...flags, '--dangerously-skip-permissions'] };
+    // The sandbox has no network, not even to this computer, so the `advent-agent` command cannot reach the calendar. The brief's
+    // other route is used instead: the phase goes into .progress and the calendar submits ./gift when the agent exits.
+    const note = list ? ' Paths in TASK.md are relative to the list folder: the file to read is list/sources/ALL.md. Read TASK.md, read that one file, write list/list.md, then stop. Do not run commands and do not open any other path: a refused request ends your work.' : ' You run in a sandbox with no network: the `advent-agent` command does not work here, so do not run it. Report progress by writing the phase name into the .progress file of that door\'s folder, leave the finished gift in its gift folder, then finish: the calendar checks and submits it when you exit. Never ask to run a command outside the sandbox: a refused request ends your work.';
+    const args = ['-p', ctx.prompt + note, ...flags];
+    // Sandbox: any command may run, but it can write only inside the workspace, cannot read the home folder and has no network
+    // (observed with 1.5.13). An allow-list of commands is not usable here: the first command outside it ends the whole run.
+    const web = ['read_url(*)', 'execute_url(*)', 'download_url(*)'];
+    const permissions = {
+      // A file read that would need a question ends the run, so reads are allowed up front: anywhere for a gift (as Claude Code's
+      // Read and Codex's sandbox do), only the season folder for the list (it covers a mistyped path, not the home folder).
+      allow: [list ? `read_file(${realDir(dirname(ctx.workspace))})` : 'read_file(*)', ...(ctx.webResearch && !list ? ['read_url(*)'] : [])],
+      deny: [...(list ? ['command(*)'] : ['unsandboxed(*)']), 'mcp(*)', ...(ctx.webResearch && !list ? web.slice(1) : web)],
+    };
+    return { command: 'agy', args: [...args, '--sandbox', '--mode', 'accept-edits', '--settings', JSON.stringify({ toolPermission: 'proceed-in-sandbox', permissions })] };
+  },
+  parseUsage: parseUsageGeneric,
+};
+
+/** The path as the CLI sees it (on macOS a temp folder is a link into /private). */
+function realDir(dir: string): string {
+  try { return realpathSync(dir); } catch { return dir; }
+}
 
 export const gemini: Adapter = {
   id: 'gemini',
@@ -121,7 +163,7 @@ export function splitCommand(s: string): string[] {
   return out;
 }
 
-export const ADAPTERS: Record<LaunchedAdapterId, Adapter> = { 'claude-code': claudeCode, codex, gemini, opencode, cursor, copilot, goose, amp, custom };
+export const ADAPTERS: Record<LaunchedAdapterId, Adapter> = { 'claude-code': claudeCode, codex, antigravity, gemini, opencode, cursor, copilot, goose, amp, custom };
 
 export function getAdapter(id: string): Adapter | undefined {
   return (LAUNCHED_ADAPTERS as readonly string[]).includes(id) ? ADAPTERS[id as LaunchedAdapterId] : undefined;

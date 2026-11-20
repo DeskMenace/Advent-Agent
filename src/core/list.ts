@@ -116,6 +116,9 @@ export function gatherSources(taskDir: string, opts: GatherOptions): ListSource[
     const cwds = codexProjects(home).filter((c) => !isOwnFolder(c, opts.ownRoots) && !/[\\/]\.advent-agent/.test(c));
     if (personaProject) cwds.sort((a, b) => Number(b === personaProject) - Number(a === personaProject));
     for (const cwd of cwds) take(join(cwd, 'AGENTS.md'), `project-${cwd.split(/[\\/]/).pop()}-AGENTS.md`);
+  } else if (adapter === 'antigravity') {
+    // The global instruction files Antigravity CLI loads (its rules documentation, 20 Nov 2026).
+    for (const dir of [join(home, '.gemini'), join(home, '.gemini', 'config')]) for (const f of ['AGENTS.md', 'GEMINI.md']) take(join(dir, f), `global-${dir.endsWith('config') ? 'config-' : ''}${f}`);
   } else if (adapter === 'gemini') {
     take(join(home, '.gemini', 'GEMINI.md'), 'global-GEMINI.md');
   }

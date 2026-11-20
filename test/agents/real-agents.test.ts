@@ -53,11 +53,11 @@ describe.skipIf(!enabled)('real agents (opt-in)', () => {
     expect(installed.length).toBeGreaterThan(0);
   });
 
-  for (const id of ['claude-code', 'codex', 'gemini', 'opencode', 'cursor', 'copilot', 'goose', 'amp', 'muse'] as LaunchedAdapterId[]) {
+  for (const id of ['claude-code', 'codex', 'gemini', 'opencode', 'cursor', 'copilot', 'goose', 'amp', 'muse', 'antigravity'] as LaunchedAdapterId[]) {
     it(`${id}: prepares one small gift through the launched path`, async (ctx) => {
       const agent = installed.find((a) => a.id === id);
       if (!agent) { ctx.skip(); return; }
-      const day = (['claude-code', 'codex', 'gemini', 'opencode', 'cursor', 'copilot', 'goose', 'amp', 'muse'] as string[]).indexOf(id) + 1;
+      const day = (['claude-code', 'codex', 'gemini', 'opencode', 'cursor', 'copilot', 'goose', 'amp', 'muse', 'antigravity'] as string[]).indexOf(id) + 1;
       companion.service.store.saveConfig((c) => ({ ...c, connection: { ...c.connection, mode: 'launched', adapter: id } }));
       companion.service.updateSeasonFromConfig();
       writeFileSync(join(companion.service.store.home.doorDir(2026, day), 'lab.json'), JSON.stringify({ idea: 'jelly-fruit', agent: id }));

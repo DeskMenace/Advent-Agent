@@ -19,7 +19,7 @@ export function ConnectionSection(props: { cfg: Config; onChange: (p: Partial<Co
       <div class="eyebrow">Your agent</div>
       <h1 class="page-title">Which agent?</h1>
       <p class="page-sub">{HOW_IT_WORKS}</p>
-      {installed.length === 0 && <div class="notice warn">No supported terminal agent was found on your PATH. Install one (Claude Code, Codex, Gemini CLI, …) and reopen this page, or use a custom command below.</div>}
+      {installed.length === 0 && <div class="notice warn">No supported terminal agent was found on your PATH. Install one (Claude Code, Codex, Antigravity CLI, …) and reopen this page, or use a custom command below.</div>}
       <div class="card-grid">
         {detect.adapters.map((a) => (
           <button key={a.id} type="button" class="choice-card" aria-pressed={conn.adapter === a.id} disabled={!a.detection.installed && a.id !== 'custom'} onClick={() => set({ mode: 'launched', adapter: a.id as Config['connection']['adapter'] })}>

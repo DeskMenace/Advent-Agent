@@ -26,6 +26,7 @@ You need two things first.
 |---|---|
 | Claude Code | [claude.com/claude-code](https://claude.com/claude-code) |
 | Codex CLI | [github.com/openai/codex](https://github.com/openai/codex) |
+| Antigravity CLI | [antigravity.google](https://antigravity.google/) |
 
 Open it once in a terminal and ask it anything, so you know it works and is logged in. More agents are listed [below](#works-with).
 
@@ -70,7 +71,8 @@ The calendar starts your agent itself, in a workspace of its own. Every agent ca
 |---|---|---|
 | **Claude Code** | Tested: made and sealed a gift on 20 November 2026 | Spend limit enforced (`--max-budget-usd`) when you set one |
 | **Codex CLI** | Tested: made and sealed a gift on 20 November 2026 | Runs in its workspace-write sandbox; no token-limit flag, so the budget is advisory |
-| **Gemini CLI** | Flags verified, gift not tested | On 20 November 2026, with a personal Google login, Gemini CLI 0.70 answered that this client is no longer supported and pointed to another product. It may still work with other ways of signing in; we could not test one. File edits allowed, shell commands denied; budget advisory |
+| **Antigravity CLI** (`agy`) | Tested: made and sealed a gift on 20 November 2026 | Runs in its own sandbox: commands can write only inside the calendar's workspace and have no network. No spend-limit flag, so the budget is advisory. Its web search cannot be switched off by the calendar |
+| **Gemini CLI** | Flags verified, gift not tested | Since 18 June 2026 Google no longer serves Gemini CLI for personal accounts (free, AI Pro, AI Ultra) and points them to Antigravity CLI: on 20 November 2026 ours answered "This client is no longer supported". It still exists for paid API keys and enterprise licences, which we could not test |
 | **OpenCode**, **Cursor CLI**, **Copilot CLI**, **Goose**, **Amp** | Built from documented flags, not yet verified on every machine | Marked as such in setup. See [docs/AGENT_COMPAT.md](docs/AGENT_COMPAT.md) |
 | **Custom command** | You are responsible for what it does | Any agent you can start from a command line |
 

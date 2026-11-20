@@ -217,3 +217,10 @@ The gift origin sends `Cross-Origin-Resource-Policy: same-site`, which Chromium 
 - **A reached limit says so.** The door reports "stopped at the spend cap" instead of "rate limit" (Claude Code prints a routine `rate_limit_event` on healthy runs, which was misread).
 - **Cost numbers are a dated snapshot, for information only:** the README, `docs/COSTS.md` and the website give the dates and models of the measurement and say that models and prices change. We do not re-measure.
 - **Personal email in the root commit:** accepted as it is (option C); the history is not rewritten.
+
+## D37 (2026-11-20, Noémie): Antigravity CLI is the third tested agent; Gemini CLI is no longer recommended
+- **Found on 20 November:** Google stopped serving Gemini CLI for personal accounts (free, AI Pro, AI Ultra) on 18 June 2026 and points them to Antigravity CLI (`agy`). Gemini CLI remains for paid API keys and enterprise licences only.
+- **Antigravity CLI gets its own adapter** (`antigravity`), tested with a real gift like Claude Code and Codex. We say "tested" only for an agent that made and sealed a gift, with the date.
+- **Gemini CLI stays in the product** (the adapter is kept for people with a paid key) but is not in the install steps, and every text says its gift path is untested.
+- **How Antigravity runs:** in its terminal sandbox with settings passed for that run only (`--settings`, never saved to the user's file). Headless `agy` ends the run at the first question it cannot ask, so nothing may need a question: commands are sandboxed, file reads are allowed up front (anywhere for a gift, as with Claude Code and Codex; only the season folder for the list), leaving the sandbox and MCP tools are denied, URL reading follows the web-research setting.
+- **No `advent-agent` command in that sandbox** (no network): progress goes through `.progress` and the calendar submits the gift at exit, the route the brief already offers.

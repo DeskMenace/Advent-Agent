@@ -17,7 +17,7 @@ The first public release.
 - You decide: the calendar never changes your agent's model, and setup offers a spend limit per gift ("No limit" by default, or an amount). Cost figures in the README are a dated snapshot.
 
 ### Agents
-- Launched terminal agents: Claude Code and Codex CLI (each made and sealed a gift on 20 November 2026); Gemini CLI (flags verified, gift path untested); OpenCode, Cursor CLI, Copilot CLI, Goose and Amp (built from documented flags, unverified); a custom-command adapter.
+- Launched terminal agents: Claude Code, Codex CLI and Antigravity CLI (each made and sealed a gift on 20 November 2026); Gemini CLI (flags verified, gift path untested: Google stopped serving it for personal accounts on 18 June 2026); OpenCode, Cursor CLI, Copilot CLI, Goose and Amp (built from documented flags, unverified); a custom-command adapter.
 - `advent-agent submit` and the authenticated localhost API for local scripts.
 
 ### Knowing you

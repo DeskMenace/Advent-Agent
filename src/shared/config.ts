@@ -7,6 +7,7 @@ import { PersonaSchema } from './list.js';
 export const LAUNCHED_ADAPTERS = [
   'claude-code',
   'codex',
+  'antigravity',
   'gemini',
   'opencode',
   'cursor',

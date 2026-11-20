@@ -29,7 +29,7 @@ The rule behind the order: test first, trusted publisher last. A trusted publish
 - [ ] Create the npm org `deskmenace` to reserve the name (npmjs.com, "Add organization", free plan). Team access, once it exists: `npm access grant read-write deskmenace:developers advent-agent`; your personal account stays an owner.
 
 ### 2. Publish `1.0.0-rc.2` (so the tests run on the real package)
-- [ ] `npm publish --tag next` (you are logged in; the provenance error of the first try is fixed), then `npm dist-tag add advent-agent@1.0.0-rc.2 latest` (moves `latest` off the rc with the old dependency). The version is bumped, built and checked.
+- [x] `1.0.0-rc.2` published on 20 November; `latest` and `next` both point to it (checked).
 - [ ] npm package settings: "Require two-factor authentication and disallow tokens" (Publishing access).
 
 ### 3. Unblock the agents
@@ -39,6 +39,7 @@ The rule behind the order: test first, trusted publisher last. A trusted publish
 ### 4. Test (anything found here becomes rc.3, then test again)
 - [x] **Real-agent test, Claude Code and Codex:** both made and sealed a gift on 20 November. It found two bugs first, both fixed: a list check could not finish under the fixed $0.25 cap on Claude Code's current default model (now the user's own spend limit, D36), and a reached spend cap was reported as a rate limit.
 - [x] **Real-agent test, Gemini CLI:** run on 20 November. Gemini CLI 0.70 with a personal Google login stops with "This client is no longer supported for Gemini Code Assist for individuals". The README no longer recommends it for install and says its gift path is untested; the calendar shows a clear message.
+- [x] **Real-agent test, Antigravity CLI (D37):** new adapter; `agy` 1.5.13 made and sealed a gift on 20 November (552 s). Google's replacement for Gemini CLI on personal accounts.
 - [ ] **Fresh-machine test** with `npx advent-agent@next` on Mac and Windows, with Claude Code and Codex: install, onboarding (the new spend-limit choice), list, Day 1.
 - [ ] **Gift lab:** your first batch (L3) and the scoring of the Day 1 and finale ideas (Q15); rework ideas under 3.5.
 
