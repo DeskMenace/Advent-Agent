@@ -41,16 +41,16 @@ The rule behind the order: test first, trusted publisher last. A trusted publish
 - [x] **Real-agent test, Claude Code and Codex:** both made and sealed a gift on 20 November. It found two bugs first, both fixed: a list check could not finish under the fixed $0.25 cap on Claude Code's current default model (now the user's own spend limit, D36), and a reached spend cap was reported as a rate limit.
 - [x] **Real-agent test, Gemini CLI:** run on 20 November. Gemini CLI 0.70 with a personal Google login stops with "This client is no longer supported for Gemini Code Assist for individuals". The README no longer recommends it for install and says its gift path is untested; the calendar shows a clear message.
 - [x] **Real-agent test, Antigravity CLI (D37):** new adapter; `agy` 1.5.13 made and sealed a gift on 20 November (552 s). Google's replacement for Gemini CLI on personal accounts.
-- [ ] **Fresh-machine test** with `npx advent-agent@next` on Mac and Windows, with Claude Code and Codex: install, onboarding (the new spend-limit choice), list, Day 1.
-- [ ] **Gift lab:** your first batch (L3) and the scoring of the Day 1 and finale ideas (Q15); rework ideas under 3.5.
+- [ ] **Fresh-machine test (not blocking the release, D38; friends are testing)** with `npx advent-agent@next` on Mac and Windows, with Claude Code and Codex: install, onboarding (the new spend-limit choice), list, Day 1.
+- [x] **Gift lab batch and scoring: skipped (D38).** One calendar tested by hand with Codex on 20 November was judged good enough.
 
 ### 5. Before the repository goes public
-- [ ] Pick the launch date. Door 1 opens on 1 December and is wrapped during setup, so people need a few days before then.
+- [x] Launch date: as soon as the release steps below are done (decided 20 November).
 - [x] GitHub account settings, Emails: "Keep my email addresses private" and "Block command line pushes that expose my email" (on, 20 November).
 - [x] History: the root commit carries a personal email address as its author; accepted as it is (D36). Nothing else was found: no home paths or personal addresses in tracked files, no tags on the remote.
 - [ ] **gary.js:** the public gary.js repo is under the personal account (named DeskMenace). Rename it to gary.js and transfer it to the org. Its GitHub Pages address changes with it, and the website footer links to the old one (`SITE.github.garyJs`): update both together, with whoever is working on the website.
 - [ ] Posts: first drafts exist outside the repository (`Advent-Agent-launch-posts.md`, next to this folder). Edit them in your voice and choose the Show HN angle.
-- [ ] The day before: set the version to `1.0.0` (`publish.yml` has no `--tag`, and npm refuses a prerelease without one) and put the date on the `CHANGELOG.md` entry.
+- [x] Version set to `1.0.0` and the `CHANGELOG.md` entry dated 2026-11-20 (change the date if the release happens on another day).
 
 ## Launch day (in this order)
 

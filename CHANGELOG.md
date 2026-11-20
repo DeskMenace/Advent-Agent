@@ -2,7 +2,7 @@
 
 All notable changes to Advent Agent. This project follows [Semantic Versioning](https://semver.org/).
 
-## [1.0.0] (unreleased)
+## [1.0.0] - 2026-11-20
 
 The first public release.
 

@@ -224,3 +224,7 @@ The gift origin sends `Cross-Origin-Resource-Policy: same-site`, which Chromium 
 - **Gemini CLI stays in the product** (the adapter is kept for people with a paid key) but is not in the install steps, and every text says its gift path is untested.
 - **How Antigravity runs:** in its terminal sandbox with settings passed for that run only (`--settings`, never saved to the user's file). Headless `agy` ends the run at the first question it cannot ask, so nothing may need a question: commands are sandboxed, file reads are allowed up front (anywhere for a gift, as with Claude Code and Codex; only the season folder for the list), leaving the sandbox and MCP tools are denied, URL reading follows the web-research setting.
 - **No `advent-agent` command in that sandbox** (no network): progress goes through `.progress` and the calendar submits the gift at exit, the route the brief already offers.
+
+## D38 (2026-11-20, Noémie): Release without the gift lab scoring and without waiting for outside tests
+- The gift lab batch (L3) and the scoring of the Day 1 and finale ideas (Q15) are skipped for 1.0.0. One full calendar tested by hand with Codex gave gifts judged good enough and well personalised.
+- The release does not wait for the fresh-machine tests by friends (Mac and Windows): feedback may take long. What they find goes into a patch release.

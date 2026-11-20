@@ -167,7 +167,7 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 ## 6. Gift lab — TEST_PLAN §6
 - [x] L1 `advent-agent lab --idea`, `--ideas`, `--free`, `open`, `review` work in an isolated home
 - [x] L2 `lab review` saves `docs/lab-reviews/<date>.md` and can set `status: approved`
-- [ ] L3 Noémie's first batch (after 1–5 are green) — Noémie
+- [-] (skipped for 1.0.0, D38) L3 Noémie's first batch (after 1–5 are green) — Noémie
 
 ## 6b. Gift-quality review (D13–D22, `docs/handoff/SPEC_CHANGES.md`)
 - [x] Q1 49-idea library in the new format, validated and indexed; Day 1 / finale anchors and the 4 collections (`test/unit/library.test.ts`)
@@ -184,7 +184,7 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 - [x] Q12 Kit priority blocks 1–10 and vendored three.js, matter.js, canvas-confetti; kit index covers every block the ideas name (`test/unit/kit-v2.test.ts`)
 - [x] Q13 Skills, templates and `AGENT_GUIDE.md` updated to gift@2 (`test/unit/workshop.test.ts`)
 - [x] Q14 README and FAQ copy on gift size and sharing
-- [ ] Q15 Gift lab: score each `day1` and `finale` idea plus a sample across personas, models and tiers; rework ideas under 3.5 — Noémie (internal test plan)
+- [-] (skipped for 1.0.0, D38) Q15 Gift lab: score each `day1` and `finale` idea plus a sample across personas, models and tiers; rework ideas under 3.5 — Noémie (internal test plan)
 
 ## 6b. Onboarding, redesign, reveal, sharing (HANDOFF_ONBOARDING_AND_DESIGN + round 2, D25, D26)
 - [x] H1 2-step onboarding modal (Delivery, Budget); defaults on dismiss; Day 1 starts after it; Scheduled disabled where it can't run (`calendar.spec.ts`, `season-shape.test.ts`)
