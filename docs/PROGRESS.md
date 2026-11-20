@@ -157,7 +157,7 @@ Legend: `[ ]` open · `[x]` passing · `[~]` built, test pending · `[!]` blocke
 - [x] D11 Browser errors for unavailable formats handled with fallback actions (E2.10)
 
 ## 4. Real-agent smoke tests — TEST_PLAN §4 (opt-in)
-- [~] R1 `ADVENT_REAL_AGENTS=1 npm run test:agents` runs against each installed CLI (Claude Code, Codex, Gemini CLI); results in `docs/AGENT_COMPAT.md` — Claude Code passed on 8 Nov (gift sealed in 55 s); Codex and Gemini still blocked by account setup.
+- [~] R1 `ADVENT_REAL_AGENTS=1 npm run test:agents` runs against each installed CLI (Claude Code, Codex, Gemini CLI); results in `docs/AGENT_COMPAT.md` — Claude Code and Codex passed on 20 Nov under gift@2 (402 s and 597 s); Gemini CLI still needs a login.
 
 ## 5. Packaging — TEST_PLAN §5 — `test/packaging/pack.test.ts`
 - [x] P1 `npm pack` → install in a clean temp dir → `npx advent-agent doctor` and `start` work; `demo` is gone (D24) (macOS here; Ubuntu/Windows via CI)
