@@ -1,6 +1,6 @@
 # Advent Agent
 
-**The Advent Calendar Where Every Gift Is Chosen and Created by Your AI Agent**
+**The Advent Calendar Where Every Gift Is Chosen or Created by Your AI Agent**
 
 ![Door 1 opens: the envelope flips, a present wobbles, the lid pops. The clip stops before the gift.](docs/media/door-1-opening.gif)
 
@@ -82,22 +82,15 @@ Any local script can also hand a gift in with `advent-agent submit`.
 
 ## What it costs
 
-Advent Agent is free. Your agent uses its normal plan or billing, and the calendar sends nothing anywhere else.
+**Advent Agent is free. No credit card, no payment to us.**
 
-**You decide the cost.** Two things set it:
+It runs on the AI agent you already have (Claude Code, Codex, Antigravity…), so gifts count toward your **subscription's usage limits** or your **usual API billing**. We charge nothing on top.
 
-- **Your agent's model.** It is the one set in your agent's own settings, and it decides most of the cost. The calendar never changes it. A larger or newer model can cost several times more for the same gift.
-- **Your choices in setup** (you can change them in Settings at any time): a gift size (**Light**, **Standard** or **Generous**) and a spend limit, either **No limit** (the default: you trust your agent) or an amount in dollars per gift. Claude Code stops at the limit; other agents are told the limit but cannot be stopped.
+You choose the gift size (Light, Standard or Generous) and can set a spend limit per gift (Claude Code stops at it; other agents are only told). The model set in your agent's own settings decides most of the cost, and the calendar never changes it.
 
-For information only, here is what we measured between 8 and 10 November 2026, on Claude Code with Claude Sonnet 5.5 and Opus 5.5, with API billing:
+For reference, a full 24-day season cost about **$14 (Light) to $20 (Standard) in API usage** when we measured it in November 2026, on Claude Code with Sonnet 5.5 and Opus 5.5. A larger model can cost several times more. On a subscription there is no extra bill: each gift uses a noticeable slice of your allowance.
 
-| Size | A whole season, roughly |
-|---|---|
-| Light | about **$14** |
-| Standard | about **$20** |
-| Generous | more: tens of dollars (not measured well enough to give a number) |
-
-Models and prices change, and we do not re-measure: take these as an order of magnitude from that week, not a quote. On a subscription, expect each gift to use a noticeable slice of your usage limit. Per-gift numbers and token counts: [docs/COSTS.md](docs/COSTS.md).
+[More details](docs/COSTS.md)
 
 ## Privacy and safety
 
