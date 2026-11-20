@@ -96,5 +96,5 @@ describe('season shape', () => {
     const today = (await t.api<AgentContext>('GET', '/api/agent/context?day=8&mode=submit')).data;
     expect(today.season.isCatchUp).toBe(false);
     expect(today.budget.tier).toBe('M');
-  });
+  }, 120_000); // the submit captures a still in a headless browser, which takes over 30 s on the Windows CI runners
 });
